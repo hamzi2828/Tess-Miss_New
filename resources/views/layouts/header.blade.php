@@ -25,7 +25,7 @@
   
 
       <!-- Style Switcher -->
-      <li class="nav-item dropdown-style-switcher dropdown">
+      {{-- <li class="nav-item dropdown-style-switcher dropdown">
         <a
           class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
           href="javascript:void(0);"
@@ -45,7 +45,7 @@
           </li>
        
         </ul>
-      </li>
+      </li> --}}
       <!-- / Style Switcher-->
 
       

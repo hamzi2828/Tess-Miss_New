@@ -5,17 +5,21 @@
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="app-ecommerce-document">
+
+        
             <div class="d-flex justify-content-between mb-3">
                 <h4 class="fw-bold">Documents</h4>
-                <div class="d-flex col-lg-2 col-md-3">
-                    {{-- <input type="text" id="customDocumentSearch" class="form-control me-2" placeholder="Search documents" onkeyup="filterTable()"> --}}
-                    
-                    @can('addSideBarDocuments', App\Models\User::class)
+
+
+                  <div class="export-btn">
+                     @can('addSideBarDocuments', App\Models\User::class)
                     <button class="btn btn-primary btn-md" data-bs-toggle="offcanvas" data-bs-target="#offcanvasAddDocument" >
                         <i class="ti ti-plus me-1"></i> Add Document
                     </button>
                     @endcan
+
                 </div>
+               
             </div>
 
             <div class="card">

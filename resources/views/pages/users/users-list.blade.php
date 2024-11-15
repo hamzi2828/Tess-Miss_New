@@ -25,7 +25,7 @@
                     <thead>
                         <tr>
                             <th></th>
-                            <th>ID</th>1_hamza
+                            <th>ID</th>
                             <th class="text-lg-center">User Details</th>
                             <th>Address</th>
                             <th>Department</th>
