@@ -166,31 +166,64 @@
                 @include('pages.merchants.preview.servicesDeatilsSection')
             @endif
 
-            <div class="form-section box-container">
-        <div class="mt-4">
-            {{-- Section Ownership Details --}}
-            <h5 class="basic-details-header">Section Ownership Details</h5>
-        
-            <p><strong>KYC:</strong> 
-                Created By: {{ $merchant[0]['added_by']['name'] ?? 'N/A' }}, 
-                Approved By: {{ $merchant[0]['approved_by']['name'] ?? 'N/A' }}
-            </p>
-             <p><strong>Documents:</strong>
-                Added By: {{ !empty($merchant_details['documents']) && !empty($merchant_details['documents'][0]['added_by']['name']) ? $merchant_details['documents'][0]['added_by']['name'] : 'N/A' }},
-                Approved By: {{ !empty($merchant_details['documents']) && !empty($merchant_details['documents'][0]['approved_by']['name']) ? $merchant_details['documents'][0]['approved_by']['name'] : 'N/A' }}
-            </p>
-            <p><strong>Sales:</strong>
-                Added By: {{ !empty($merchant_details['sales']) && !empty($merchant_details['sales'][0]['added_by']['name']) ? $merchant_details['sales'][0]['added_by']['name'] : 'N/A' }},
-                Approved By: {{ !empty($merchant_details['sales']) && !empty($merchant_details['sales'][0]['approved_by']['name']) ? $merchant_details['sales'][0]['approved_by']['name'] : 'N/A' }}
-            </p>
-            <p><strong>Services:</strong>
-                Added By: {{ !empty($merchant_details['services']) && !empty($merchant_details['services'][0]['added_by']['name']) ? $merchant_details['services'][0]['added_by']['name'] : 'N/A' }},
-                Approved By: {{ !empty($merchant_details['services']) && !empty($merchant_details['services'][0]['approved_by']['name']) ? $merchant_details['services'][0]['approved_by']['name'] : 'N/A' }}
-            </p>
+
+        <div class="form-section box-container">
+            <div class="mt-4">
+                {{-- Section Ownership Details --}}
+                <h5 class="basic-details-header">Section Ownership Details</h5>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>KYC Added By:</strong> {{ $merchant[0]['added_by']['name'] ?? 'N/A' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>KYC Approved By:</strong> {{ $merchant[0]['approved_by']['name'] ?? 'N/A' }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Documents Added By:</strong> 
+                            {{ $merchant[0]['documents'][0]['added_by']['name'] ?? 'N/A' }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Documents Approved By:</strong> 
+                            {{ $merchant[0]['documents'][0]['approved_by']['name'] ?? 'N/A' }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Sales Added By:</strong> 
+                            {{ $merchant[0]['sales'][0]['added_by']['name'] ?? 'N/A' }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Sales Approved By:</strong> 
+                            {{ $merchant[0]['sales'][0]['approved_by']['name'] ?? 'N/A' }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Services Added By:</strong> 
+                            {{ $merchant[0]['services'][0]['added_by']['name'] ?? 'N/A' }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Services Approved By:</strong> 
+                            {{ $merchant[0]['services'][0]['approved_by']['name'] ?? 'N/A' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
 
 
-        </div>
+            
         </div>
     </div>
 
