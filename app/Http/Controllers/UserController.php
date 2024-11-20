@@ -155,16 +155,21 @@ class UserController extends Controller
 
         public function markAsRead($id, Request $request)
         {
-
+         
             $notification = Auth::user()->notifications->where('id', $id)->first();
 
             if ($notification) {
                 $notification->markAsRead();
-                $merchant_id = $request->get('merchant_id');
+                $activityType = $notification->data['activity_type'] ?? null;
+                $merchant_id = $notification->data['merchant_id'] ?? $request->get('merchant_id');;
 
-                if (\App\Models\Merchant::where('id', $merchant_id)->exists()) {
+                if (\App\Models\Merchant::where('id', $merchant_id)->exists() && $activityType == 'store') {
 
                     return redirect()->route('merchants.preview', ['merchant_id' => $merchant_id]);
+                }
+                if (\App\Models\Merchant::where('id', $merchant_id)->exists() && $activityType == 'approve') {
+
+                    return redirect()->route('edit.merchants.services', ['merchant_id' => $merchant_id]);
                 }
             }
 

@@ -396,7 +396,6 @@ class MerchantsController extends Controller
 
     public function edit_merchants_services(Request $request)
     {
-
         $id = $request->input('merchant_id');
 
         $title = 'Edit Merchants Services';
@@ -749,7 +748,7 @@ class MerchantsController extends Controller
        
             return redirect()->route('decline.merchants.kyc', ['merchant_id' => $id]);
         }
-            dd('ia m ersss2e', $request->all());
+         
         // Step 2: Decline Documents
         if (
             $merchantDetails &&
