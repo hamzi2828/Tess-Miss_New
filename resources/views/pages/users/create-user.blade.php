@@ -66,7 +66,7 @@
                 
                     <!-- Phone -->
                     <div class="mb-4">
-                        <label class="form-label fw-medium text-secondary" for="userPhone">Phone  <span class="required-asterisk text-danger">*</span></label>
+                        <label class="form-label fw-medium text-secondary" for="userPhone">Phone</label>
                         <input type="tel" id="userPhone" class="form-control" name="userPhone" value="{{ old('userPhone') }}" />
                         @if($errors->has('userPhone'))
                             <div class="text-danger">{{ $errors->first('userPhone') }}</div>
@@ -116,7 +116,7 @@
                         <input type="password" id="userPasswordConfirmation" class="form-control" name="userPasswordConfirmation" required />
                     </div>
 
-                    {{-- gender --}}
+                    <!-- gender -->
                     <div class="mb-4">
                         <label class="form-label fw-medium text-secondary" for="userGender">Gender</label>
                         <select id="userGender" class="form-select" name="userGender" required>

@@ -152,4 +152,92 @@ class NotificationService
     }
 
 
+    
+    public function declineKYC($merchantId)
+    {
+        $merchant = Merchant::findOrFail($merchantId);
+        $merchant->declined_by = auth()->user()->id;
+        $merchant->save();
+
+        $activityType = 'decline';
+        $notificationMessage = "The KYC has been declined";
+        $role = 'user';
+        $stage = 2;
+        $declinedByUserName = auth()->user()->name;
+
+        $this->declineEntity($merchant, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
+    }
+
+    // Decline Documents
+    public function declineMerchantsDocuments($merchantId)
+    {
+        $merchant = Merchant::findOrFail($merchantId);
+        $documents = MerchantDocument::where('merchant_id', $merchantId)->get();
+
+        foreach ($documents as $document) {
+            $document->declined_by = auth()->user()->id;
+            $document->save();
+        }
+
+        $activityType = 'decline';
+        $notificationMessage = "Merchant documents have been declined";
+        $role = 'user';
+        $stage = 3;
+        $declinedByUserName = auth()->user()->name;
+
+        $this->declineEntity($merchant, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
+    }
+
+    // Decline Sales
+    public function declineMerchantsSales($merchantId)
+    {
+        $merchant = Merchant::findOrFail($merchantId);
+        $sales = MerchantSale::where('merchant_id', $merchantId)->get();
+
+        foreach ($sales as $sale) {
+            $sale->declined_by = auth()->user()->id;
+            $sale->save();
+        }
+
+        $activityType = 'decline';
+        $notificationMessage = "Merchant sales have been declined";
+        $role = 'user';
+        $stage = 4;
+        $declinedByUserName = auth()->user()->name;
+
+        $this->declineEntity($merchant, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
+    }
+
+    // Decline Services
+    public function declineMerchantsServices($merchantId)
+    {
+        $services = MerchantService::where('merchant_id', $merchantId)->get();
+
+        foreach ($services as $service) {
+            $service->declined_by = auth()->user()->id;
+            $service->save();
+        }
+
+        $activityType = 'decline';
+        $notificationMessage = "Merchant services have been declined";
+        $role = 'user';
+        $stage = 4;
+        $declinedByUserName = auth()->user()->name;
+
+        $this->declineEntity($services, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
+    }
+
+    // Common Decline Logic
+    private function declineEntity($entity, $type, $stage, $notificationMessage, $role, $userName = null)
+    {
+        $users = User::where('role', $role)
+            ->whereHas('department', function ($query) use ($stage) {
+                $query->where('stage', $stage);
+            })->get();
+
+        foreach ($users as $user) {
+            $user->notify(new MerchantActivityNotification($type, $entity, $userName, $notificationMessage));
+        }
+    }
+
 }

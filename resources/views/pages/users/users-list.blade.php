@@ -29,6 +29,7 @@
                             <th class="text-lg-center">User Details</th>
                             <th>Address</th>
                             <th>Department</th>
+                            <th>Role</th>
                             <th>Created At</th>
                             <th>Status</th>
                             <th class="text-lg-center">Actions</th>
@@ -69,6 +70,8 @@
                             <td>
                                 {{ $user->getDepartmentTitle($user->department) }} 
                             </td>
+
+                            <td>{{ $user->role }}</td>
                             
                             <td>{{ $user->created_at }}</td>
                           
