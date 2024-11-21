@@ -213,52 +213,48 @@ class MerchantsController extends Controller
    
 
          $merchant = $request->input('merchant_id');
+         
          $merchant_id = $merchant['id'] ?? $request->input('merchant_id');
 
          foreach ($request->all() as $key => $value) {
-             if (strpos($key, 'document_') === 0 && $request->hasFile($key)) {
-                 $keyParts = explode('_', $key);
-
-                 if (count($keyParts) === 2) {
-                     $document_id = $keyParts[1];
-                     $shareholder_id = null;
-                     $shareholder_name = null;
-                     $expiryDate = null;
-                 } elseif (count($keyParts) >= 4) {
-                     $document_id = $keyParts[1];
-                     $shareholder_id = $keyParts[2];
-                     $shareholder_name = implode('_', array_slice($keyParts, 3));
-                     $expiryDateKey = 'expiry_' . $document_id . '_' . $shareholder_id . '_' . $shareholder_name;
-                     $expiryDate = $request->input($expiryDateKey, null);
-                 } else {
-                     continue;
-                 }
-
-                 $file = $request->file($key);
-                 $fileName = $document_id . '_' . ($shareholder_name ? $shareholder_name . '_' : '') . $file->getClientOriginalName();
-
-
-                //  $filePath = $file->storeAs('/documents', $fileName);
-                // $file->move(public_path('documents'), $fileName);
-                if (!file_exists(public_path('documents'))) {
-                    mkdir(public_path('documents'), 0755, true);
+            if (strpos($key, 'document_') === 0 && $request->hasFile($key)) {
+                $keyParts = explode('_', $key);
+        
+                if (count($keyParts) === 2) {
+                    $document_id = $keyParts[1];
+                    $shareholder_id = null;
+                    $shareholder_name = null;
+                    $expiryDate = null;
+                } elseif (count($keyParts) >= 4) {
+                    $document_id = $keyParts[1];
+                    $shareholder_id = $keyParts[2];
+                    $shareholder_name = implode('_', array_slice($keyParts, 3));
+                    $expiryDateKey = 'expiry_' . $document_id . '_' . $shareholder_id . '_' . $shareholder_name;
+                    $expiryDate = $request->input($expiryDateKey, null);
+                } else {
+                    continue;
                 }
-                
-                $filePath = 'documents/' . $fileName;
-                 // Save the document information to the database
-                 MerchantDocument::create([
-                     'title' => $fileName,
-                     'document' => $filePath,
-                     'date_expiry' => $expiryDate,
-                     'merchant_id' => $merchant_id,
-                     'added_by' => auth()->user()->id,
-                     'document_type' => $file->getClientMimeType(),
-                     'emailed' => false,
-                     'status' => true,
-                     'shareholders_id' => $shareholder_id,
-                 ]);
-             }
-         }
+        
+                $file = $request->file($key);
+        
+                // Use Laravel's store method to save the file in the 'public/documents' directory
+                $filePath = $file->storeAs('documents', $document_id . '_' . ($shareholder_name ? $shareholder_name . '_' : '') . $file->getClientOriginalName(), 'public');
+        
+                // Save the document information to the database
+                MerchantDocument::create([
+                    'title' => basename($filePath),
+                    'document' => 'storage/' . $filePath, // Store the relative path for easier retrieval
+                    'date_expiry' => $expiryDate,
+                    'merchant_id' => $merchant_id,
+                    'added_by' => auth()->user()->id,
+                    'document_type' => $file->getClientMimeType(),
+                    'emailed' => false,
+                    'status' => true,
+                    'shareholders_id' => $shareholder_id,
+                ]);
+            }
+        }
+        
 
          $this->notificationService->storeMerchantsDocuments($merchant_id);
 
@@ -493,8 +489,12 @@ class MerchantsController extends Controller
             'expiry_*' => 'nullable|date',
         ]);
 
-        $merchant_id = $request->input('merchant_id');
-                foreach ($request->all() as $key => $value) {
+        $merchant = $request->input('merchant_id');
+         
+        $merchant_id = $merchant['id'] ?? $request->input('merchant_id');
+
+
+         foreach ($request->all() as $key => $value) {
 
                     if (strpos($key, 'document_') === 0 && $request->hasFile($key)) {
                         $keyParts = explode('_', $key);
