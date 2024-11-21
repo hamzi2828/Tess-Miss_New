@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Services\MerchantsServiceService;
 use App\Notifications\MerchantActivityNotification;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\File;
 
 
 
@@ -239,6 +240,7 @@ class MerchantsController extends Controller
         
                 // Use Laravel's store method to save the file in the 'public/documents' directory
                 $filePath = $file->storeAs('documents', $document_id . '_' . ($shareholder_name ? $shareholder_name . '_' : '') . $file->getClientOriginalName(), 'public');
+                 File::copy(storage_path('app/public/' . $filePath), public_path('storage/' . $filePath));
         
                 // Save the document information to the database
                 MerchantDocument::create([
@@ -528,7 +530,7 @@ class MerchantsController extends Controller
                 $existingDocument = MerchantDocument::where('id', $previous_document_id)
                                                     ->where('merchant_id', $merchant_id)
                                                     ->first();
-        
+             File::copy(storage_path('app/public/' . $filePath), public_path('storage/' . $filePath));
                 if ($existingDocument) {
                     // Update the existing document if it exists
                     $existingDocument->update([

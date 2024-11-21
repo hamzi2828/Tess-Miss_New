@@ -25,8 +25,14 @@ class NotificationService
 
     public function storeMerchantsDocuments($merchantId)
     {
-        $merchant = Merchant::findOrFail($merchantId);
-        $addedByUser = User::find($merchant->added_by);
+        // Fetch merchant and related data
+        $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->where('id', $merchantId)->first();
+
+        if (!$merchant) {
+            return back()->with('error', 'Merchant not found.');
+        }
+        $firstDocument = $merchant->documents->first();
+        $addedByUser = $firstDocument ? User::find($firstDocument->added_by) : null;
         $addedByUserName = $addedByUser ? $addedByUser->name : auth()->user()->name;
         $notificationMessage = 'New documents have been uploaded.';
         $role = 'supervisor';
