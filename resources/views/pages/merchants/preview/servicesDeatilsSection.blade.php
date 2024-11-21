@@ -2,7 +2,7 @@
     <!-- Services Section -->
     @foreach($services as $service)
     <h4 class="mb-3 basic-details-header ">{{ ucfirst($service['name']) }}</h4>
-    <div class="form-section box-container">
+    <div class="form-section ">
      
 
         <!-- Display the fields for each service -->

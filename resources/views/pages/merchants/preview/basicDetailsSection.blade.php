@@ -7,7 +7,7 @@
   <h4 class="basic-details-header">Basic Details</h4>
 
 
-<div class="form-section box-container mb-4">
+<div class="form-section  mb-4">
     <div class="row mb-3">
         <div class="col-md-6">
             <p><strong>Merchant Name:</strong> {{ $merchant_details['merchant_name'] ?? 'N/A' }}</p>
@@ -147,7 +147,7 @@
     <h4 class="mb-3 basic-details-header ">Shareholders</h4>
 
     <!-- Container for all shareholders -->
-    <div id="shareholders-container" class="form-section box-container mb-4">
+    <div id="shareholders-container" class="form-section  mb-4">
     
         @foreach($merchant_details['shareholders'] as $shareholder)
         <div class="shareholder-entry row mb-3">

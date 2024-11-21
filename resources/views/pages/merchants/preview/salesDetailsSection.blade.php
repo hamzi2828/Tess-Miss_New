@@ -2,7 +2,7 @@
     <h4 class="mb-3 basic-details-header ">Sales Data</h4>
 
 @foreach($merchant_details['sales'] as $index => $sale)
-<div class="form-section box-container mb-4">
+<div class="form-section  mb-4">
     {{-- <h5 class="mb-3">Sale Details #{{ $index + 1 }}</h5> --}}
 
     <div class="row mb-3">
