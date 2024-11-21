@@ -42,9 +42,17 @@ class NotificationService
 
     public function storeMerchantsSales($merchantId)
     {
-        $merchant = Merchant::findOrFail($merchantId);
-        $addedByUser = User::find($merchant->added_by);
+        // Fetch merchant and related data
+        $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->where('id', $merchantId)->first();
+
+        if (!$merchant) {
+            return back()->with('error', 'Merchant not found.');
+        }
+        $firstSale = $merchant->sales->first();
+        $addedByUser = $firstSale ? User::find($firstSale->added_by) : null;
         $addedByUserName = $addedByUser ? $addedByUser->name : auth()->user()->name;
+
+
         $notificationMessage = 'New sales have been saved.';
         $role = 'supervisor';
         $stage = 3;
@@ -54,9 +62,18 @@ class NotificationService
 
     public function storeMerchantsServices($merchantId)
     {
-        $merchant = Merchant::findOrFail($merchantId);
-        $addedByUser = User::find($merchant->added_by);
+        // Fetch merchant and related data
+        $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->where('id', $merchantId)->first();
+
+        if (!$merchant) {
+            return back()->with('error', 'Merchant not found.');
+        }
+        $firstService = $merchant->services->first();
+        $addedByUser = $firstService ? User::find($firstService->added_by) : null;
+
         $addedByUserName = $addedByUser ? $addedByUser->name : auth()->user()->name;
+
+
         $notificationMessage = 'New services have been saved.';
         $role = 'supervisor';
         $stage = 4;
