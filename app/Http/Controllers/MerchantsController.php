@@ -621,11 +621,12 @@ class MerchantsController extends Controller
 
     public function update_merchants_services(Request $request)
     {
+       
         // Validate the request data
         $validatedData = $request->validate([
             'services.*.fields.*' => 'required|string',
         ]);
-
+       
         $merchant_id = $request->input('merchant_id');
 
         $this->merchantsService->updateMerchantsServices($validatedData['services'], $merchant_id);

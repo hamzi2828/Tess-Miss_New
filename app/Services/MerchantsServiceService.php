@@ -196,47 +196,50 @@ class MerchantsServiceService
 
     public function updateMerchantsSales(array $salesData, int $merchant_id)
     {
+        // Delete all existing sales data for the merchant
+        MerchantSale::where('merchant_id', $merchant_id)->delete();
+    
+        // Insert new sales data
         foreach ($salesData as $sale) {
-            $merchantSale = MerchantSale::updateOrCreate(
-                ['merchant_id' => $merchant_id],
-                [
-                    'min_transaction_amount' => $sale['minTransactionAmount'],
-                    'max_transaction_amount' => $sale['maxTransactionAmount'],
-                    'monthly_limit_amount' => $sale['monthlyLimitAmount'],
-                    'max_transaction_count' => $sale['maxTransactionCount'],
-                    'daily_limit_amount' => $sale['dailyLimitAmount'],
-                    'added_by' => Auth::user()->id ?? 1
-                ]
-            );
+            MerchantSale::create([
+                'merchant_id' => $merchant_id,
+                'min_transaction_amount' => $sale['minTransactionAmount'],
+                'max_transaction_amount' => $sale['maxTransactionAmount'],
+                'monthly_limit_amount' => $sale['monthlyLimitAmount'],
+                'max_transaction_count' => $sale['maxTransactionCount'],
+                'daily_limit_amount' => $sale['dailyLimitAmount'],
+                'added_by' => Auth::user()->id ?? 1,
+            ]);
         }
     }
-
+    
 
 
     public function updateMerchantsServices(array $servicesData, int $merchant_id)
     {
-        // Iterate over each service in the request
         foreach ($servicesData as $service_id => $serviceData) {
+            // Delete existing data for the merchant_id and service_id
+            MerchantService::where('merchant_id', $merchant_id)
+                ->where('service_id', $service_id)
+                ->delete();
+    
             // Get the fields for the service
             $fields = $serviceData['fields'];
-            
-            // Iterate over each field and update or create the merchant services
+    
+            // Iterate over each field and create new records
             foreach ($fields as $index => $fieldValue) {
-                MerchantService::updateOrCreate(
-                    [
-                        'merchant_id' => $merchant_id,
-                        'service_id' => $service_id,
-                        'field_name' => 'Field ' . $index
-                    ],
-                    [
-                        'field_value' => $fieldValue,
-                        'added_by' => Auth::user()->id ?? 1,
-                        'status' => true,
-                    ]
-                );
+                MerchantService::create([
+                    'merchant_id' => $merchant_id,
+                    'service_id' => $service_id,
+                    'field_name' => 'Field ' . $index,
+                    'field_value' => $fieldValue,
+                    'added_by' => Auth::user()->id ?? 1,
+                    'status' => true,
+                ]);
             }
         }
     }
+    
 
     public function deleteMerchants(int $merchant_id): void
     {

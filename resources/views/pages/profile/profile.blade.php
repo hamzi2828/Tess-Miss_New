@@ -13,7 +13,7 @@
         <!-- Left Side: User Details -->
         <div class="col-md-12">
             <div class="card shadow-lg p-4 card-custom">
-                <h4 class="fw-bold text-primary mb-4">Profile</h4>
+                <h4 class="fw-bold text-primary mb-4">Edit Profile</h4>
         
                 <!-- Full Name -->
                 <div class="mb-4">
@@ -24,7 +24,7 @@
                 <!-- Email -->
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userEmail">Email</label>
-                    <input type="email" id="userEmail" class="form-control" name="userEmail" value="{{ $user->email }}" required />
+                    <input type="email" id="userEmail" class="form-control" name="userEmail" value="{{ $user->email }}" readonly />
                 </div>
         
                 <!-- Phone -->
@@ -43,7 +43,7 @@
 
         
                 <!-- Status -->
-                <div class="mb-4">
+                <div class="mb-4" style="display: none;">
                     <label class="form-label fw-medium text-secondary" for="userStatus">Status</label>
                     <select id="userStatus" class="form-select" name="userStatus" required>
                         <option value="active" {{ $user->status == 'active' ? 'selected' : '' }}>Active</option>
@@ -53,7 +53,7 @@
      
           
                 {{-- <!-- Department --> --}}
-                <div class="mb-4">
+                <div class="mb-4" style="display: none;">
                     <label for="selectDepartment" class="form-label fw-medium text-secondary">Department</label>
                     <select class="form-select select2" id="selectDepartment" name="department_id" required>
                        
