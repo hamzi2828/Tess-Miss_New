@@ -202,12 +202,18 @@ class MerchantsController extends Controller
 
      public function store_merchants_documents(Request $request)
      {
+
+       
          $validatedData = $request->validate([
              'document_*' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx|max:2048',
              'expiry_*' => 'nullable|date',
          ]);
 
-         $merchant_id = $request->input('merchant_id');
+
+   
+
+         $merchant = $request->input('merchant_id');
+         $merchant_id = $merchant['id'] ?? $request->input('merchant_id');
 
          foreach ($request->all() as $key => $value) {
              if (strpos($key, 'document_') === 0 && $request->hasFile($key)) {
