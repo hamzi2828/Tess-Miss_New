@@ -70,10 +70,7 @@ class NotificationService
         }
         $firstService = $merchant->services->first();
         $addedByUser = $firstService ? User::find($firstService->added_by) : null;
-
         $addedByUserName = $addedByUser ? $addedByUser->name : auth()->user()->name;
-
-
         $notificationMessage = 'New services have been saved.';
         $role = 'supervisor';
         $stage = 4;

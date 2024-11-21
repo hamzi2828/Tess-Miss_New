@@ -1,8 +1,57 @@
    {{-- lefthalh --}}
     <div class="card text-left">
-            <div class="card-header">
-                <h5 class="mb-0 basic-details-header">Merchant Information</h5>
-            </div>
+        <div class="card-header">
+            <h5 class="mb-0 basic-details-header">Merchant Information</h5>
+        
+            @if($merchant_details->documents->isNotEmpty())
+                <div class="form-section box-container">
+                    <!-- Loop through valid documents -->
+                    @foreach($merchant_details['documents'] as $document)
+                        @php
+                            $documentExpired = false;
+        
+                            // Check if the document is expired
+                            if (!empty($document['date_expiry'])) {
+                                $expiryDate = \Carbon\Carbon::parse($document['date_expiry']);
+                                $documentExpired = $expiryDate->isPast();
+                            }
+        
+                            // Extract and format the document title
+                            $titleParts = explode('_', $document['title']);
+                            $documentId = $titleParts[0];
+                            $secondWord = $titleParts[1] ?? null;
+                            $matchingDocument = $all_documents->firstWhere('id', (int)$documentId);
+                            $title = $matchingDocument ? $matchingDocument->title : 'Document';
+        
+                            if ($matchingDocument && $matchingDocument->title === 'QID' && $secondWord) {
+                                $title .= " for " . $secondWord;
+                            }
+                        @endphp
+        
+                        <!-- Display non-expired documents with the title "Logo" -->
+                        @if(!$documentExpired && $title === 'Logo')
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    @if(!empty($document['document']))
+                                        <!-- Display the document as an image -->
+                                        <img 
+                                            src="{{ asset($document['document']) }}" 
+                                            alt="Logo Document" 
+                                            class="img-fluid rounded"
+                                        />
+                                    @else
+                                        <p class="text-muted">No file available</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+        
+        
             <div class="card-body">
                 <h5 class="card-title">{{ $merchant_details->merchant_name ?? 'N/A' }}</h5>
                 <p class="text-muted">{{ $merchant_details->merchant_name_ar ?? 'N/A' }}</p>
@@ -21,6 +70,8 @@
                 </div>
                 <div class="card-footer">
                     <h5 class="w-100 mb-3 basic-details-header">Merchant Documents</h5>
+
+                    
                 @if($merchant_details->documents->isNotEmpty())
                     <div class="form-section box-container">
                         <!-- Section for Valid Documents -->

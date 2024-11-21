@@ -27,8 +27,6 @@
     </div>
 
 
-
-
         <!-- Merchant Details Section (8 Columns) -->
         <div class="col-md-9">
             <!-- Basic Details Section -->
@@ -53,7 +51,7 @@
         <div class="form-section box-container">
             <div class="mt-4  box-container">
                 {{-- Section Ownership Details --}}
-                <h5 class="basic-details-header">Section Ownership Details</h5>
+                <h5 class="basic-details-header">Approval</h5>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
