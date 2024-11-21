@@ -49,9 +49,10 @@
 
 
         <div class="form-section box-container">
+            <h5 class="basic-details-header">Approval</h5>
             <div class="mt-4  box-container">
                 {{-- Section Ownership Details --}}
-                <h5 class="basic-details-header">Approval</h5>
+           
 
                 <div class="row mb-3">
                     <div class="col-md-6">
