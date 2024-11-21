@@ -494,91 +494,82 @@ class MerchantsController extends Controller
         $merchant_id = $merchant['id'] ?? $request->input('merchant_id');
 
 
-         foreach ($request->all() as $key => $value) {
-
-                    if (strpos($key, 'document_') === 0 && $request->hasFile($key)) {
-                        $keyParts = explode('_', $key);
-
-                        if (count($keyParts) === 3) {
-                            // Format: "document_67"
-
-                            $document_id = $keyParts[1];
-                            $previos_document_id = $keyParts[2];
-                            $shareholder_id = null;
-                            $shareholder_name = null;
-                            $expiryDate = null;
-
-                        } elseif (count($keyParts) >= 4) {
-                            // Format: "document_2_Tina_68"
-                            $document_id = $keyParts[1];
-                            $shareholder_name = $keyParts[2];
-                            $previos_document_id = $keyParts[3];  // Fetch the previous document ID
-
-                            $expiryDateKey = 'expiry_' . $document_id;
-                            $expiryDate = $request->input($expiryDateKey, null);
-                        } else {
-                            continue;
-                        }
-
-                        $file = $request->file($key);
-                        $fileName = $document_id . '_' . ($shareholder_name ? $shareholder_name . '_' : '') . $file->getClientOriginalName();
-
-                        // Store the file in the 'public/documents' directory
-                        // $filePath = $file->storeAs('/documents', $fileName);
-                        // $file->move(public_path('documents'), $fileName);
-                        if (!file_exists(public_path('documents'))) {
-                            mkdir(public_path('documents'), 0755, true);
-                        }
-                        $filePath = 'documents/' . $fileName;
-
-
-                        // Fetch the previous document using the 'previos_document_id'
-                        $existingDocument = MerchantDocument::where('id', $previos_document_id)
-                                                             ->where('merchant_id', $merchant_id)
-                                                             ->first();
-
-                        // Update the existing document if it exists
-                        if ($existingDocument) {
-                            $existingDocument->update([
-                                'title' => $fileName,
-                                'document' => $filePath,
-                                'date_expiry' => $expiryDate,
-                                'added_by' => auth()->user()->id,
-                                'document_type' => $file->getClientMimeType(),
-                                'emailed' => false,
-                                'status' => true
-                            ]);
-                        } else {
-                            // If no previous document exists, create a new record
-                            MerchantDocument::create([
-                                'id' => $document_id,
-                                'title' => $fileName,
-                                'document' => $filePath,
-                                'date_expiry' => $expiryDate,
-                                'merchant_id' => $merchant_id,
-                                'added_by' => auth()->user()->id,
-                                'document_type' => $file->getClientMimeType(),
-                                'emailed' => false,
-                                'status' => true
-                            ]);
-                        }
-                    }
-
-
-                    foreach ($request->all() as $key => $value) {
-                        if (strpos($key, 'existing_document_') === 0) {
-                            $existing_document_id = str_replace('existing_document_', '', $key);
-                            $expiryDateKey = 'expiry_' . $existing_document_id;
-                            $expiryDate = $request->input($expiryDateKey, null);
-
-                            MerchantDocument::where('id', $existing_document_id)
-                                ->where('merchant_id', $merchant_id)
-                                ->update(['date_expiry' => $expiryDate]);
-                        }
-                    }
-
-
+        foreach ($request->all() as $key => $value) {
+            if (strpos($key, 'document_') === 0 && $request->hasFile($key)) {
+                $keyParts = explode('_', $key);
+        
+                // Extract document-related information based on key format
+                if (count($keyParts) === 3) {
+                    // Format: "document_67_previousDocumentId"
+                    $document_id = $keyParts[1];
+                    $previous_document_id = $keyParts[2];
+                    $shareholder_id = null;
+                    $shareholder_name = null;
+                    $expiryDate = null;
+        
+                } elseif (count($keyParts) >= 4) {
+                    // Format: "document_2_Tina_68"
+                    $document_id = $keyParts[1];
+                    $shareholder_name = $keyParts[2];
+                    $previous_document_id = $keyParts[3];
+                    $expiryDateKey = 'expiry_' . $document_id;
+                    $expiryDate = $request->input($expiryDateKey, null);
+                } else {
+                    continue;
+                }
+        
+                $file = $request->file($key);
+                $fileName = $document_id . '_' . ($shareholder_name ? $shareholder_name . '_' : '') . $file->getClientOriginalName();
+        
+                // Store the file using Laravel's storage mechanism
+                $filePath = $file->storeAs('documents', $fileName, 'public');
+        
+                // Fetch the previous document using the 'previous_document_id'
+                $existingDocument = MerchantDocument::where('id', $previous_document_id)
+                                                    ->where('merchant_id', $merchant_id)
+                                                    ->first();
+        
+                if ($existingDocument) {
+                    // Update the existing document if it exists
+                    $existingDocument->update([
+                        'title' => $fileName,
+                        'document' => 'storage/' . $filePath, // Use storage path for public access
+                        'date_expiry' => $expiryDate,
+                        'added_by' => auth()->user()->id,
+                        'document_type' => $file->getClientMimeType(),
+                        'emailed' => false,
+                        'status' => true,
+                    ]);
+                } else {
+                    // If no previous document exists, create a new record
+                    MerchantDocument::create([
+                        'id' => $document_id,
+                        'title' => $fileName,
+                        'document' => 'storage/' . $filePath,
+                        'date_expiry' => $expiryDate,
+                        'merchant_id' => $merchant_id,
+                        'added_by' => auth()->user()->id,
+                        'document_type' => $file->getClientMimeType(),
+                        'emailed' => false,
+                        'status' => true,
+                    ]);
+                }
+            }
         }
+        
+        // Handle updating expiry dates for existing documents
+        foreach ($request->all() as $key => $value) {
+            if (strpos($key, 'existing_document_') === 0) {
+                $existing_document_id = str_replace('existing_document_', '', $key);
+                $expiryDateKey = 'expiry_' . $existing_document_id;
+                $expiryDate = $request->input($expiryDateKey, null);
+        
+                MerchantDocument::where('id', $existing_document_id)
+                    ->where('merchant_id', $merchant_id)
+                    ->update(['date_expiry' => $expiryDate]);
+            }
+        }
+        
 
         return redirect()->back()->with('success', 'Documents successfully updated.');
     }
