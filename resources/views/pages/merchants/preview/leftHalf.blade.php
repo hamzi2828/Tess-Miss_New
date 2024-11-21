@@ -141,7 +141,7 @@
                                     <div class="input-group">
                                         @if(!empty($document['document']))
                                             <a href="{{ asset($document['document']) }}" target="_blank" class="btn btn-outline-secondary">
-                                                <i class="tf-icons ti ti-file"></i> View File
+                                                <i class="tf-icons ti ti-file"></i> View
                                             </a>
                                         @else
                                             <p class="text-muted">No file available</p>

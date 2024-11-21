@@ -257,7 +257,7 @@ class MerchantsController extends Controller
             }
         }
         
-
+ 
          $this->notificationService->storeMerchantsDocuments($merchant_id);
 
          return redirect()->route('edit.merchants.documents', ['merchant_id' => $merchant_id])
@@ -356,13 +356,20 @@ class MerchantsController extends Controller
         $id = $request->input('merchant_id');
         $merchant_details = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->where('id', $id)->first();
         $all_documents  = Document::all();
+
         if ($merchant_details && $merchant_details->documents->isEmpty() ) {
             return redirect()->route('create.merchants.documents', ['merchant_id' => $id])
             ->with('error', 'No Sales found for this merchant.')->withInput($request->all());
         }
-        else {
+    
+        if ($merchant_details && $merchant_details->documents->isNotEmpty() ) {
             if (!auth()->user()->can('changeDocuments', auth()->user()))
             {
+                if (auth()->user()->can('changeKYC', auth()->user()))
+                {                   
+                  return redirect()->route('edit.merchants.kyc', ['merchant_id' => $id])
+                 ->with('error', 'No Services found for this merchant.')->withInput($request->all());
+                }
                return redirect()->back()->with('error', 'You are not authorized.');
             }
             return view('pages.merchants.edit.edit-merchants-documents', compact('merchant_details', 'title', 'all_documents'));
@@ -379,7 +386,7 @@ class MerchantsController extends Controller
 
         $title = 'Edit Merchants Sales';
         $merchant_details = Merchant::with(['sales', 'services', 'shareholders', 'documents'])->where('id', $id)->first();
-
+      
         if ($merchant_details && $merchant_details->documents->isEmpty() ) {
             return redirect()->route('create.merchants.documents', ['merchant_id' => $id])
             ->with('error', 'No Sales found for this merchant.')->withInput($request->all());
@@ -389,9 +396,21 @@ class MerchantsController extends Controller
             return redirect()->route('create.merchants.sales', ['merchant_id' => $id])
             ->with('error', 'No Sales found for this merchant.')->withInput($request->all());
         }
-        else {
+    
+        if ($merchant_details && $merchant_details->sales->isNotEmpty() ) {
             if (!auth()->user()->can('changeSales', auth()->user()))
-            {
+            { 
+                if (auth()->user()->can('changeDocuments', auth()->user()))
+               {                   
+                 return redirect()->route('edit.merchants.documents', ['merchant_id' => $id])
+                ->with('error', 'No Services found for this merchant.')->withInput($request->all());
+               }
+               if (auth()->user()->can('changeKYC', auth()->user()))
+               {                   
+                 return redirect()->route('edit.merchants.kyc', ['merchant_id' => $id])
+                ->with('error', 'No Services found for this merchant.')->withInput($request->all());
+               }
+               
                return redirect()->back()->with('error', 'You are not authorized.');
             }
         return view('pages.merchants.edit.edit-merchants-sales', compact('merchant_details', 'title'));
@@ -420,11 +439,10 @@ class MerchantsController extends Controller
             ->with('error', 'No Sales found for this merchant.')->withInput($request->all());
 
         }
-
+      
         if ($merchant_details &&  $merchant_details->documents->isNotEmpty() && $merchant_details->sales->isNotEmpty() ) {
             if (!auth()->user()->can('changeSales', auth()->user()))
             {
-
                if (auth()->user()->can('addServices', auth()->user()))
                {
                 if ( $merchant_details->services->isEmpty()) {
@@ -438,6 +456,10 @@ class MerchantsController extends Controller
                 return redirect()->back()->with('error', 'You are not authorized.');
                }
 
+            }
+            if (auth()->user()->can('changeServices', auth()->user()))
+            {
+                return view('pages.merchants.edit.edit-merchants-services', compact('merchant_details', 'title', 'services'));
             }
             return redirect()->route('edit.merchants.sales', ['merchant_id' => $id])
             ->with('error', ' Sales found for this merchant.')->withInput($request->all());
