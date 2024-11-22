@@ -33,7 +33,7 @@
     @if($allApproved)
         <div class="alert alert-success d-flex align-items-center justify-content-center w-100" role="alert">
             <i class="fas fa-check-circle me-2"></i>
-            <strong>All Stages has been successfully approved!</strong>
+            <strong>All stages has been successfully approved!</strong>
         </div>
     @endif
 
