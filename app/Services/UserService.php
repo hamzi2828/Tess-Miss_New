@@ -32,7 +32,7 @@ class UserService
             'password' => Hash::make($data['userPassword']), // Hash the password
             'phone' => $data['userPhone'],
             'department' => $data['department_id'] ?? 'null',
-            'role' => $data['userRole'] ?? 'null',
+            'role' => $data['user_role'] ?? 'user',
             'status' => $data['userStatus'],
             'address' => $data['userAddress'] ?? 'null',
             'picture' => $filePath, // Store image path
@@ -61,6 +61,11 @@ class UserService
         $user->status = $data['userStatus'];
         $user->address = $data['userAddress'] ?? null;
         $user->userGender = $data['userGender'] ?? null;
+           
+            // Update the password if provided
+            if (!empty($data['new_password'])) {
+                $user->password = Hash::make($data['new_password']);
+            }
    
 
         // Handle profile picture deletion if requested

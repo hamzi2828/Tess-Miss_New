@@ -103,8 +103,7 @@ class MerchantsController extends Controller
         $title = 'Create Merchants Documents';
         $merchant_details = Merchant::with(['sales', 'services', 'shareholders', 'documents'])->where('id', $merchant_id)->first();
         if ($merchant_details && !$merchant_details->documents->isEmpty() ) {
-            return redirect()->route('edit.merchants.documents', ['merchant_id' => $merchant_id]);
-            // ->with('error', 'No Sales found for this merchant.')->withInput($request->all());
+            return redirect()->route('edit.merchants.documents', ['merchant_id' => $merchant_id])->withInput($request->all());
         }
         if ($merchant_details && $merchant_details->approved_by && $merchant_details->documents->isEmpty()) {
             if (!auth()->user()->can('addDocuments', auth()->user()))
@@ -358,8 +357,7 @@ class MerchantsController extends Controller
         $all_documents  = Document::all();
 
         if ($merchant_details && $merchant_details->documents->isEmpty() ) {
-            return redirect()->route('create.merchants.documents', ['merchant_id' => $id])
-            ->with('error', 'No Sales found for this merchant.')->withInput($request->all());
+            return redirect()->route('create.merchants.documents', ['merchant_id' => $id])->withInput($request->all());
         }
     
         if ($merchant_details && $merchant_details->documents->isNotEmpty() ) {
@@ -367,8 +365,7 @@ class MerchantsController extends Controller
             {
                 if (auth()->user()->can('changeKYC', auth()->user()))
                 {                   
-                  return redirect()->route('edit.merchants.kyc', ['merchant_id' => $id])
-                 ->with('error', 'No Services found for this merchant.')->withInput($request->all());
+                  return redirect()->route('edit.merchants.kyc', ['merchant_id' => $id])->withInput($request->all());
                 }
                return redirect()->back()->with('error', 'You are not authorized.');
             }
@@ -388,13 +385,11 @@ class MerchantsController extends Controller
         $merchant_details = Merchant::with(['sales', 'services', 'shareholders', 'documents'])->where('id', $id)->first();
       
         if ($merchant_details && $merchant_details->documents->isEmpty() ) {
-            return redirect()->route('create.merchants.documents', ['merchant_id' => $id])
-            ->with('error', 'No Sales found for this merchant.')->withInput($request->all());
+            return redirect()->route('create.merchants.documents', ['merchant_id' => $id])->withInput($request->all());
 
         }
         if ($merchant_details && $merchant_details->sales->isEmpty() ) {
-            return redirect()->route('create.merchants.sales', ['merchant_id' => $id])
-            ->with('error', 'No Sales found for this merchant.')->withInput($request->all());
+            return redirect()->route('create.merchants.sales', ['merchant_id' => $id])->withInput($request->all());
         }
     
         if ($merchant_details && $merchant_details->sales->isNotEmpty() ) {
@@ -402,13 +397,11 @@ class MerchantsController extends Controller
             { 
                 if (auth()->user()->can('changeDocuments', auth()->user()))
                {                   
-                 return redirect()->route('edit.merchants.documents', ['merchant_id' => $id])
-                ->with('error', 'No Services found for this merchant.')->withInput($request->all());
+                 return redirect()->route('edit.merchants.documents', ['merchant_id' => $id])->withInput($request->all());
                }
                if (auth()->user()->can('changeKYC', auth()->user()))
                {                   
-                 return redirect()->route('edit.merchants.kyc', ['merchant_id' => $id])
-                ->with('error', 'No Services found for this merchant.')->withInput($request->all());
+                 return redirect()->route('edit.merchants.kyc', ['merchant_id' => $id])->withInput($request->all());
                }
                
                return redirect()->back()->with('error', 'You are not authorized.');
@@ -428,15 +421,13 @@ class MerchantsController extends Controller
 
         if ($merchant_details && $merchant_details->documents->isEmpty() &&  $merchant_details->sales->isEmpty() ) {
 
-            return redirect()->route('create.merchants.documents', ['merchant_id' => $id])
-            ->with('error', 'No Sales found for this merchant.')->withInput($request->all());
+            return redirect()->route('create.merchants.documents', ['merchant_id' => $id])->withInput($request->all());
 
         }
 
         if ($merchant_details &&  $merchant_details->documents->isNotEmpty() && $merchant_details->sales->isEmpty() ) {
 
-            return redirect()->route('create.merchants.sales', ['merchant_id' => $id])
-            ->with('error', 'No Sales found for this merchant.')->withInput($request->all());
+            return redirect()->route('create.merchants.sales', ['merchant_id' => $id])->withInput($request->all());
 
         }
       
@@ -446,8 +437,7 @@ class MerchantsController extends Controller
                if (auth()->user()->can('addServices', auth()->user()))
                {
                 if ( $merchant_details->services->isEmpty()) {
-                    return redirect()->route('create.merchants.services', ['merchant_id' => $id])
-                                    ->with('error', 'No Services found for this merchant.')->withInput($request->all());
+                    return redirect()->route('create.merchants.services', ['merchant_id' => $id])->withInput($request->all());
                 }
                 if (auth()->user()->can('changeServices', auth()->user()))
                 {
@@ -461,8 +451,7 @@ class MerchantsController extends Controller
             {
                 return view('pages.merchants.edit.edit-merchants-services', compact('merchant_details', 'title', 'services'));
             }
-            return redirect()->route('edit.merchants.sales', ['merchant_id' => $id])
-            ->with('error', ' Sales found for this merchant.')->withInput($request->all());
+            return redirect()->route('edit.merchants.sales', ['merchant_id' => $id])->withInput($request->all());
 
         }
 
@@ -472,6 +461,7 @@ class MerchantsController extends Controller
      */
     public function update_merchants_kyc(Request $request)
     {
+        
         // Validate the request
         $validatedData = $request->validate([
             'merchant_name' => 'required|string|max:255',
@@ -498,6 +488,13 @@ class MerchantsController extends Controller
 
         $merchant_id = $request->input('merchant_id');
 
+        $merchant = Merchant::find($merchant_id);
+
+  
+        if (auth()->user()->role === 'user' && $merchant && $merchant->approved_by !== null) {
+            return redirect()->back()->with('error', 'You are not authorized to edit this KYC as it has already been approved.');
+        }
+    
         // Use the service to update merchant
         $this->merchantsService->updateMerchants($validatedData, $merchant_id);
 
@@ -517,6 +514,15 @@ class MerchantsController extends Controller
          
         $merchant_id = $merchant['id'] ?? $request->input('merchant_id');
 
+        $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->find($merchant_id);
+
+        if (
+            auth()->user()->role === 'user' &&
+            $merchant &&
+            $merchant->documents->every(fn($document) => $document->approved_by !== null)
+        ) {
+            return redirect()->back()->with('error', 'You are not authorized to edit these documents as they have already been approved.');
+        }
 
         foreach ($request->all() as $key => $value) {
             if (strpos($key, 'document_') === 0 && $request->hasFile($key)) {
@@ -603,6 +609,7 @@ class MerchantsController extends Controller
 
     public function update_merchants_sales(Request $request)
     {
+        // Step 1: Validate the request data
         $validatedData = $request->validate([
             'sales.*.minTransactionAmount' => 'required|numeric',
             'sales.*.monthlyLimitAmount' => 'required|numeric',
@@ -610,30 +617,55 @@ class MerchantsController extends Controller
             'sales.*.maxTransactionCount' => 'required|integer',
             'sales.*.dailyLimitAmount' => 'required|numeric',
         ]);
-
+    
+        // Step 2: Retrieve the merchant details
         $merchant_id = $request->input('merchant_id');
-
+        $merchant = Merchant::with(['sales'])->find($merchant_id);
+    
+        // Step 3: Authorization Check for 'user' role
+        if (
+            auth()->user()->role === 'user' &&
+            $merchant &&
+            $merchant->sales->every(fn($sale) => $sale->approved_by !== null)
+        ) {
+            return redirect()->back()->with('error', 'You are not authorized to edit these sales as they have already been approved.');
+        }
+    
+        // Step 4: Update Merchant Sales
         $this->merchantsService->updateMerchantsSales($validatedData['sales'], $merchant_id);
-
+    
+        // Step 5: Return Success Response
         return redirect()->back()->with('success', 'Merchant sales data successfully updated.');
     }
-
+    
 
     public function update_merchants_services(Request $request)
     {
-       
-        // Validate the request data
+        // Step 1: Validate the request data
         $validatedData = $request->validate([
             'services.*.fields.*' => 'required|string',
         ]);
-       
+    
+        // Step 2: Retrieve the merchant details
         $merchant_id = $request->input('merchant_id');
-
+        $merchant = Merchant::with(['services'])->find($merchant_id);
+    
+        // Step 3: Check authorization for 'user' role
+        if (
+            auth()->user()->role === 'user' &&
+            $merchant &&
+            $merchant->services->every(fn($service) => $service->approved_by !== null)
+        ) {
+            return redirect()->back()->with('error', 'You are not authorized to edit these services as they have already been approved.');
+        }
+    
+        // Step 4: Update merchant services
         $this->merchantsService->updateMerchantsServices($validatedData['services'], $merchant_id);
-
+    
+        // Step 5: Return success response
         return redirect()->back()->with('success', 'Merchant services data successfully updated.');
     }
-
+    
  
     /**
      * Remove the specified resource from storage.

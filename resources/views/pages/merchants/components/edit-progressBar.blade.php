@@ -106,6 +106,20 @@
     }
 
 </style>
+   {{-- Alert Messages --}}
+   @if(session('error'))
+   <br>
+   <div class="alert alert-danger">
+       {{ session('error') }}
+   </div>
+   @endif
+
+   @if(session('success'))
+   <br>
+   <div class="alert alert-success">
+       {{ session('success') }}
+   </div>
+   @endif
 
 <div class="header text-center mb-4" style="background-color: rgb(115,103,240); padding:2px; border-radius: 8px;">
     <h2 style="color: white;">{{ $title }}</h2>

@@ -47,7 +47,7 @@
                 <!-- Status -->
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userStatus">Status</label>
-                    <select id="userStatus" class="form-select" name="userStatus" required>
+                    <select id="userStatus" class="form-select select2" name="userStatus" required>
                         <option value="active" {{ $user->status == 'active' ? 'selected' : '' }}>Active</option>
                         <option value="inactive" {{ $user->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
                     </select>
@@ -70,13 +70,21 @@
                         
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userRole">Select User Role</label>
-                    <select id="userRole" class="form-select" name="user_role" required>
+                    <select id="userRole" class="form-select select2" name="user_role" required>
                         <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>Simple User</option>
                         <option value="supervisor" {{ $user->role == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
                     </select>
                 </div>
                 
-                
+                <!-- New Password -->
+                <div class="mb-4">
+                    <label class="form-label fw-medium text-secondary" for="userNewPassword">New Password</label>
+                    <input type="password" id="userNewPassword" class="form-control" name="new_password" placeholder="Enter new password" />
+                    @if($errors->has('new_password'))
+                        <div class="text-danger">{{ $errors->first('new_password') }}</div>
+                    @endif
+                </div>
+
 
                 <script>
                     // Initialize Select2 on the initial page load for existing selects

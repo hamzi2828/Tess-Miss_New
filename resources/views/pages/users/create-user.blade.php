@@ -100,6 +100,18 @@
                             <div class="text-danger">{{ $errors->first('department_id') }}</div>
                         @endif
                     </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium text-secondary" for="userRole">Select User Role</label>
+                        <select id="userRole" class="form-select select2" name="user_role" required>
+                            <option value="user" {{ old('user_role') == 'user' ? 'selected' : '' }}>Simple User</option>
+                            <option value="supervisor" {{ old('user_role') == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
+                        </select>
+                        @if($errors->has('user_role'))
+                            <div class="text-danger">{{ $errors->first('user_role') }}</div>
+                        @endif
+                    </div>
+                    
                 
                     <!-- Password -->
                     <div class="mb-4">

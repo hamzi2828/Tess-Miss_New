@@ -1,7 +1,9 @@
 <div class="form-section box-container">
+    <h4 class="mb-3 basic-details-header ">Services</h4>
+
     <!-- Services Section -->
     @foreach($services as $service)
-    <h4 class="mb-3 basic-details-header ">{{ ucfirst($service['name']) }}</h4>
+    <h4 class="mb-3 ">{{ ucfirst($service['name']) }}</h4>
     <div class="form-section box-container">
      
 
@@ -28,7 +30,7 @@
          @if($fields)
             @foreach($fields as $index => $field)
             <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <p><strong>{{ ucfirst($field) }}:</strong> 
                     {{ $merchant_details['services'][$index]['field_value'] ?? 'N/A' }}</p>
                 </div>

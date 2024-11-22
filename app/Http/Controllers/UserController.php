@@ -54,6 +54,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
 
+
         // Validate the request data
         $validatedData = $request->validate([
             'userFullname' => 'required|string|max:255',
@@ -61,7 +62,7 @@ class UserController extends Controller
             'userEmail' => 'required|email|unique:users,email',
             'userPhone' => 'nullable|string|max:20',
             'department_id' => 'required|exists:departments,id',
-            'userRole' => 'nullable|string',
+            'user_role' => 'nullable|string',
             'userStatus' => 'required|in:active,inactive',
             'userAddress' => 'nullable|string|max:500',
             'userPicture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
@@ -110,6 +111,7 @@ class UserController extends Controller
             'userAddress' => 'nullable|string|max:500',
             'userGender' => 'nullable|in:male,female',
             'deleteUserPicture'=>'nullable',
+            'new_password' => 'nullable|string|min:5',
 
         ]);
 
