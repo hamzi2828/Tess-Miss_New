@@ -173,6 +173,7 @@ class MerchantsServiceService
         $merchant->website_month_transaction = $data['monthly_avg_transactions']; 
         $merchant->merchant_date_incorp = $data['date_of_incorporation']; 
         $merchant->added_by = Auth::user()->id ?? 1;
+
         
         // Save the updated merchant data
         $merchant->save();
@@ -211,6 +212,9 @@ class MerchantsServiceService
                 'added_by' => Auth::user()->id ?? 1,
             ]);
         }
+
+        MerchantService::where('merchant_id', $merchant_id)
+        ->update(['approved_by' => null]);
     }
     
 
@@ -218,6 +222,11 @@ class MerchantsServiceService
     public function updateMerchantsServices(array $servicesData, int $merchant_id)
     {
         foreach ($servicesData as $service_id => $serviceData) {
+            // Validate if 'fields' key exists and is an array
+            if (!isset($serviceData['fields']) || !is_array($serviceData['fields'])) {
+                continue; // Skip invalid service data
+            }
+    
             // Delete existing data for the merchant_id and service_id
             MerchantService::where('merchant_id', $merchant_id)
                 ->where('service_id', $service_id)
@@ -228,12 +237,17 @@ class MerchantsServiceService
     
             // Iterate over each field and create new records
             foreach ($fields as $index => $fieldValue) {
+                // Skip null or empty field values
+                if (is_null($fieldValue) || $fieldValue === '') {
+                    continue;
+                }
+    
                 MerchantService::create([
                     'merchant_id' => $merchant_id,
                     'service_id' => $service_id,
-                    'field_name' => 'Field ' . $index,
+                    'field_name' => 'Field ' . $index, // Name the fields dynamically
                     'field_value' => $fieldValue,
-                    'added_by' => Auth::user()->id ?? 1,
+                    'added_by' => Auth::user()->id ?? 1, // Use authenticated user ID or fallback
                     'status' => true,
                 ]);
             }

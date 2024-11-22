@@ -6,38 +6,23 @@
     <h4 class="mb-3 ">{{ ucfirst($service['name']) }}</h4>
     <div class="form-section box-container">
      
-
         <!-- Display the fields for each service -->
         @php
-            $fields = json_decode($service['fields'], true);
+        $fields = json_decode($service['fields'], true);
+        $merchantServiceData = $merchant_details['services']->where('service_id', $service['id'])->keyBy('field_name');
         @endphp
 
-        {{-- @if($fields)
-            @foreach($fields as $index => $field)
-            <div class="mb-3">
-                <label for="service_{{ $service['id'] }}_field_{{ $index }}" class="form-label">{{ ucfirst($field) }}</label>
-                <input type="text" 
-                       class="form-control" 
-                       id="service_{{ $service['id'] }}_field_{{ $index }}" 
-                       name="services[{{ $service['id'] }}][fields][{{ $index }}]"
-                       value="{{ isset($merchant_details['services'][$index]['field_value']) ? $merchant_details['services'][$index]['field_value'] : '' }}"
-                       placeholder="{{ ucfirst($field) }}"
-                       disabled> <!-- Added disabled here -->
-            </div>
-            @endforeach
-        @endif --}}
-
-         @if($fields)
-            @foreach($fields as $index => $field)
+        @if($fields)
+        @foreach($fields as $index => $field)
             <div class="row mb-3">
                 <div class="col-md-12">
                     <p><strong>{{ ucfirst($field) }}:</strong> 
-                    {{ $merchant_details['services'][$index]['field_value'] ?? 'N/A' }}</p>
+                    {{ $merchantServiceData['Field ' . $index]['field_value'] ?? 'N/A' }}</p>
                 </div>
             </div>
-            @endforeach
+        @endforeach
         @else
-            <p class="text-muted">No fields available for this service.</p>
+        <p class="text-muted">No fields available for this service.</p>
         @endif
 
     </div>

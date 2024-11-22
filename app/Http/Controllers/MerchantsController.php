@@ -498,6 +498,25 @@ class MerchantsController extends Controller
         // Use the service to update merchant
         $this->merchantsService->updateMerchants($validatedData, $merchant_id);
 
+
+        Merchant::find($merchant_id)->update(['approved_by' => null]);
+    
+
+        $merchant = Merchant::with('documents')->find($merchant_id);
+
+        if ($merchant) {
+            $merchant->documents->each(function ($document) {
+                $document->update(['approved_by' => null]);
+            });
+        }
+        
+        // Reset approvals for sales and services
+        MerchantSale::where('merchant_id', $merchant_id)
+            ->update(['approved_by' => null]);
+        
+        MerchantService::where('merchant_id', $merchant_id)
+            ->update(['approved_by' => null]);
+
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Merchant and Shareholders successfully updated.');
 
@@ -569,6 +588,7 @@ class MerchantsController extends Controller
                         'document_type' => $file->getClientMimeType(),
                         'emailed' => false,
                         'status' => true,
+                        
                     ]);
                 } else {
                     // If no previous document exists, create a new record
@@ -599,6 +619,20 @@ class MerchantsController extends Controller
                     ->update(['date_expiry' => $expiryDate]);
             }
         }
+        $merchant = Merchant::with('documents')->find($merchant_id);
+
+        if ($merchant) {
+            $merchant->documents->each(function ($document) {
+                $document->update(['approved_by' => null]);
+            });
+        }
+        
+        // Reset approvals for sales and services
+        MerchantSale::where('merchant_id', $merchant_id)
+            ->update(['approved_by' => null]);
+        
+        MerchantService::where('merchant_id', $merchant_id)
+            ->update(['approved_by' => null]);
         
 
         return redirect()->back()->with('success', 'Documents successfully updated.');
@@ -640,12 +674,13 @@ class MerchantsController extends Controller
     
 
     public function update_merchants_services(Request $request)
-    {
+    { 
         // Step 1: Validate the request data
         $validatedData = $request->validate([
-            'services.*.fields.*' => 'required|string',
+            'services.*.fields.*' => 'nullable|string',
         ]);
     
+      
         // Step 2: Retrieve the merchant details
         $merchant_id = $request->input('merchant_id');
         $merchant = Merchant::with(['services'])->find($merchant_id);
