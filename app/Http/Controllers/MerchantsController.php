@@ -424,13 +424,13 @@ class MerchantsController extends Controller
             return redirect()->route('create.merchants.documents', ['merchant_id' => $id])->withInput($request->all());
 
         }
-     
+
         if ($merchant_details &&  $merchant_details->documents->isNotEmpty() && $merchant_details->sales->isEmpty() ) {
-           
-            return redirect()->route('create.merchants.documents', ['merchant_id' => $id])->withInput($request->all());
+
+            return redirect()->route('create.merchants.sales', ['merchant_id' => $id])->withInput($request->all());
 
         }
- 
+      
         if ($merchant_details &&  $merchant_details->documents->isNotEmpty() && $merchant_details->sales->isNotEmpty() ) {
             if (!auth()->user()->can('changeSales', auth()->user()))
             {

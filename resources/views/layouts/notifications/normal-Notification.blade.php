@@ -118,8 +118,8 @@
           }
       }
 
-      // Fetch notifications every 10 seconds
-      setInterval(fetchNotifications, 10000);
+      // Fetch notifications every 20 seconds
+      setInterval(fetchNotifications, 20000);
 
       // Initial fetch on page load
       fetchNotifications();
