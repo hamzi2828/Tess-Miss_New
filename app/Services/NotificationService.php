@@ -156,7 +156,7 @@ class NotificationService
         $role = 'user';
         $stage = 4;
         $approvedByUserName = auth()->user()->name;
-        dd($services, $activityType, $stage, $notificationMessage, $role, $approvedByUserName);
+
      $this->approveEntity($services, $activityType, $stage, $notificationMessage, $role, $approvedByUserName);
 
     }
@@ -172,7 +172,6 @@ class NotificationService
 
 
         foreach ($user as $user) {
-
             $user->notify(new MerchantActivityNotification($type, $entity, $UserName, $notificationMessage));
         }
     }
