@@ -791,24 +791,13 @@ class MerchantsController extends Controller
         return redirect()->back()->with('success', 'Merchant sales approved successfully.');
     }
 
-    public function approve_merchants_services(Request $request)
-        {
-            $merchant_id = $request->input('merchant_id');
+    public function approve_merchants_services(Request $request){
+        $merchant_id = $request->input('merchant_id');
 
-            if (!$merchant_id) {
-                return redirect()->back()->with('error', 'Merchant ID is missing.');
-            }
-
-            $merchant = Merchant::find($merchant_id);
-            if (!$merchant) {
-                return redirect()->back()->with('error', 'Merchant not found.');
-            }
-
-            $this->notificationService->approveMerchantsServices($merchant_id);
-
-            return redirect()->back()->with('success', 'Merchant services approved successfully.');
-        }
-
+        $this->notificationService->approveMerchantsServices($merchant_id);
+        return redirect()->back()->with('success', 'Merchant services approved successfully.');
+    }
+    
 
 
 
