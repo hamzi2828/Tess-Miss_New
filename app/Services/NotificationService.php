@@ -144,21 +144,33 @@ class NotificationService
     // Approve Services
     public function approveMerchantsServices($merchantId)
     {
-        $merchant = Merchant::findOrFail($merchantId);
+        $merchant = Merchant::findOrFail($merchantId); // Ensure the merchant exists
+    
+        // Fetch services for the merchant
         $services = MerchantService::where('merchant_id', $merchantId)->get();
+    
+        if ($services->isEmpty()) {
+            throw new \Exception('No services found for the merchant. Approval cannot proceed.');
+        }
+    
+        // Approve each service
         foreach ($services as $service) {
             $service->approved_by = auth()->user()->id;
             $service->declined_by = null;
             $service->save();
         }
+    
+        // Log approval activity
         $activityType = 'approve';
-        $notificationMessage = "Merchant services have been approved, completing the process";
+        $notificationMessage = "Merchant services have been approved, completing the process.";
         $role = 'user';
         $stage = 4;
         $approvedByUserName = auth()->user()->name;
+    
+        // Call approveEntity to handle notification and other processes
         $this->approveEntity($services, $activityType, $stage, $notificationMessage, $role, $approvedByUserName);
-
     }
+    
 
     // Common Approval Logic
     private function approveEntity($entity, $type, $stage, $notificationMessage, $role, $UserName = null)
