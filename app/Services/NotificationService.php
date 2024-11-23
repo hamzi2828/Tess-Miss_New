@@ -144,6 +144,7 @@ class NotificationService
     // Approve Services
     public function approveMerchantsServices($merchantId)
     {
+        $merchant = Merchant::findOrFail($merchantId);
         $services = MerchantService::where('merchant_id', $merchantId)->get();
         foreach ($services as $service) {
             $service->approved_by = auth()->user()->id;
