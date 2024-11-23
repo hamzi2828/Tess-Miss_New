@@ -144,25 +144,20 @@ class NotificationService
     // Approve Services
     public function approveMerchantsServices($merchantId)
     {
-        $merchant = Merchant::findOrFail($merchantId);
         $services = MerchantService::where('merchant_id', $merchantId)->get();
-    
         foreach ($services as $service) {
             $service->approved_by = auth()->user()->id;
             $service->declined_by = null;
             $service->save();
         }
-                    // Call approveEntity for each service
         $activityType = 'approve';
-        $notificationMessage = "Merchant service approved: {$service->id}";
+        $notificationMessage = "Merchant services have been approved, completing the process";
         $role = 'user';
         $stage = 4;
         $approvedByUserName = auth()->user()->name;
+        $this->approveEntity($services, $activityType, $stage, $notificationMessage, $role, $approvedByUserName);
 
-        
-        $this->approveEntity($service, $activityType, $stage, $notificationMessage, $role, $approvedByUserName);
     }
-    
 
     // Common Approval Logic
     private function approveEntity($entity, $type, $stage, $notificationMessage, $role, $UserName = null)
@@ -245,6 +240,8 @@ class NotificationService
     // Decline Services
     public function declineMerchantsServices($merchantId, $declineNotes)
     {
+
+        $merchant = Merchant::findOrFail($merchantId);
         $services = MerchantService::where('merchant_id', $merchantId)->get();
 
         foreach ($services as $service) {
@@ -260,7 +257,7 @@ class NotificationService
         $stage = 4;
         $declinedByUserName = auth()->user()->name;
 
-        $this->declineEntity($services, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
+        $this->declineEntity($merchant, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
     }
 
     // Common Decline Logic
