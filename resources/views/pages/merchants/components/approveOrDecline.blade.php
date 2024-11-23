@@ -88,7 +88,7 @@
     <form action="{{ route('merchants.approve', $merchant_details->id) }}" method="POST" class="ms-2">
         @csrf
         <button type="submit" class="btn btn-success">
-            <i class="fas fa-check me-1"></i> Approve Services
+            <i class="fas fa-check me-1"></i> Approve 
         </button>
     </form>
     @endif
@@ -111,7 +111,7 @@
             $documents->contains(fn($document) => $document->declined_by === null))
             <form class="ms-2">
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                    <i class="fas fa-times me-1"></i> Decline Documents
+                    <i class="fas fa-times me-1"></i> Decline 
                 </button>
             </form>
         @endif
@@ -122,7 +122,7 @@
             $sales->contains(fn($sale) => $sale->declined_by === null))
             <form class="ms-2">
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                    <i class="fas fa-times me-1"></i> Decline Sales
+                    <i class="fas fa-times me-1"></i> Decline 
                 </button>
             </form>
         @endif
@@ -133,7 +133,7 @@
             $services->contains(fn($service) => $service->declined_by === null))
             <form class="ms-2">
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                    <i class="fas fa-times me-1"></i> Decline Services
+                    <i class="fas fa-times me-1"></i> Decline 
                 </button>
             </form>
         @endif
