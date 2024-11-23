@@ -146,7 +146,6 @@ class NotificationService
     {
         $merchant = Merchant::findOrFail($merchantId);
         $services = MerchantService::where('merchant_id', $merchantId)->get();
-        dd($services, $merchant);
         foreach ($services as $service) {
             $service->approved_by = auth()->user()->id;
             $service->declined_by = null;
@@ -157,7 +156,8 @@ class NotificationService
         $role = 'user';
         $stage = 4;
         $approvedByUserName = auth()->user()->name;
-        $this->approveEntity($services, $activityType, $stage, $notificationMessage, $role, $approvedByUserName);
+        dd($services, $activityType, $stage, $notificationMessage, $role, $approvedByUserName);
+     $this->approveEntity($services, $activityType, $stage, $notificationMessage, $role, $approvedByUserName);
 
     }
 
