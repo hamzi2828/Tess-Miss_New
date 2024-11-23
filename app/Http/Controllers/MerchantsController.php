@@ -792,7 +792,9 @@ class MerchantsController extends Controller
     }
 
     public function approve_merchants_services(Request $request){
+        dd($request->all());
         $merchant_id = $request->input('merchant_id');
+
         $this->notificationService->approveMerchantsServices($merchant_id);
         return redirect()->back()->with('success', 'Merchant services approved successfully.');
     }
