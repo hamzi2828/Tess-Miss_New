@@ -151,16 +151,16 @@ class NotificationService
             $service->approved_by = auth()->user()->id;
             $service->declined_by = null;
             $service->save();
-    
-            // Call approveEntity for each service
-            $activityType = 'approve';
-            $notificationMessage = "Merchant service approved: {$service->id}";
-            $role = 'user';
-            $stage = 4;
-            $approvedByUserName = auth()->user()->name;
-    
-            $this->approveEntity($service, $activityType, $stage, $notificationMessage, $role, $approvedByUserName);
         }
+                    // Call approveEntity for each service
+        $activityType = 'approve';
+        $notificationMessage = "Merchant service approved: {$service->id}";
+        $role = 'user';
+        $stage = 4;
+        $approvedByUserName = auth()->user()->name;
+
+        
+        $this->approveEntity($service, $activityType, $stage, $notificationMessage, $role, $approvedByUserName);
     }
     
 
