@@ -843,13 +843,14 @@ class MerchantsController extends Controller
             !is_null($merchantDetails->approved_by) &&
             $merchantDetails->documents->isNotEmpty() &&
             $merchantDetails->documents->every(fn($doc) => !is_null($doc->approved_by)) &&
-            $merchantDetails->documents->some(fn($doc) => !is_null($doc->declined_by)) &&
             $merchantDetails->sales->isNotEmpty() &&
             $merchantDetails->sales->some(fn($sale) => is_null($sale->declined_by) &&
             $userStage == 3)
         ) {
+
             return redirect()->route('decline.merchants.sales', ['merchant_id' => $id]);
         }
+
    
         // Step 4: Decline Services
         if (
@@ -857,15 +858,14 @@ class MerchantsController extends Controller
             !is_null($merchantDetails->approved_by) &&
             $merchantDetails->documents->isNotEmpty() &&
             $merchantDetails->documents->every(fn($doc) => !is_null($doc->approved_by)) &&
-            $merchantDetails->documents->some(fn($doc) => !is_null($doc->declined_by)) &&
             $merchantDetails->sales->isNotEmpty() &&
-            $merchantDetails->sales->some(fn($sale) => !is_null($sale->declined_by)) &&
-            $merchantDetails->services->some(fn($service) => !is_null($service->declined_by) &&
+            $merchantDetails->services->some(fn($service) => is_null($service->declined_by) &&
             $userStage == 4)
         ) {
+            
             return redirect()->route('decline.merchants.services', ['merchant_id' => $id]);
         }
-    
+   
         return redirect()->back()->with('success', 'Merchant completed: documents, sales, and services declined successfully.');
     }
     
