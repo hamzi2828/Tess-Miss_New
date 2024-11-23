@@ -133,6 +133,7 @@ class MerchantsServiceService
 
     public function storeMerchantsServices(array $data, int $merchant_id)
     {
+        
         // Step 1: Iterate over the services and save each field in the merchant_services table
         foreach ($data['services'] as $service_id => $serviceData) {
             // Get the fields for this service

@@ -62,7 +62,7 @@
   </ul>
 </li>
 
-<script>
+{{-- <script>
   document.addEventListener('DOMContentLoaded', function () {
       const notificationsContainer = document.getElementById('notifications-container');
       const unreadCountBadge = document.querySelector('.badge-notifications.border');
@@ -84,7 +84,7 @@
 
               // Update notifications list
               notificationsContainer.innerHTML = '';
-              if (data.notifications.length > 0) {
+              if (data.notifications.length > 0) { 
                   data.notifications.forEach(notification => {
                       const listItem = `
                           <li class="list-group-item list-group-item-action dropdown-notifications-item">
@@ -124,4 +124,4 @@
       // Initial fetch on page load
       fetchNotifications();
   });
-</script>
+</script> --}}

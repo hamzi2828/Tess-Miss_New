@@ -123,13 +123,26 @@
                                     @canany(['changeKYC', 'changeDocuments','changeSales','changeServices'], App\Models\User::class)
 
                                         <!-- Edit Button -->
-                                        <form action="{{ route('edit.merchants.services') }}" method="GET" style="display: inline-block;">
-                                            @csrf
-                                            <input type="hidden" name="merchant_id" value="{{ $merchant['id'] }}">
-                                            <button type="submit" class="btn btn-icon btn-text-secondary rounded-pill waves-effect waves-light mx-1">
-                                                <i class="ti ti-edit"></i>
-                                            </button>
-                                        </form>
+                                        @php
+                                        $userStage = auth()->user()->getDepartmentStage(auth()->user()->department);
+                                        $routeName = $userStage == 1 
+                                            ? 'edit.merchants.kyc' 
+                                            : ($userStage == 2 
+                                                ? 'edit.merchants.documents' 
+                                                : ($userStage == 3 
+                                                    ? 'edit.merchants.sales' 
+                                                    : 'edit.merchants.services'));
+                                    @endphp
+                                    
+                                    <form action="{{ route($routeName) }}" method="GET">
+                                        <input type="hidden" name="merchant_id" value="{{ $merchant['id'] }}">
+                                        <button type="submit" class="btn btn-icon btn-text-secondary rounded-pill waves-effect waves-light mx-1">
+                                            <i class="ti ti-edit"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    
+                                    
                                      
                                         <!-- Delete Button -->
                                         {{-- <form action="{{ route('merchants.destroy', $merchant['id']) }}" method="POST" style="display: inline-block;" onsubmit="return confirmDelete()">

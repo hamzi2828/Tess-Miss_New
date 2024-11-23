@@ -163,20 +163,33 @@ class UserController extends Controller
             if ($notification) {
                 $notification->markAsRead();
                 $activityType = $notification->data['activity_type'] ?? null;
-                $merchant_id = $notification->data['merchant_id'] ?? $request->get('merchant_id');;
+                $merchant_id =  $request->get('merchant_id');
+                
 
                 if (\App\Models\Merchant::where('id', $merchant_id)->exists() && $activityType == 'store') {
 
                     return redirect()->route('merchants.preview', ['merchant_id' => $merchant_id]);
                 }
-                if (\App\Models\Merchant::where('id', $merchant_id)->exists() && $activityType == 'approve') {
+                // if (\App\Models\Merchant::where('id', $merchant_id)->exists() && $activityType == 'approve') {
 
-                    return redirect()->route('edit.merchants.services', ['merchant_id' => $merchant_id]);
+                //     return redirect()->route('edit.merchants.services', ['merchant_id' => $merchant_id]);
+                // }
+                if (\App\Models\Merchant::where('id', $merchant_id)->exists() && $activityType == 'approve' || $activityType == 'decline') {
+                    $userStage = auth()->user()->getDepartmentStage(auth()->user()->department);
+                    
+                    // Determine the route name dynamically based on stage
+                    $routeName = $userStage == 1 
+                        ? 'edit.merchants.kyc' 
+                        : ($userStage == 2 
+                            ? 'edit.merchants.documents' 
+                            : ($userStage == 3 
+                                ? 'edit.merchants.sales' 
+                                : 'edit.merchants.services'));
+        
+                    // Redirect to the appropriate route
+                    return redirect()->route($routeName, ['merchant_id' => $merchant_id]);
                 }
-                if (\App\Models\Merchant::where('id', $merchant_id)->exists() && $activityType == 'decline') {
 
-                    return redirect()->route('edit.merchants.services', ['merchant_id' => $merchant_id]);
-                }
             }
 
             return redirect()->back();
