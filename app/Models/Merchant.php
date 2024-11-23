@@ -94,6 +94,11 @@ class Merchant extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
+    // Relationship with the user who declined KYC
+    public function declinedBy()
+    {
+        return $this->belongsTo(User::class, 'declined_by');
+    }
 
 
 }

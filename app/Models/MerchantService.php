@@ -44,6 +44,13 @@ class MerchantService extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
+
+    // Relationship with User (declined_by)
+    public function declinedBy()
+    {
+        return $this->belongsTo(User::class, 'declined_by');
+    }
+
     // Relationship with the ServiceType model
     public function serviceType()
     {

@@ -44,6 +44,12 @@ class MerchantDocument extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    // Relationship with the User model (for the declined_by field)
+    public function declinedBy()
+    {
+        return $this->belongsTo(User::class, 'declined_by');
+    }
+
     // Relationship with the previous document in the Document model
     public function previousDocument()
     {

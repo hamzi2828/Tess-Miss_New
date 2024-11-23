@@ -77,6 +77,15 @@
                         });
                     });
                 </script>
+
+                  <!-- New Password -->
+                  <div class="mb-4">
+                    <label class="form-label fw-medium text-secondary" for="userNewPassword">New Password</label>
+                    <input type="password" id="userNewPassword" class="form-control" name="new_password" placeholder="Enter new password" />
+                    @if($errors->has('new_password'))
+                        <div class="text-danger">{{ $errors->first('new_password') }}</div>
+                    @endif
+                </div>
         
                 <!-- Current Profile Picture -->
                 @if($user->picture)

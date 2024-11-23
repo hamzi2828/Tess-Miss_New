@@ -16,7 +16,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Submit Decline</button>
+                    <button type="submit" class="btn btn-danger">Submit</button>
                 </div>
             </form>
         </div>
@@ -76,7 +76,7 @@
     <form action="{{ route('merchants.approve', $merchant_details->id) }}" method="POST" class="ms-2">
         @csrf
         <button type="submit" class="btn btn-success">
-            <i class="fas fa-check me-1"></i> Approve Sales
+            <i class="fas fa-check me-1"></i> Approve 
         </button>
     </form>
     @endif
@@ -94,49 +94,49 @@
     @endif
  
 
-    
-        {{-- Decline Button --}}
-        @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 1 && !$merchant_details->declined_by)
-            <form class="ms-2">
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                    <i class="fas fa-times me-1"></i> Decline
-                </button>
-            </form>
-        @endif
+
+    {{-- Decline Button --}}
+    @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 1 && !$merchant_details->declined_by)
+        <form class="ms-2">
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
+                <i class="fas fa-times me-1"></i> Decline
+            </button>
+        </form>
+    @endif
 
 
-        {{-- Decline Button for Documents (Stage 2) --}}
-        @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 2 && 
-            $documents->isNotEmpty() && 
-            $documents->contains(fn($document) => $document->declined_by === null))
-            <form class="ms-2">
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                    <i class="fas fa-times me-1"></i> Decline 
-                </button>
-            </form>
-        @endif
+    {{-- Decline Button for Documents (Stage 2) --}}
+    @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 2 && 
+        $documents->isNotEmpty() && 
+        $documents->contains(fn($document) => $document->declined_by === null))
+        <form class="ms-2">
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
+                <i class="fas fa-times me-1"></i> Decline 
+            </button>
+        </form>
+    @endif
 
-        {{-- decline button for sales (stage 3) --}}
-        @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 3 && 
-            $sales->isNotEmpty() && 
-            $sales->contains(fn($sale) => $sale->declined_by === null))
-            <form class="ms-2">
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                    <i class="fas fa-times me-1"></i> Decline 
-                </button>
-            </form>
-        @endif
+    {{-- decline button for sales (stage 3) --}}
+    @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 3 && 
+        $sales->isNotEmpty() && 
+        $sales->contains(fn($sale) => $sale->declined_by === null))
+        <form class="ms-2">
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
+                <i class="fas fa-times me-1"></i> Decline 
+            </button>
+        </form>
+    @endif
 
-        {{-- Decline Button for Services (Stage 4) --}}
-        @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 4 && 
-            $services->isNotEmpty() && 
-            $services->contains(fn($service) => $service->declined_by === null))
-            <form class="ms-2">
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                    <i class="fas fa-times me-1"></i> Decline 
-                </button>
-            </form>
-        @endif
+    {{-- Decline Button for Services (Stage 4) --}}
+    @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 4 && 
+        $services->isNotEmpty() && 
+        $services->contains(fn($service) => $service->declined_by === null))
+        <form class="ms-2">
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
+                <i class="fas fa-times me-1"></i> Decline 
+            </button>
+        </form>
+    @endif
 
 
      @endif

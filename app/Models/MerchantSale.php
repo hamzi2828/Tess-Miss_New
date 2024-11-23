@@ -37,6 +37,12 @@ class MerchantSale extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    // Define the relationship with the User model for the 'declined_by' field
+    public function declinedBy()
+    {
+        return $this->belongsTo(User::class, 'declined_by');
+    }
+
     // Define the relationship with the Merchant model
     public function merchant()
     {

@@ -43,6 +43,9 @@
                       @if(isset($notification->data['activity_type']) && $notification->data['activity_type'] == 'approve')
                           <small class="text-muted">Approved by: {{ $notification->data['added_by'] }}</small><br>
                       @endif
+                      @if( isset($notification->data['activity_type']) && $notification->data['activity_type'] == 'decline')
+                          <small class="text-muted">Rejected by: {{ $notification->data['added_by'] }}</small><br>
+                      @endif
                       <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
                   </div>
                   <div class="flex-shrink-0 dropdown-notifications-actions">

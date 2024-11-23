@@ -29,7 +29,7 @@ class NotificationService
         $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->where('id', $merchantId)->first();
 
         if (!$merchant) {
-            return back()->with('error', 'Merchant not found.');
+            return back()->with('error', 'Merchant documents not found.');
         }
         $firstDocument = $merchant->documents->first();
         $addedByUser = $firstDocument ? User::find($firstDocument->added_by) : null;
@@ -46,7 +46,7 @@ class NotificationService
         $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->where('id', $merchantId)->first();
 
         if (!$merchant) {
-            return back()->with('error', 'Merchant not found.');
+            return back()->with('error', 'Merchant sales not found.');
         }
         $firstSale = $merchant->sales->first();
         $addedByUser = $firstSale ? User::find($firstSale->added_by) : null;
@@ -66,7 +66,7 @@ class NotificationService
         $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->where('id', $merchantId)->first();
 
         if (!$merchant) {
-            return back()->with('error', 'Merchant not found.');
+            return back()->with('error', 'Merchant services not found.');
         }
         $firstService = $merchant->services->first();
         $addedByUser = $firstService ? User::find($firstService->added_by) : null;
@@ -87,6 +87,7 @@ class NotificationService
     {
         $merchant = Merchant::findOrFail($merchantId);
         $merchant->approved_by = auth()->user()->id;
+        $merchant->declined_by = null;
         $merchant->save();
         $activityType = 'approve';
         $notificationMessage = "A new KYC has been approved";
@@ -107,6 +108,7 @@ class NotificationService
         // Loop through each document to update the approval
         foreach ($documents as $document) {
             $document->approved_by = auth()->user()->id;
+            $document->declined_by = null;
             $document->save();
         }
         $activityType = 'approve';
@@ -128,6 +130,7 @@ class NotificationService
 
         foreach ($sales as $sale) {
             $sale->approved_by = auth()->user()->id;
+            $sale->declined_by = null;
             $sale->save();
         }
         $activityType = 'approve';
@@ -144,6 +147,7 @@ class NotificationService
         $services = MerchantService::where('merchant_id', $merchantId)->get();
         foreach ($services as $service) {
             $service->approved_by = auth()->user()->id;
+            $service->declined_by = null;
             $service->save();
         }
         $activityType = 'approve';
@@ -173,14 +177,37 @@ class NotificationService
 
 
     
-    public function declineKYC($merchantId)
+    public function declineKYC($merchantId, $declineNotes )
     {
         $merchant = Merchant::findOrFail($merchantId);
         $merchant->declined_by = auth()->user()->id;
         $merchant->save();
 
         $activityType = 'decline';
-        $notificationMessage = "The KYC has been declined";
+        $notificationMessage = "The KYC has been declined with the following notes: " . $declineNotes;
+        $role = 'user';
+        $stage = 1;
+        $declinedByUserName = auth()->user()->name;
+    
+
+        $this->declineEntity($merchant, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
+    }
+
+    // Decline Documents
+    public function declineMerchantsDocuments($merchantId, $declineNotes)
+    {
+        $merchant = Merchant::findOrFail($merchantId);
+        $documents = MerchantDocument::where('merchant_id', $merchantId)->get();
+
+        foreach ($documents as $document) {
+            $document->declined_by = auth()->user()->id;
+            $document->decline_notes = $declineNotes;
+            $document->approved_by = null;
+            $document->save();
+        }
+
+        $activityType = 'decline';
+        $notificationMessage = "Merchant documents have been declined with the following notes: " . $declineNotes;
         $role = 'user';
         $stage = 2;
         $declinedByUserName = auth()->user()->name;
@@ -188,19 +215,21 @@ class NotificationService
         $this->declineEntity($merchant, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
     }
 
-    // Decline Documents
-    public function declineMerchantsDocuments($merchantId)
+    // Decline Sales
+    public function declineMerchantsSales($merchantId, $declineNotes)
     {
         $merchant = Merchant::findOrFail($merchantId);
-        $documents = MerchantDocument::where('merchant_id', $merchantId)->get();
+        $sales = MerchantSale::where('merchant_id', $merchantId)->get();
 
-        foreach ($documents as $document) {
-            $document->declined_by = auth()->user()->id;
-            $document->save();
+        foreach ($sales as $sale) {
+            $sale->declined_by = auth()->user()->id;
+            $sale->decline_notes = $declineNotes;
+            $sale->approved_by = null;
+            $sale->save();
         }
 
         $activityType = 'decline';
-        $notificationMessage = "Merchant documents have been declined";
+        $notificationMessage = "Merchant sales have been declined with the following notes: " . $declineNotes;
         $role = 'user';
         $stage = 3;
         $declinedByUserName = auth()->user()->name;
@@ -208,38 +237,20 @@ class NotificationService
         $this->declineEntity($merchant, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
     }
 
-    // Decline Sales
-    public function declineMerchantsSales($merchantId)
-    {
-        $merchant = Merchant::findOrFail($merchantId);
-        $sales = MerchantSale::where('merchant_id', $merchantId)->get();
-
-        foreach ($sales as $sale) {
-            $sale->declined_by = auth()->user()->id;
-            $sale->save();
-        }
-
-        $activityType = 'decline';
-        $notificationMessage = "Merchant sales have been declined";
-        $role = 'user';
-        $stage = 4;
-        $declinedByUserName = auth()->user()->name;
-
-        $this->declineEntity($merchant, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
-    }
-
     // Decline Services
-    public function declineMerchantsServices($merchantId)
+    public function declineMerchantsServices($merchantId, $declineNotes)
     {
         $services = MerchantService::where('merchant_id', $merchantId)->get();
 
         foreach ($services as $service) {
             $service->declined_by = auth()->user()->id;
+            $service->decline_notes = $declineNotes;
+            $service->approved_by = null;
             $service->save();
         }
 
         $activityType = 'decline';
-        $notificationMessage = "Merchant services have been declined";
+        $notificationMessage = "Merchant services have been declined with the following notes: " . $declineNotes;
         $role = 'user';
         $stage = 4;
         $declinedByUserName = auth()->user()->name;

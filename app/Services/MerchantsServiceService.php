@@ -32,13 +32,17 @@ class MerchantsServiceService
             $query = Merchant::with([
                 'sales.addedBy', 
                 'sales.approvedBy', 
+                'sales.declinedBy',
                 'services.addedBy', 
                 'services.approvedBy', 
+                'services.declinedBy',
                 'shareholders', 
                 'documents.addedBy', 
                 'documents.approvedBy',
+                'documents.declinedBy',
                 'addedBy', 
-                'approvedBy'
+                'approvedBy',
+                'declinedBy'
             ]);
 
             // Apply filtering if merchantId is provided
@@ -46,6 +50,7 @@ class MerchantsServiceService
                 $query->where('id', $merchantId);
             }
 
+            // dd($query->get()->toArray());
             // Fetch the data and convert to array
             return $query->get()->toArray();
         }
@@ -173,8 +178,8 @@ class MerchantsServiceService
         $merchant->website_month_transaction = $data['monthly_avg_transactions']; 
         $merchant->merchant_date_incorp = $data['date_of_incorporation']; 
         $merchant->added_by = Auth::user()->id ?? 1;
+        $merchant->declined_by = null;
 
-        
         // Save the updated merchant data
         $merchant->save();
 

@@ -173,6 +173,10 @@ class UserController extends Controller
 
                     return redirect()->route('edit.merchants.services', ['merchant_id' => $merchant_id]);
                 }
+                if (\App\Models\Merchant::where('id', $merchant_id)->exists() && $activityType == 'decline') {
+
+                    return redirect()->route('edit.merchants.services', ['merchant_id' => $merchant_id]);
+                }
             }
 
             return redirect()->back();

@@ -165,7 +165,7 @@ class MerchantsController extends Controller
      public function store_merchants_kyc(Request $request)
      {
          // Dump the request data to check structure
-         // dd($request->all());
+       
          // Validate the request
          $validatedData  = $request->validate([
              'merchant_name' => 'required|string|max:255',
@@ -486,30 +486,30 @@ class MerchantsController extends Controller
             'shareholderID.*' => 'nullable|string|max:255',
         ]);
 
-        $merchant_id = $request->input('merchant_id');
 
-        $merchant = Merchant::find($merchant_id);
+        $merchant = $request->input('merchant_id');
+         
+        $merchant_id = $merchant['id'] ?? $request->input('merchant_id');
 
-  
-        if (auth()->user()->role === 'user' && $merchant && $merchant->approved_by !== null) {
+        $merchant = Merchant::where('id', $merchant_id)->first();
+
+        
+        if (auth()->user()->role === 'user' && $merchant->approved_by !== null) {
             return redirect()->back()->with('error', 'You are not authorized to edit this KYC as it has already been approved.');
         }
-    
+        
         // Use the service to update merchant
         $this->merchantsService->updateMerchants($validatedData, $merchant_id);
-
+        $this->notificationService->storeMerchantsKYC($merchant);
 
         Merchant::find($merchant_id)->update(['approved_by' => null]);
-    
-
         $merchant = Merchant::with('documents')->find($merchant_id);
 
         if ($merchant) {
-            $merchant->documents->each(function ($document) {
+            $merchant->documents->each(function ($document) { 
                 $document->update(['approved_by' => null]);
             });
         }
-        
         // Reset approvals for sales and services
         MerchantSale::where('merchant_id', $merchant_id)
             ->update(['approved_by' => null]);
@@ -653,20 +653,26 @@ class MerchantsController extends Controller
         ]);
     
         // Step 2: Retrieve the merchant details
-        $merchant_id = $request->input('merchant_id');
+        $merchant = $request->input('merchant_id');
+         
+        $merchant_id = $merchant['id'] ?? $request->input('merchant_id');
+
         $merchant = Merchant::with(['sales'])->find($merchant_id);
-    
+
+
+   
         // Step 3: Authorization Check for 'user' role
         if (
             auth()->user()->role === 'user' &&
             $merchant &&
-            $merchant->sales->every(fn($sale) => $sale->approved_by !== null)
+            $merchant->sales->every(fn($sales) => $sales->approved_by !== null)
         ) {
             return redirect()->back()->with('error', 'You are not authorized to edit these sales as they have already been approved.');
         }
     
         // Step 4: Update Merchant Sales
         $this->merchantsService->updateMerchantsSales($validatedData['sales'], $merchant_id);
+        $this->notificationService->storeMerchantsSales($merchant_id);
     
         // Step 5: Return Success Response
         return redirect()->back()->with('success', 'Merchant sales data successfully updated.');
@@ -696,6 +702,7 @@ class MerchantsController extends Controller
     
         // Step 4: Update merchant services
         $this->merchantsService->updateMerchantsServices($validatedData['services'], $merchant_id);
+        $this->notificationService->storeMerchantsServices($merchant_id);
     
         // Step 5: Return success response
         return redirect()->back()->with('success', 'Merchant services data successfully updated.');
@@ -832,41 +839,54 @@ class MerchantsController extends Controller
        
         $merchantDetails = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->findOrFail($id);
 
+        
         // Step 1: Decline Merchant KYC
-        if ($merchantDetails && is_null($merchantDetails->declined_by)) {
+        $userStage = auth()->user()->getDepartmentStage(auth()->user()->department);
+    
+        if ($merchantDetails && is_null($merchantDetails->declined_by) && $userStage == 1) {
        
             return redirect()->route('decline.merchants.kyc', ['merchant_id' => $id]);
         }
+
+
          
         // Step 2: Decline Documents
         if (
             $merchantDetails &&
-            $merchantDetails->documents->isNotEmpty() &&
             !is_null($merchantDetails->approved_by) &&
-            $merchantDetails->documents->some(fn($doc) => is_null($doc->declined_by))
+            $merchantDetails->documents->isNotEmpty() &&
+            $merchantDetails->documents->some(fn($doc) => is_null($doc->declined_by) &&
+            $userStage == 2)
         ) {
             return redirect()->route('decline.merchants.documents', ['merchant_id' => $id]);
         }
     
+       
         // Step 3: Decline Sales
         if (
             $merchantDetails &&
-            $merchantDetails->sales->isNotEmpty() &&
             !is_null($merchantDetails->approved_by) &&
+            $merchantDetails->documents->isNotEmpty() &&
             $merchantDetails->documents->every(fn($doc) => !is_null($doc->approved_by)) &&
-            $merchantDetails->sales->some(fn($sale) => is_null($sale->declined_by))
+            $merchantDetails->documents->some(fn($doc) => !is_null($doc->declined_by)) &&
+            $merchantDetails->sales->isNotEmpty() &&
+            $merchantDetails->sales->some(fn($sale) => is_null($sale->declined_by) &&
+            $userStage == 3)
         ) {
             return redirect()->route('decline.merchants.sales', ['merchant_id' => $id]);
         }
-    
+   
         // Step 4: Decline Services
         if (
             $merchantDetails &&
-            $merchantDetails->services->isNotEmpty() &&
             !is_null($merchantDetails->approved_by) &&
+            $merchantDetails->documents->isNotEmpty() &&
             $merchantDetails->documents->every(fn($doc) => !is_null($doc->approved_by)) &&
-            $merchantDetails->sales->every(fn($sale) => !is_null($sale->approved_by)) &&
-            $merchantDetails->services->some(fn($service) => is_null($service->declined_by))
+            $merchantDetails->documents->some(fn($doc) => !is_null($doc->declined_by)) &&
+            $merchantDetails->sales->isNotEmpty() &&
+            $merchantDetails->sales->some(fn($sale) => !is_null($sale->declined_by)) &&
+            $merchantDetails->services->some(fn($service) => !is_null($service->declined_by) &&
+            $userStage == 4)
         ) {
             return redirect()->route('decline.merchants.services', ['merchant_id' => $id]);
         }
@@ -880,10 +900,28 @@ class MerchantsController extends Controller
     {
         $merchant_id = $request->input('merchant_id');
         $declineNotes = session()->pull('decline_notes', 'No notes provided');
+
+        
         $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->findOrFail($merchant_id);
         $merchant->declined_by = auth()->user()->id;
+        $merchant->approved_by = null;
         $merchant->decline_notes = $declineNotes;
         $merchant->save();
+
+        
+        $merchant = Merchant::with('documents')->find($merchant_id);
+
+        if ($merchant) {
+            $merchant->documents->each(function ($document) {
+                $document->update(['approved_by' => null]);
+            });
+        }
+        
+        MerchantSale::where('merchant_id', $merchant_id)
+            ->update(['approved_by' => null]);
+        
+        MerchantService::where('merchant_id', $merchant_id)
+            ->update(['approved_by' => null]);
         
         $this->notificationService->declineKYC($merchant_id, $declineNotes);
         return redirect()->back()->with('success', 'KYC declined successfully.');
@@ -891,16 +929,25 @@ class MerchantsController extends Controller
 
     public function decline_merchants_documents(Request $request)
     {
+        
+        
         $merchant_id = $request->input('merchant_id');
         $declineNotes = session()->pull('decline_notes', 'No notes provided');
         $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->findOrFail($merchant_id);
         foreach ($merchant->documents as $document) {
             $document->declined_by = auth()->user()->id;
             $document->decline_notes = $declineNotes;
+            $document->approved_by = null;
             $document->save();
         }
 
-        $this->notificationService->declineMerchantsDocuments($merchant_id);
+        MerchantSale::where('merchant_id', $merchant_id)
+        ->update(['approved_by' => null]);
+    
+        MerchantService::where('merchant_id', $merchant_id)
+            ->update(['approved_by' => null]);
+
+        $this->notificationService->declineMerchantsDocuments($merchant_id, $declineNotes);
         return redirect()->back()->with('success', 'Merchant documents declined successfully.');
     }
 
@@ -912,24 +959,27 @@ class MerchantsController extends Controller
         foreach ($merchant->sales as $sale) {
             $sale->declined_by = auth()->user()->id;
             $sale->decline_notes = $declineNotes;
+            $sale->approved_by = null;
             $sale->save();
         }
-        $this->notificationService->declineMerchantsSales($merchant_id);
+        MerchantService::where('merchant_id', $merchant_id)
+        ->update(['approved_by' => null]);
+        $this->notificationService->declineMerchantsSales($merchant_id, $declineNotes);
         return redirect()->back()->with('success', 'Merchant sales declined successfully.');
     }
 
     public function decline_merchants_services(Request $request)
     {
         $merchant_id = $request->input('merchant_id');
-
         $declineNotes = session()->pull('decline_notes', 'No notes provided');
         $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->findOrFail($merchant_id);
         foreach ($merchant->services as $service) {
             $service->declined_by = auth()->user()->id;
             $service->decline_notes = $declineNotes;
+            $service->approved_by = null;
             $service->save();
         }
-        $this->notificationService->declineMerchantsServices($merchant_id);
+        $this->notificationService->declineMerchantsServices($merchant_id, $declineNotes);
         return redirect()->back()->with('success', 'Merchant services declined successfully.');
     }
 
