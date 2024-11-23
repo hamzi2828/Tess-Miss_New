@@ -104,55 +104,7 @@
             </div>
         </div>
     </div>
-
-    {{-- Decline Modal --}}
-    <div class="modal fade" id="declineModal" tabindex="-1" aria-labelledby="declineModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form action="{{ route('merchants.decline', $merchant_details->id) }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="declineModalLabel">Decline Merchant</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="declineNotes" class="form-label"><strong>Reason for Declining:</strong></label>
-                            <textarea id="declineNotes" name="decline_notes" class="form-control" rows="4" placeholder="Enter the reason for declining..." required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Submit Decline</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Back and Approve Buttons --}}
-    <div class="d-flex justify-content-end mt-4">
-        <a href="{{ url()->previous() }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-1"></i> Back
-        </a>
-
-        @if(auth()->user()->role === 'supervisor' && !$allApproved)
-            {{-- Approve Button --}}
-            <form action="{{ route('merchants.approve', $merchant_details->id) }}" method="POST" class="ms-2">
-                @csrf
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-check me-1"></i> Approve
-                </button>
-            </form>
-
-            {{-- Decline Button --}}
-            <form class="ms-2">
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                    <i class="fas fa-times me-1"></i> Decline
-                </button>
-            </form>
-        @endif
-    </div>
-
+ 
+  @include('pages.merchants.components.approveOrDecline')
 </div>
 @endsection

@@ -101,7 +101,12 @@ class User extends Authenticatable
         $department = Department::find($departmentId);
         return $department ? $department->title : 'N/A';
     }
-
+    public function getDepartmentStage($departmentId)
+    {
+        
+        $department = Department::find($departmentId);
+        return $department ? $department->stage : 'N/A';
+    }
     public function supervisor()
     {
         return $this->belongsTo(User::class, 'supervisor_id'); 
