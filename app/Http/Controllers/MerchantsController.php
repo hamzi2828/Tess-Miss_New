@@ -445,7 +445,7 @@ class MerchantsController extends Controller
         if (auth()->user()->can('changeServices', auth()->user()))
         {
             if ($merchant_details && !$merchant_details->sales->every(fn($sale) => $sale->approved_by !== null) ) {             
-                return redirect()->back()->with('error', 'Documents not approved yet.');
+                return redirect()->back()->with('error', 'Sales not approved yet.');
             }
             return view('pages.merchants.edit.edit-merchants-services', compact('merchant_details', 'title', 'services'));
         }else{
