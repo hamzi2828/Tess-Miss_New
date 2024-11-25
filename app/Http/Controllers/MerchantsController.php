@@ -390,11 +390,16 @@ class MerchantsController extends Controller
         $merchant_details = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->where('id', $merchant_id)->first();
         $all_documents  = Document::all();
 
+        
         if ($merchant_details->documents->isEmpty()) {
             return redirect()->route('create.merchants.documents', ['merchant_id' => $merchant_id]);
         }
         if (auth()->user()->can('changeDocuments', auth()->user()))
         {
+            if (is_null($merchant_details->approved_by)) {
+                return redirect()->back()->with('error', 'kyc not approved yet.');
+                }
+
             return view('pages.merchants.edit.edit-merchants-documents', compact('merchant_details', 'title', 'all_documents'));
         }else{
             return redirect()->back()->with('error', 'You are not authorized.');
@@ -415,6 +420,10 @@ class MerchantsController extends Controller
         }
         if (auth()->user()->can('changeSales', auth()->user()))
         { 
+              
+        if ($merchant_details && !$merchant_details->documents->every(fn($doc) => $doc->approved_by !== null)) {             
+            return redirect()->back()->with('error', 'Documents not approved yet.');
+        }
         return view('pages.merchants.edit.edit-merchants-sales', compact('merchant_details', 'title'));
         }else{
             return redirect()->back()->with('error', 'You are not authorized.');
@@ -435,6 +444,9 @@ class MerchantsController extends Controller
         }
         if (auth()->user()->can('changeServices', auth()->user()))
         {
+            if ($merchant_details && !$merchant_details->sales->every(fn($sale) => $sale->approved_by !== null) ) {             
+                return redirect()->back()->with('error', 'Documents not approved yet.');
+            }
             return view('pages.merchants.edit.edit-merchants-services', compact('merchant_details', 'title', 'services'));
         }else{
             return redirect()->back()->with('error', 'You are not authorized.');
@@ -483,6 +495,7 @@ class MerchantsController extends Controller
             return redirect()->back()->with('error', 'You are not authorized to edit this KYC as it has already been approved.');
         }
         
+ 
         // Use the service to update merchant
         $this->merchantsService->updateMerchants($validatedData, $merchant_id);
         $this->notificationService->storeMerchantsKYC($merchant);
