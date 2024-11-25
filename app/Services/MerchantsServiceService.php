@@ -145,7 +145,7 @@ class MerchantsServiceService
                     'merchant_id' => $merchant_id,
                     'service_id' => $service_id,
                     'field_name' => 'Field ' . $index, 
-                    'field_value' => $fieldValue,
+                    'field_value' => $fieldValue ?? '',
                     'added_by' => Auth::user()->id ?? 1, 
                     'status' => true, 
                 ]);

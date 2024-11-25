@@ -105,6 +105,11 @@ class MerchantsController extends Controller
                 ->where('id', $merchant_id)
                 ->first();
              $merchant_shareholders = MerchantShareholder::where('merchant_id', $merchant_id)->get();
+
+             if (is_null($merchant_details->approved_by)) {
+                return redirect()->back()->with('error', 'kyc not approved yet.');
+             }
+
             if ($merchant_details && !$merchant_details->documents->isEmpty()) {
                 return redirect()->route('edit.merchants.documents', ['merchant_id' => $merchant_id])
                     ->with('info', 'Documents already exists. Redirecting to edit page.');
@@ -136,6 +141,10 @@ class MerchantsController extends Controller
                 ->where('id', $merchant_id)
                 ->first();
 
+            
+            if ($merchant_details && !$merchant_details->documents->every(fn($doc) => $doc->approved_by !== null)) {             
+                return redirect()->back()->with('error', 'Documents not approved yet.');
+            }
             if ($merchant_details && $merchant_details->sales->isNotEmpty()) {
                 return redirect()->route('edit.merchants.sales', ['merchant_id' => $merchant_id])
                     ->with('info', 'Sales data already exists. Redirecting to edit page.');
@@ -162,6 +171,9 @@ class MerchantsController extends Controller
                 ->where('id', $merchant_id)
                 ->first();
 
+            if ($merchant_details && !$merchant_details->sales->every(fn($sale) => $sale->approved_by !== null) ) {             
+                return redirect()->back()->with('error', 'Documents not approved yet.');
+            }
             if ( $merchant_details->services->isNotEmpty()) {
                 return redirect()->route('edit.merchants.services', ['merchant_id' => $merchant_id])
                     ->with('info', 'Services data already exists. Redirecting to edit page.');
@@ -315,10 +327,10 @@ class MerchantsController extends Controller
        
          // Step 1: Validate the incoming data
          $validatedData = $request->validate([
-             'services' => 'required|array',
-             'services.*.fields' => 'required|array',
-             'services.*.fields.*' => 'required|string',
-         ]);
+            'services.*.fields.*' => 'nullable|string',
+        ]);
+    
+
 
          $merchant = $request->input('merchant_id');
          $merchant_id = $merchant['id'] ?? $request->input('merchant_id');
@@ -489,6 +501,8 @@ class MerchantsController extends Controller
         
         MerchantService::where('merchant_id', $merchant_id)
             ->update(['approved_by' => null]);
+            //  Reset decline notes 
+        session()->forget('print_decline_notes');
 
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Merchant and Shareholders successfully updated.');
@@ -607,7 +621,7 @@ class MerchantsController extends Controller
         MerchantService::where('merchant_id', $merchant_id)
             ->update(['approved_by' => null]);
         
-
+        session()->forget('print_decline_notes');
         return redirect()->back()->with('success', 'Documents successfully updated.');
     }
 
@@ -646,7 +660,7 @@ class MerchantsController extends Controller
         // Step 4: Update Merchant Sales
         $this->merchantsService->updateMerchantsSales($validatedData['sales'], $merchant_id);
         $this->notificationService->storeMerchantsSales($merchant_id);
-    
+        session()->forget('print_decline_notes');
         // Step 5: Return Success Response
         return redirect()->back()->with('success', 'Merchant sales data successfully updated.');
     }
@@ -672,11 +686,11 @@ class MerchantsController extends Controller
         ) {
             return redirect()->back()->with('error', 'You are not authorized to edit these services as they have already been approved.');
         }
-    
+
         // Step 4: Update merchant services
         $this->merchantsService->updateMerchantsServices($validatedData['services'], $merchant_id);
         $this->notificationService->storeMerchantsServices($merchant_id);
-
+        session()->forget('print_decline_notes');
         // Step 5: Return success response
         return redirect()->back()->with('success', 'Merchant services data successfully updated.');
     }
@@ -809,8 +823,9 @@ class MerchantsController extends Controller
         ]);
        
         $declineNotes = $request->input('decline_notes');
-
-        session()->put('decline_notes', $declineNotes); 
+        session()->put('decline_notes', $declineNotes);
+        session()->put('print_decline_notes', $declineNotes);
+        
        
         $merchantDetails = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->findOrFail($id);
 

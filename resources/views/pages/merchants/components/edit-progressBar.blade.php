@@ -109,17 +109,34 @@
    {{-- Alert Messages --}}
    @if(session('error'))
    <br>
-   <div class="alert alert-danger">
+   <div class="alert alert-danger d-flex justify-content-center">
        {{ session('error') }}
    </div>
    @endif
 
    @if(session('success'))
    <br>
-   <div class="alert alert-success">
+   <div class="alert alert-success d-flex justify-content-center">
        {{ session('success') }}
    </div>
    @endif
+
+   @if(session('info'))
+   <br>
+   <div class="alert alert-info d-flex justify-content-center">
+       {{ session('info') }}
+   </div>
+   @endif
+
+   @if(session('print_decline_notes'))
+   <div class="alert alert-info d-flex justify-content-center">
+    <div>
+        <strong class="mx-auto">Decline Notes: </strong> {{ session('print_decline_notes') }}
+    </div>
+   </div>
+   @endif
+
+
 
 <div class="header text-center mb-4" style="background-color: rgb(115,103,240); padding:2px; border-radius: 8px;">
     <h2 style="color: white;">{{ $title }}</h2>

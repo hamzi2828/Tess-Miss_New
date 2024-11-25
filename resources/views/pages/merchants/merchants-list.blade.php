@@ -6,7 +6,26 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="app-ecommerce-merchant">
 
-            
+            @if(session('error'))
+            <br>
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+            @endif
+         
+            @if(session('success'))
+            <br>
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+            @endif
+         
+            @if(session('info'))
+            <br>
+            <div class="alert alert-info">
+                {{ session('info') }}
+            </div>
+            @endif
             <div class="d-flex justify-content-between mb-3">
                 <h4 class="fw-bold">All Merchants</h4>
 
