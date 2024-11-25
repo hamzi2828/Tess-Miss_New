@@ -172,7 +172,7 @@ class MerchantsController extends Controller
                 ->first();
 
             if ($merchant_details && !$merchant_details->sales->every(fn($sale) => $sale->approved_by !== null) ) {             
-                return redirect()->back()->with('error', 'Documents not approved yet.');
+                return redirect()->back()->with('error', 'Sales not approved yet.');
             }
             if ( $merchant_details->services->isNotEmpty()) {
                 return redirect()->route('edit.merchants.services', ['merchant_id' => $merchant_id])
@@ -430,7 +430,7 @@ class MerchantsController extends Controller
         }
     }
 
-    public function edit_merchants_services(Request $request)
+    public function edit_merchants_services(Request $request) 
     {
         $merchant_id = $request->input('merchant_id');
         $title = 'Edit Merchants Services';
