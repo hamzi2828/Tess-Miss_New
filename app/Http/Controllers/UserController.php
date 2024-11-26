@@ -25,7 +25,14 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('department')->get();
+        $users = User::with('department')->where('role', '!=', 'frontendUser')->get();
+
+        return view('pages.users.users-list', compact('users'));
+    }
+
+    public function frontendUsers()
+    {
+        $users = User::with('department')->where('role', 'frontendUser')->get();
 
         return view('pages.users.users-list', compact('users'));
     }

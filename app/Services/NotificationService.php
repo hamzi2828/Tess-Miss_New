@@ -194,6 +194,8 @@ class NotificationService
         $this->declineEntity($merchant, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
     }
 
+
+
     // Decline Documents
     public function declineMerchantsDocuments($merchantId, $declineNotes)
     {
@@ -274,4 +276,32 @@ class NotificationService
         }
     }
 
+    
+    public function declineKYCFrontendUser($merchantId, $declineNotes )
+    {
+        $merchant = Merchant::findOrFail($merchantId);
+        $merchant->declined_by = auth()->user()->id;
+        $merchant->save();
+        $addedByUserId = $merchant->added_by;
+        $activityType = 'decline';
+        $notificationMessage = "The KYC has been declined with the following notes: " . $declineNotes;
+        $declinedByUserName = auth()->user()->name;
+
+        $this->declineFrontendUserEntity($merchant, $activityType, $notificationMessage, $declinedByUserName, $addedByUserId);
+    }
+
+
+    private function declineFrontendUserEntity($entity, $type, $notificationMessage, $declinedByUserName, $addedByUserId)
+    {
+        $user = User::findOrFail($addedByUserId);
+        $user->notify(new MerchantActivityNotification($type, $entity, $declinedByUserName, $notificationMessage));
+    }
+
+
+
 }
+
+
+
+
+

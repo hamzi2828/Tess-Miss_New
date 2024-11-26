@@ -40,12 +40,15 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
 
 
+
     Route::resource('users', UserController::class);
     Route::get('/usersEdit', [UserController::class, 'edit'])->name('users.edit');
     Route::get('/usersCreate', [UserController::class, 'create'])->name('users.create');
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
     Route::get('/activity-logs', [UserController::class, 'activityLogs'])->name('activity.logs');
     Route::get('/activity-my_logs', [UserController::class, 'activityMyLogs'])->name('activity.my_logs');
+    Route::get('/merchant-users', [UserController::class, 'merchantUsers'])->name('merchant-users.index');
+
 
     Route::get('/notifications/read/{id}', [UserController::class, 'markAsRead'])->name('notifications.read');
     Route::get('/notifications/mark-all', [UserController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');

@@ -37,7 +37,8 @@
                 {{-- Gender --}}
             <div class="mb-4">
                 <label class="form-label fw-medium text-secondary" for="userGender">Gender</label>
-                <select id="userGender" class="form-select" name="userGender" required>
+                <select id="userGender" class="form-select select2" name="userGender" required>
+                    <option value="" {{ is_null($user->userGender) ? 'selected' : '' }}>Select</option>
                     <option value="male" {{ $user->userGender == 'male' ? 'selected' : '' }}>Male</option>
                     <option value="female" {{ $user->userGender == 'female' ? 'selected' : '' }}>Female</option>
                 </select>   
@@ -58,7 +59,7 @@
                 <div class="mb-4">
                     <label for="selectDepartment" class="form-label fw-medium text-secondary">Department</label>
                     <select class="form-select select2" id="selectDepartment" name="department_id" required>
-                       
+                        <option value="" {{ is_null($user->department) ? 'selected' : '' }}>Select Department</option>
                         @foreach($departments as $department)
                             <option value="{{ $department->id }}" {{ $user->department == $department->id ? 'selected' : '' }}>
                                 {{ $department->title }}
@@ -71,8 +72,10 @@
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userRole">Select User Role</label>
                     <select id="userRole" class="form-select select2" name="user_role" required>
-                        <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>Simple User</option>
+                        <option value="user" {{ $user->role == 'user' ? 'selected' : '' }}>Staff User</option>
                         <option value="supervisor" {{ $user->role == 'supervisor' ? 'selected' : '' }}>Supervisor</option>
+                        <option value="frontendUser" {{ $user->role == 'frontendUser' ? 'selected' : '' }}>Frontend User</option>
+
                     </select>
                 </div>
                 

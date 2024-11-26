@@ -911,6 +911,8 @@ class MerchantsController extends Controller
         $merchant->decline_notes = $declineNotes;
         $merchant->save();
 
+        $addedByUser = User::find($merchant->added_by);
+
         
         $merchant = Merchant::with('documents')->find($merchant_id);
 
@@ -925,8 +927,11 @@ class MerchantsController extends Controller
         
         MerchantService::where('merchant_id', $merchant_id)
             ->update(['approved_by' => null]);
-        
+        if($addedByUser->role == 'frontendUser'){
+        $this->notificationService->declineKYCFrontendUser($merchant_id, $declineNotes);
+        }else{
         $this->notificationService->declineKYC($merchant_id, $declineNotes);
+        }
         return redirect()->back()->with('success', 'KYC declined successfully.');
     }
 

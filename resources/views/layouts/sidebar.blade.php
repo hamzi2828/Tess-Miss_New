@@ -203,6 +203,31 @@
  
       </ul>
     </li>
+    <li class="menu-item {{ request()->routeIs('merchant-users.*') ? 'open' : '' }}">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons ti ti-users"></i>
+        <div data-i18n="Merchant-Users">Merchant Users</div>
+      </a>
+      <ul class="menu-sub">
+        @can('viewUsers', App\Models\User::class)
+        <li class="menu-item {{ request()->routeIs('merchant-users.index') ? 'active' : '' }}">
+          <a href="{{ route('merchant-users.index') }}" class="menu-link">
+            <div data-i18n="All-Merchant-Users">All Merchant Users</div>
+          </a>
+        </li>
+        @endcan
+    
+
+       {{-- @can('addUser', App\Models\User::class)
+        <li class="menu-item {{ request()->routeIs('users.create') ? 'active' : '' }}">
+          <a href="{{ route('users.create') }}" class="menu-link">
+            <div data-i18n="Create-User">Create User</div>
+          </a>
+        </li>
+        @endcan --}}
+ 
+      </ul>
+    </li>
     @endcan
 
     </ul>
