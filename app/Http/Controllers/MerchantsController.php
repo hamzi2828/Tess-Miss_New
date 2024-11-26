@@ -802,13 +802,28 @@ class MerchantsController extends Controller
 
     public function approveKYC(Request $request){
         $merchant_id = $request->input('merchant_id');
-        $this->notificationService->approveKYC($merchant_id);
+        $merchant = Merchant::with('documents')->find($merchant_id);
+        $addedByUser = User::find($merchant->added_by);
+        if($addedByUser->role == 'frontendUser'){
+            $this->notificationService->approveKYCFrontendUser($merchant_id);
+            }else{
+             $this->notificationService->approveKYC($merchant_id);
+            }
         return redirect()->back()->with('success', 'KYC approved successfully.');
     }
 
     public  function approve_merchants_documents(Request $request){
         $merchant_id = $request->input('merchant_id');
+        $merchant = Merchant::with('documents')->find($merchant_id);
+        $addedByUser = User::find($merchant->added_by);
+        if($addedByUser->role == 'frontendUser'){
+            $this->notificationService->approveMerchantsDocumentsFrontendUser($merchant_id);
+            }
         $this->notificationService->approveMerchantsDocuments($merchant_id);
+           
+
+
+ 
         return redirect()->back()->with('success', 'Merchant documents approved successfully.');
     }
 
@@ -949,13 +964,18 @@ class MerchantsController extends Controller
             $document->save();
         }
 
+        $addedByUser = User::find($merchant->added_by);
+
         MerchantSale::where('merchant_id', $merchant_id)
         ->update(['approved_by' => null]);
     
         MerchantService::where('merchant_id', $merchant_id)
             ->update(['approved_by' => null]);
-
+            if($addedByUser->role == 'frontendUser'){   
+        $this->notificationService->declineMerchantsDocumentsFrontendUser($merchant_id, $declineNotes);
+        }else{
         $this->notificationService->declineMerchantsDocuments($merchant_id, $declineNotes);
+        }
         return redirect()->back()->with('success', 'Merchant documents declined successfully.');
     }
 

@@ -289,6 +289,19 @@ class NotificationService
 
         $this->declineFrontendUserEntity($merchant, $activityType, $notificationMessage, $declinedByUserName, $addedByUserId);
     }
+      public function declineMerchantsDocumentsFrontendUser($merchantId, $declineNotes)
+    {
+
+        $merchant = Merchant::findOrFail($merchantId);
+        $merchant->declined_by = auth()->user()->id;
+        $merchant->save();
+        $addedByUserId = $merchant->added_by;
+        $activityType = 'decline';
+        $notificationMessage = "Merchant documents have been declined with the following notes: " . $declineNotes;
+        $declinedByUserName = auth()->user()->name;
+
+        $this->declineFrontendUserEntity($merchant, $activityType, $notificationMessage, $declinedByUserName, $addedByUserId);
+    }
 
 
     private function declineFrontendUserEntity($entity, $type, $notificationMessage, $declinedByUserName, $addedByUserId)
@@ -297,8 +310,48 @@ class NotificationService
         $user->notify(new MerchantActivityNotification($type, $entity, $declinedByUserName, $notificationMessage));
     }
 
+    public function approveKYCFrontendUser($merchantId)
+    {
+        $merchant = Merchant::findOrFail($merchantId);
+        $merchant->approved_by = auth()->user()->id;
+        $merchant->declined_by = null;
+        $merchant->save();
+    
+        $addedByUserId = $merchant->added_by;
+        $activityType = 'approve';
+        $notificationMessage = "A new KYC has been approved. Please proceed with submitting the documents.";
+        $approvedByUserName = auth()->user()->name;
+    
+        // Call the entity approval function
+        $this->approveFrontendUserEntity($merchant, $activityType, $notificationMessage, $approvedByUserName, $addedByUserId);
+    }
 
+    public function approveMerchantsDocumentsFrontendUser($merchantId)
+    {
+        $merchant = Merchant::findOrFail($merchantId);
+        $documents = MerchantDocument::where('merchant_id', $merchantId)->get();
 
+        // Loop through each document to update the approval
+        foreach ($documents as $document) {
+            $document->approved_by = auth()->user()->id;
+            $document->declined_by = null;
+            $document->save();
+        }
+        $activityType = 'approve';
+        $notificationMessage = "Merchant documents have been approved";
+        $addedByUserId = $merchant->added_by;
+        $approvedByUserName = auth()->user()->name;
+
+        $this->approveFrontendUserEntity($merchant, $activityType, $notificationMessage, $approvedByUserName, $addedByUserId);
+
+    }
+    
+    private function approveFrontendUserEntity($entity, $type, $notificationMessage, $approvedByUserName, $addedByUserId)
+    {
+        $user = User::findOrFail($addedByUserId);
+        $user->notify(new MerchantActivityNotification($type, $entity, $approvedByUserName, $notificationMessage));
+    }
+    
 }
 
 
