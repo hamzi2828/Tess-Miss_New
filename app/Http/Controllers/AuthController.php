@@ -59,7 +59,16 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
 
             $user = Auth::user();
-         
+
+
+            if($user->role === 'frontendUser'){
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'you are not allowed to login.',
+            ]);
+                  
+        }
             if($user->status === 'inactive'){
                 Auth::logout();
                 // return redirect()->route('login');

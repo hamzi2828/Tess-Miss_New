@@ -142,8 +142,12 @@
         </div>
         
 
+  
         <!-- Right Side: Permissions Section -->
+        @if ($user->role !== 'frontendUser')
         @include('pages.users.permissons.premissions')
+        @endif
+     
 
    
     </div>
