@@ -7,6 +7,7 @@ use App\Models\MerchantDocument;
 use App\Models\MerchantSale;
 use App\Models\MerchantShareholder;
 use App\Models\MerchantService;
+use App\Services\DocumentsService;
 use App\Models\Document;
 use App\Models\Service;
 use App\Models\Country;
@@ -15,7 +16,7 @@ use App\Services\MerchantsServiceService;
 use App\Notifications\MerchantActivityNotification;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\File;
-
+ 
 
 
 use Illuminate\Http\Request;
@@ -25,11 +26,13 @@ class MerchantsController extends Controller
 
     protected $merchantsService;
     protected $notificationService;
+    protected $documentsService;
 
-    public function __construct(MerchantsServiceService $merchantsService, NotificationService $notificationService)
+    public function __construct(MerchantsServiceService $merchantsService, NotificationService $notificationService, DocumentsService $documentsService)
     {
         $this->merchantsService = $merchantsService;
         $this->notificationService = $notificationService;
+        $this->documentsService = $documentsService;
     }
     /**
      * Display a listing of the resource.
@@ -522,124 +525,31 @@ class MerchantsController extends Controller
 
     }
 
+   
+
+
+
     public function update_merchants_documents(Request $request)
     {
-        $validatedData = $request->validate([
-            'document_*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx|max:2048',
-            'expiry_*' => 'nullable|date',
-        ]);
-
-        $merchant = $request->input('merchant_id');
-         
-        $merchant_id = $merchant['id'] ?? $request->input('merchant_id');
-
-        $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->find($merchant_id);
-
-        if (
-            auth()->user()->role === 'user' &&
-            $merchant &&
-            $merchant->documents->every(fn($document) => $document->approved_by !== null)
-        ) {
-            return redirect()->back()->with('error', 'You are not authorized to edit these documents as they have already been approved.');
+        try {
+            $validatedData = $request->validate([
+                'document_*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx|max:2048',
+                'expiry_*' => 'nullable|date',
+                'replace_document_*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx|max:2048',
+                'replace_expiry_*' => 'nullable|date',
+            ]);
+    
+            // Use the correctly cased property
+            $this->documentsService->updateDocuments($validatedData, $request);
+    
+            return redirect()->back()->with('success', 'Documents successfully updated.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
-
-        foreach ($request->all() as $key => $value) {
-            if (strpos($key, 'document_') === 0 && $request->hasFile($key)) {
-                $keyParts = explode('_', $key);
-        
-                // Extract document-related information based on key format
-                if (count($keyParts) === 3) {
-                    // Format: "document_67_previousDocumentId"
-                    $document_id = $keyParts[1];
-                    $previous_document_id = $keyParts[2];
-                    $shareholder_id = null;
-                    $shareholder_name = null;
-                    $expiryDate = null;
-        
-                } elseif (count($keyParts) >= 4) {
-                    // Format: "document_2_Tina_68"
-                    $document_id = $keyParts[1];
-                    $shareholder_name = $keyParts[2];
-                    $previous_document_id = $keyParts[3];
-                    $expiryDateKey = 'expiry_' . $document_id;
-                    $expiryDate = $request->input($expiryDateKey, null);
-                } else {
-                    continue;
-                }
-        
-                $file = $request->file($key);
-                $fileName = $document_id . '_' . ($shareholder_name ? $shareholder_name . '_' : '') . $file->getClientOriginalName();
-        
-                // Store the file using Laravel's storage mechanism
-                $filePath = $file->storeAs('documents', $fileName, 'public');
-        
-                // Fetch the previous document using the 'previous_document_id'
-                $existingDocument = MerchantDocument::where('id', $previous_document_id)
-                                                    ->where('merchant_id', $merchant_id)
-                                                    ->first();
-             File::copy(storage_path('app/public/' . $filePath), public_path('storage/' . $filePath));
-                if ($existingDocument) {
-                    // Update the existing document if it exists
-                    $existingDocument->update([
-                        'title' => $fileName,
-                        'document' => 'storage/' . $filePath, // Use storage path for public access
-                        'date_expiry' => $expiryDate,
-                        'added_by' => auth()->user()->id,
-                        'document_type' => $file->getClientMimeType(),
-                        'emailed' => false,
-                        'status' => true,
-                        
-                    ]);
-                } else {
-                    // If no previous document exists, create a new record
-                    MerchantDocument::create([
-                        'id' => $document_id,
-                        'title' => $fileName,
-                        'document' => 'storage/' . $filePath,
-                        'date_expiry' => $expiryDate,
-                        'merchant_id' => $merchant_id,
-                        'added_by' => auth()->user()->id,
-                        'document_type' => $file->getClientMimeType(),
-                        'emailed' => false,
-                        'status' => true,
-                    ]);
-                }
-            }
-        }
-        
-        // Handle updating expiry dates for existing documents
-        foreach ($request->all() as $key => $value) {
-            if (strpos($key, 'existing_document_') === 0) {
-                $existing_document_id = str_replace('existing_document_', '', $key);
-                $expiryDateKey = 'expiry_' . $existing_document_id;
-                $expiryDate = $request->input($expiryDateKey, null);
-        
-                MerchantDocument::where('id', $existing_document_id)
-                    ->where('merchant_id', $merchant_id)
-                    ->update(['date_expiry' => $expiryDate]);
-            }
-        }
-        $merchant = Merchant::with('documents')->find($merchant_id);
-
-        if ($merchant) {
-            $merchant->documents->each(function ($document) {
-                $document->update(['approved_by' => null]);
-            });
-        }
-        
-        // Reset approvals for sales and services
-        MerchantSale::where('merchant_id', $merchant_id)
-            ->update(['approved_by' => null]);
-        
-        MerchantService::where('merchant_id', $merchant_id)
-            ->update(['approved_by' => null]);
-        
-        session()->forget('print_decline_notes');
-        return redirect()->back()->with('success', 'Documents successfully updated.');
     }
+    
 
-
-
+    
 
     public function update_merchants_sales(Request $request)
     {

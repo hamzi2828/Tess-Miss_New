@@ -125,6 +125,7 @@
                                 </div>
                             @endif
                         @endforeach
+
                         <!-- Section for Expired Documents -->
                         <h4 class="mt-4 mb-3 ">Expired Documents</h4>
                         @foreach($merchant_details['documents'] as $document)
@@ -134,28 +135,42 @@
 
                             @if($documentExpired) 
                             <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">
-                                        <strong>{{ $matchingDocument->title ?? 'Document' }}</strong>
-                                    </label>
-                                    <div class="input-group">
-                                        @if(!empty($document['document']))
-                                            <a href="{{ asset($document['document']) }}" target="_blank" class="btn btn-outline-secondary">
-                                                <i class="tf-icons ti ti-file"></i> View
-                                            </a>
-                                        @else
-                                            <p class="text-muted">No file available</p>
-                                        @endif
-                                    </div>
-                                </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">
+                                            @php
+                                                $titleParts = explode('_', $document['title']); 
+                                                $documentId = $titleParts[0]; 
+                                                $secondWord = $titleParts[1] ?? null; 
+                                                $matchingDocument = $all_documents->firstWhere('id', (int)$documentId);
+                                                $title = $matchingDocument ? $matchingDocument->title : 'Document';
 
-                                <div class="col-md-6 mt-5">
+                                                if ($matchingDocument && $matchingDocument->title === 'QID' && $secondWord) {
+                                                    $title .= " for " . $secondWord;
+                                                }
+                                            @endphp
+                                            <strong>{{ $title }}</strong>
+                                        </label>
+                                        <div class="input-group">
+                                            @if(!empty($document['document']))
+                                                <!-- Display a clickable button with an icon -->
+                                                <a href="{{ asset($document['document']) }}" target="_blank" class="btn btn-outline-secondary">
+                                                    <i class="tf-icons ti ti-file"></i> View 
+                                                </a>
+                                            @else
+                                                <p class="text-muted">No file available</p>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    @if($matchingDocument && $matchingDocument->require_expiry)
+                                    <div class="col-md-6 mt-5">
 
                                     <p><strong>Expiry Date:</strong> 
                                     {{ $document['date_expiry'] ? \Carbon\Carbon::parse($document['date_expiry'])->format('Y-m-d') : 'N/A' }}
                                     </p> 
                                     </div>
-                            </div>
+                                    @endif
+                                </div>
                             @endif
                         @endforeach
                     </div>
