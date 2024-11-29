@@ -83,9 +83,16 @@
                                     $expiryDate = \Carbon\Carbon::parse($document['date_expiry']);
                                     $documentExpired = $expiryDate->isPast();
                                 }
+                                 $originalDocument = false;
+                                if (isset($document['previous_doc_id'])) {
+                                    $originalDocument= $document['previous_doc_id'];
+                                   
+                                    
+                                }
                             @endphp
+                            <!-- Only display non-expired documents -->
 
-                            @if(!$documentExpired) <!-- Only display non-expired documents -->
+                            @if(!$documentExpired && !$originalDocument) 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label class="form-label">
@@ -131,7 +138,8 @@
                         @foreach($merchant_details['documents'] as $document)
                             @php
                                 $documentExpired = isset($document['date_expiry']) && \Carbon\Carbon::parse($document['date_expiry'])->isPast();
-                            @endphp
+                                $replacementDocument = \App\Models\MerchantDocument::where('previous_doc_id', $document['id'])->first();
+                           @endphp
 
                             @if($documentExpired) 
                             <div class="row mb-3">
@@ -172,6 +180,33 @@
                                     @endif
                                 </div>
                             @endif
+
+                            @if($replacementDocument)
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <strong>Replacement</strong>
+                                    </label>
+                                    <div class="input-group">
+                                        @if(!empty($replacementDocument->document))
+                                            <!-- Display a clickable button for the replacement document -->
+                                            <a href="{{ asset($replacementDocument->document) }}" target="_blank" class="btn btn-outline-success">
+                                                <i class="tf-icons ti ti-file-check"></i> View 
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mt-5">
+                                  
+                                        <strong>Expiry Date</strong>
+                                   
+                                    <p>
+                                        {{ $replacementDocument->date_expiry ? \Carbon\Carbon::parse($replacementDocument->date_expiry)->format('Y-m-d') : 'N/A' }}
+                                    </p>
+                                </div>
+                            </div>
+                            @endif
+
                         @endforeach
                     </div>
                 @endif

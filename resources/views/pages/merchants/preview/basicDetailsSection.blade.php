@@ -142,34 +142,56 @@
 </div>
 
 
-      <!-- Shareholders Section with Add Button -->
- <div class="form-section box-container">
-    <h4 class="mb-3 basic-details-header ">Shareholders</h4>
+<!-- Shareholders Section with Add Button -->
+<div class="form-section box-container">
+    <h4 class="mb-3 basic-details-header">Shareholders</h4>
 
     <!-- Container for all shareholders -->
     <div id="shareholders-container" class="form-section box-container mb-4">
-    
-        @foreach($merchant_details['shareholders'] as $shareholder)
-        <div class="shareholder-entry row mb-3">
-            <div class="col-md-4">
-                <p>
-                    <strong>Shareholder Name:</strong> 
-                    {{ $shareholder['title'] ?? 'N/A' }}
-                </p>
+        @if(!empty($merchant_details['shareholders']) && count($merchant_details['shareholders']) > 0)
+            @foreach($merchant_details['shareholders'] as $shareholder)
+            <div class="shareholder-entry row mb-3">
+                <div class="col-md-2">
+                    <p>
+                        <strong>First Name:</strong>
+                        {{ $shareholder['first_name'] ?? 'N/A' }}
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <p>
+                        <strong>Middle Name:</strong>
+                        {{ $shareholder['middle_name'] ?? 'N/A' }}
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <p>
+                        <strong>Last Name:</strong>
+                        {{ $shareholder['last_name'] ?? 'N/A' }}
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <p>
+                        <strong>Date of Birth:</strong>
+                        {{ $shareholder['dob'] ?? 'N/A' }}
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <p>
+                        <strong>Nationality:</strong>
+                        {{ $Country->firstWhere('id', $shareholder['country_id'])?->country_name ?? 'N/A' }}
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <p>
+                        <strong>Shareholder QID:</strong>
+                        {{ $shareholder['qid'] ?? 'N/A' }}
+                    </p>
+                </div>
             </div>
-            <div class="col-md-4">
-                <p>
-                    <strong>Shareholder Nationality:</strong> 
-                    {{ $Country->firstWhere('id', $shareholder['country_id'])?->country_name ?? 'N/A' }}
-                </p>
-            </div>
-            <div class="col-md-4">
-                <p>
-                    <strong>Shareholder QID:</strong> 
-                    {{ $shareholder['qid'] ?? 'N/A' }}
-                </p>
-            </div>
-        </div>
-        @endforeach
+            @endforeach
+        @else
+        <p class="text-muted">No shareholders have been added yet.</p>
+        @endif
     </div>
 </div>
+
