@@ -197,10 +197,8 @@ class MerchantsController extends Controller
 
      public function store_merchants_kyc(Request $request)
      {
-         // Dump the request data to check structure
-       
          // Validate the request
-         $validatedData  = $request->validate([
+         $validatedData = $request->validate([
              'merchant_name' => 'required|string|max:255',
              'date_of_incorporation' => 'required|date',
              'merchant_arabic_name' => 'required|string|max:255',
@@ -210,28 +208,42 @@ class MerchantsController extends Controller
              'company_activities' => 'required|integer',
              'landline_number' => 'required|string|max:15',
              'website' => 'nullable|url',
-            'email' => 'required|email|unique:merchants,merchant_email',
+             'email' => 'required|email|unique:merchants,merchant_email',
              'monthly_website_visitors' => 'nullable|integer',
-             'key_point_of_contact' => 'required|string',
+             'key_point_of_contact' => 'required|string|max:255',
              'monthly_active_users' => 'nullable|integer',
              'key_point_mobile' => 'required|string|max:15',
              'monthly_avg_volume' => 'nullable|integer',
-             'existing_banking_partner' => 'nullable|string',
+             'existing_banking_partner' => 'nullable|string|max:255',
              'monthly_avg_transactions' => 'required|integer',
-             'shareholderName.*' => 'required|string|max:255',
-             'shareholderNationality.*' => 'required|integer',
+             'shareholderFirstName.*' => 'required|string|max:255',
+             'shareholderMiddleName.*' => 'nullable|string|max:255',
+             'shareholderLastName.*' => 'required|string|max:255',
+             'shareholderDOB.*' => 'required|date',
+             'shareholderNationality.*' => 'required|integer|exists:countries,id',
              'shareholderID.*' => 'nullable|string|max:255',
+             'operating_countries' => 'required|array|min:1',
+             'operating_countries.*' => 'integer|exists:countries,id',
          ]);
-
-       // Create the merchant using the service
-        $merchant = $this->merchantsService->createMerchants($validatedData);
-        $this->notificationService->storeMerchantsKYC($merchant);
-
-
-         // Redirect with a success message
-         return redirect()->route('merchants.index')->with('success', 'Merchant and Shareholders successfully added.');
+     
+         try {
+             // Create the merchant using the service
+             $merchant = $this->merchantsService->createMerchants($validatedData);
+     
+             // Notify about KYC creation
+             $this->notificationService->storeMerchantsKYC($merchant);
+     
+             // Redirect with a success message
+             return redirect()->route('merchants.index')->with('success', 'Merchant and Shareholders successfully added.');
+         } catch (\Exception $e) {
+             // Log the error for debugging
+             \Log::error('Error storing merchant KYC: ' . $e->getMessage());
+     
+             // Redirect back with an error message
+             return redirect()->back()->with('error', 'An error occurred while adding the merchant. Please try again.');
+         }
      }
-
+     
 
      public function store_merchants_documents(Request $request)
      {
@@ -366,23 +378,26 @@ class MerchantsController extends Controller
     public function edit_merchants_kyc(Request $request)
     {
         $merchant_id = $request->input('merchant_id');
-
+    
         $title = 'Edit Merchants Details';
-        $merchant_details = Merchant::with(['sales', 'services', 'shareholders', 'documents'])->where('id', $merchant_id)->first();
+        $merchant_details = Merchant::with(['sales', 'services', 'shareholders', 'documents', 'operating_countries'])->where('id', $merchant_id)->first();
         $MerchantCategory = MerchantCategory::all();
         $Country = Country::all();
-         
+    
         if (!$merchant_details) {
             return redirect()->route('create.merchants.kyc', ['merchant_id' => $merchant_id]);
         }
-
-        if (auth()->user()->can('changeKYC', auth()->user()))
-        {
+    
+        // Convert operating_countries to an array of IDs
+        $merchant_details->operating_countries = $merchant_details->operating_countries->pluck('id')->toArray();
+    
+        if (auth()->user()->can('changeKYC', auth()->user())) {
             return view('pages.merchants.edit.edit-merchants', compact('merchant_details', 'title', 'MerchantCategory', 'Country'));
-        }else{
+        } else {
             return redirect()->back()->with('error', 'You are not authorized.');
         }
     }
+    
 
     public function edit_merchants_documents(Request $request)
     {
@@ -461,7 +476,6 @@ class MerchantsController extends Controller
      */
     public function update_merchants_kyc(Request $request)
     {
-
         // Validate the request
         $validatedData = $request->validate([
             'merchant_name' => 'required|string|max:255',
@@ -481,50 +495,53 @@ class MerchantsController extends Controller
             'monthly_avg_volume' => 'nullable|integer',
             'existing_banking_partner' => 'nullable|string',
             'monthly_avg_transactions' => 'required|integer',
-            'shareholderName.*' => 'required|string|max:255',
+            'shareholderFirstName.*' => 'required|string|max:255',
+            'shareholderMiddleName.*' => 'nullable|string|max:255',
+            'shareholderLastName.*' => 'required|string|max:255',
+            'shareholderDOB.*' => 'required|date',
             'shareholderNationality.*' => 'required|integer',
             'shareholderID.*' => 'nullable|string|max:255',
+            'operating_countries' => 'required|array|min:1',
+            'operating_countries.*' => 'integer|exists:countries,id',
         ]);
-
-
-        $merchant = $request->input('merchant_id');
-         
-        $merchant_id = $merchant['id'] ?? $request->input('merchant_id');
-
-        $merchant = Merchant::where('id', $merchant_id)->first();
-
-        
+    
+        // Retrieve the merchant ID
+        $merchant_id = $request->input('merchant_id');
+        $merchant = Merchant::findOrFail($merchant_id);
+    
+        // Authorization check
         if (auth()->user()->role === 'user' && $merchant->approved_by !== null) {
             return redirect()->back()->with('error', 'You are not authorized to edit this KYC as it has already been approved.');
         }
-        
- 
+    
+        // Save operating countries
+        if (isset($validatedData['operating_countries'])) {
+            $merchant->operating_countries()->sync($validatedData['operating_countries']);
+        }
+    
         // Use the service to update merchant
         $this->merchantsService->updateMerchants($validatedData, $merchant_id);
         $this->notificationService->storeMerchantsKYC($merchant);
-
-        Merchant::find($merchant_id)->update(['approved_by' => null]);
-        $merchant = Merchant::with('documents')->find($merchant_id);
-
-        if ($merchant) {
-            $merchant->documents->each(function ($document) { 
-                $document->update(['approved_by' => null]);
-            });
-        }
+    
+        // Reset approvals for the merchant
+        $merchant->update(['approved_by' => null]);
+    
+        // Reset approvals for documents
+        $merchant->documents->each(function ($document) {
+            $document->update(['approved_by' => null]);
+        });
+    
         // Reset approvals for sales and services
-        MerchantSale::where('merchant_id', $merchant_id)
-            ->update(['approved_by' => null]);
-        
-        MerchantService::where('merchant_id', $merchant_id)
-            ->update(['approved_by' => null]);
-            //  Reset decline notes 
+        MerchantSale::where('merchant_id', $merchant_id)->update(['approved_by' => null]);
+        MerchantService::where('merchant_id', $merchant_id)->update(['approved_by' => null]);
+    
+        // Reset decline notes
         session()->forget('print_decline_notes');
-
+    
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Merchant and Shareholders successfully updated.');
-
     }
-
+    
    
 
 
@@ -538,9 +555,10 @@ class MerchantsController extends Controller
                 'replace_document_*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx|max:2048',
                 'replace_expiry_*' => 'nullable|date',
             ]);
-    
+            $merchant_id = $request->input('merchant_id');
             // Use the correctly cased property
             $this->documentsService->updateDocuments($validatedData, $request);
+            $this->notificationService->storeMerchantsDocuments($merchant_id);
     
             return redirect()->back()->with('success', 'Documents successfully updated.');
         } catch (\Exception $e) {

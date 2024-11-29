@@ -27,4 +27,11 @@ class Country extends Model
     {
         return $this->hasMany(MerchantShareholder::class, 'country');
     }
+
+    // Add inverse relationship
+    public function merchants()
+    {
+        return $this->belongsToMany(Merchant::class, 'merchant_operating_countries');
+    }
+
 }

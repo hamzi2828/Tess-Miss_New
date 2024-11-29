@@ -114,45 +114,45 @@
                     @endif
 
                     @if($isExpired && $replacedDocument)
-                    {{-- Replacement Document Inputs --}}
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            {{-- File Input for Replacement --}}
-                            <input 
-                                type="file" 
-                                class="form-control" 
-                                id="update_replace_document_{{ $replacedDocument->id }}_of_{{ $document['id'] }}" 
-                                name="update_replace_document_{{ $replacedDocument->id }}_of_{{ $document['id'] }}" 
-                                @if(Str::contains($replacedDocument->document_type, 'image'))
-                                    accept="image/jpeg,image/png,image/jpg,image/gif,image/svg"
-                                @else
-                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
+                        {{-- Replacement Document Inputs --}}
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                {{-- File Input for Replacement --}}
+                                <input 
+                                    type="file" 
+                                    class="form-control" 
+                                    id="update_replace_document_{{ $replacedDocument->id }}_of_{{ $document['id'] }}" 
+                                    name="update_replace_document_{{ $replacedDocument->id }}_of_{{ $document['id'] }}" 
+                                    @if(Str::contains($replacedDocument->document_type, 'image'))
+                                        accept="image/jpeg,image/png,image/jpg,image/gif,image/svg"
+                                    @else
+                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
+                                    @endif
+                                >
+                                {{-- Hidden Input for Existing Replacement Document --}}
+                                @if(!empty($replacedDocument->document))
+                                    <input type="hidden" name="existing_replace_document_{{ $replacedDocument->id }}" value="{{ $replacedDocument->document }}">
                                 @endif
-                            >
-                            {{-- Hidden Input for Existing Replacement Document --}}
-                            @if(!empty($replacedDocument->document))
-                                <input type="hidden" name="existing_replace_document_{{ $replacedDocument->id }}" value="{{ $replacedDocument->document }}">
-                            @endif
-                
-                            {{-- Link to View Replacement Document --}}
-                            <a href="{{ asset($replacedDocument->document) }}" target="_blank" class="input-group-text">
-                                <i class="tf-icons ti ti-file"></i> 
-                            </a>
+                    
+                                {{-- Link to View Replacement Document --}}
+                                <a href="{{ asset($replacedDocument->document) }}" target="_blank" class="input-group-text">
+                                    <i class="tf-icons ti ti-file"></i> 
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        {{-- Date Input for Replacement Expiry --}}
-                        <div class="input-group mt-1">
-                            <input 
-                                type="date" 
-                                class="form-control" 
-                                id="replace_expiry_{{ $replacedDocument->id }}" 
-                                name="replace_expiry_{{ $replacedDocument->id }}" 
-                                value="{{ $replacedDocument->date_expiry }}"
-                            >
+                        <div class="col-md-6">
+                            {{-- Date Input for Replacement Expiry --}}
+                            <div class="input-group mt-1">
+                                <input 
+                                    type="date" 
+                                    class="form-control" 
+                                    id="replace_expiry_{{ $replacedDocument->id }}" 
+                                    name="replace_expiry_{{ $replacedDocument->id }}" 
+                                    value="{{ $replacedDocument->date_expiry }}"
+                                >
+                            </div>
                         </div>
-                    </div>
-                @endif
+                  @endif
                 
 
                     {{--  Add a new input field for replacing expired documents --}}

@@ -101,4 +101,13 @@ class Merchant extends Model
     }
 
 
+
+      // Relationship with operating countries
+    public function operating_countries()
+    {
+        return $this->belongsToMany(Country::class, 'merchant_operating_countries', 'merchant_id', 'country_id');
+    }
+    
+
+
 }
