@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Country;
+use App\Models\FatfCountry;
 
 class CountryController extends Controller
 {
@@ -18,6 +19,16 @@ class CountryController extends Controller
         // Pass the countries to the view
         return view('pages.countries.countries-list', compact('countries'));
     }
+
+    public function get_fatf_countries()
+    {
+        // Retrieve all countries from the database
+        $countries = FatfCountry::all();
+
+        // Pass the countries to the view
+        return view('pages.FatafCountries.countries-list', compact('countries'));
+    }
+
 
 
     /**

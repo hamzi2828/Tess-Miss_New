@@ -51,7 +51,7 @@ class MerchantsController extends Controller
     {
           $title  = 'Preview Merchants Details';
         $merchantId = $request->input('merchant_id');
-        $merchant_details = Merchant::with(['sales', 'services', 'shareholders', 'documents'])->where('id', $merchantId)->first();
+        $merchant_details = Merchant::with(['sales', 'services', 'shareholders', 'documents', 'operating_countries'])->where('id', $merchantId)->first();
         $merchant = $this->merchantsService->getAllMerchants($merchantId);
         
         $MerchantCategory = MerchantCategory::all();
@@ -231,10 +231,10 @@ class MerchantsController extends Controller
              $merchant = $this->merchantsService->createMerchants($validatedData);
      
              // Notify about KYC creation
-             $this->notificationService->storeMerchantsKYC($merchant);
+                //  $this->notificationService->storeMerchantsKYC($merchant);
      
              // Redirect with a success message
-             return redirect()->route('merchants.index')->with('success', 'Merchant and Shareholders successfully added.');
+             return redirect() ->route('edit.merchants.kyc', ['merchant_id' => $merchant->id])->with('success', 'Merchant and Shareholders successfully added.');
          } catch (\Exception $e) {
              // Log the error for debugging
              \Log::error('Error storing merchant KYC: ' . $e->getMessage());
@@ -390,6 +390,7 @@ class MerchantsController extends Controller
     
         // Convert operating_countries to an array of IDs
         $merchant_details->operating_countries = $merchant_details->operating_countries->pluck('id')->toArray();
+        
     
         if (auth()->user()->can('changeKYC', auth()->user())) {
             return view('pages.merchants.edit.edit-merchants', compact('merchant_details', 'title', 'MerchantCategory', 'Country'));

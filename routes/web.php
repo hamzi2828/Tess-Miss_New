@@ -67,6 +67,8 @@ Route::middleware(['auth'])->group(function () {
     // Merchant Categories, Countries, Merchants
     Route::resource('merchant-categories', MerchantCategoriesController::class);
     Route::resource('countries', CountryController::class);
+    Route::get('/getFatfCountries', [CountryController::class, 'get_fatf_countries'])->name('get.fatf.countries');
+    
     Route::resource('merchants', MerchantsController::class);
     // Add a new route for preview functionality for merchants
     Route::get('/merchantsPreview}', [MerchantsController::class, 'preview'])->name('merchants.preview');

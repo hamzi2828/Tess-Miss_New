@@ -77,32 +77,39 @@
                         <!-- Section for Valid Documents -->
                         @foreach($merchant_details['documents'] as $document)
                             @php
+                                // Check if the document is expired
                                 $documentExpired = false;
-
                                 if (isset($document['date_expiry'])) {
                                     $expiryDate = \Carbon\Carbon::parse($document['date_expiry']);
                                     $documentExpired = $expiryDate->isPast();
                                 }
-                                 $originalDocument = false;
+                        
+                                // Check if this document has a previous document ID (i.e., it's a replacement)
+                                $originalDocument = false;
                                 if (isset($document['previous_doc_id'])) {
-                                    $originalDocument= $document['previous_doc_id'];
-                                   
-                                    
+                                    $originalDocument = $document['previous_doc_id'];
                                 }
+                        
+                                // Check if there is a replacement document
+                                $replacementDocument = \App\Models\MerchantDocument::where('previous_doc_id', $document['id'])->first();
                             @endphp
-                            <!-- Only display non-expired documents -->
-
+                    
+                            <!-- Only display non-expired documents that are not replacement documents -->
                             @if(!$documentExpired && !$originalDocument) 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label class="form-label">
                                             @php
-                                                $titleParts = explode('_', $document['title']); 
+                                                // Break the title into parts and get the first part as the document ID
+                                                $titleParts = explode('_', $document['title']);
                                                 $documentId = $titleParts[0]; 
-                                                $secondWord = $titleParts[1] ?? null; 
+                                                $secondWord = $titleParts[1] ?? null;
+                        
+                                                // Find the matching document by its ID
                                                 $matchingDocument = $all_documents->firstWhere('id', (int)$documentId);
                                                 $title = $matchingDocument ? $matchingDocument->title : 'Document';
-
+                        
+                                                // If the title is 'QID' and there is a second word, append it to the title
                                                 if ($matchingDocument && $matchingDocument->title === 'QID' && $secondWord) {
                                                     $title .= " for " . $secondWord;
                                                 }
@@ -120,25 +127,73 @@
                                             @endif
                                         </div>
                                     </div>
-
+                        
                                     @if($matchingDocument && $matchingDocument->require_expiry)
-                                    <div class="col-md-6 mt-5">
-
-                                    <p><strong>Expiry Date:</strong> 
-                                    {{ $document['date_expiry'] ? \Carbon\Carbon::parse($document['date_expiry'])->format('Y-m-d') : 'N/A' }}
-                                    </p> 
-                                    </div>
+                                        <div class="col-md-6 mt-5">
+                                            <p><strong>Expiry Date:</strong> 
+                                                {{ $document['date_expiry'] ? \Carbon\Carbon::parse($document['date_expiry'])->format('Y-m-d') : 'N/A' }}
+                                            </p> 
+                                        </div>
                                     @endif
                                 </div>
                             @endif
+                        
+                            <!-- If there is a replacement document, display it with the original document title -->
+                            @if($replacementDocument)
+                                @php
+                                    // Get the original document title using the previous document ID
+                                    $originalDocumentTitle = \App\Models\MerchantDocument::getOriginalDocumentTitle($replacementDocument->previous_doc_id);
+                                
+                                                // Break the title into parts and get the first part as the document ID
+                                                $titleParts = explode('_', $originalDocumentTitle);
+                                                $documentId = $titleParts[0]; 
+                                                $secondWord = $titleParts[1] ?? null;
+                        
+                                                // Find the matching document by its ID
+                                                $matchingDocument = $all_documents->firstWhere('id', (int)$documentId);
+                                                $title = $matchingDocument ? $matchingDocument->title : 'Document';
+                        
+                                                // If the title is 'QID' and there is a second word, append it to the title
+                                                if ($matchingDocument && $matchingDocument->title === 'QID' && $secondWord) {
+                                                    $title .= " for " . $secondWord;
+                                                }
+                                            @endphp
+                                            
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">
+                                            <strong>{{ $title }}</strong>
+                                        </label>
+                                        <div class="input-group">
+                                            @if(!empty($replacementDocument->document))
+                                                <!-- Display a clickable button for the replacement document -->
+                                                {{-- <a href="{{ asset($replacementDocument->document) }}" target="_blank" class="btn btn-outline-success">
+                                                    <i class="tf-icons ti ti-file-check"></i> View 
+                                                </a> --}}
+                                                <a href="{{ config('app.frontend_url') . '/' . $replacementDocument->document }}" target="_blank" class="btn btn-outline-success merchant-font">
+                                                    <i class="tf-icons ti ti-file-check"></i> View 
+                                                </a>
+                                                
+                                                
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-5">
+                                        <strong>Expiry Date</strong>
+                                        <p>
+                                            {{ $replacementDocument->date_expiry ? \Carbon\Carbon::parse($replacementDocument->date_expiry)->format('Y-m-d') : 'N/A' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @endif
                         @endforeach
+                    
 
                         <!-- Section for Expired Documents -->
                         <h4 class="mt-4 mb-3 ">Expired Documents</h4>
                         @foreach($merchant_details['documents'] as $document)
                             @php
                                 $documentExpired = isset($document['date_expiry']) && \Carbon\Carbon::parse($document['date_expiry'])->isPast();
-                                $replacementDocument = \App\Models\MerchantDocument::where('previous_doc_id', $document['id'])->first();
                            @endphp
 
                             @if($documentExpired) 
@@ -179,32 +234,6 @@
                                     </div>
                                     @endif
                                 </div>
-                            @endif
-
-                            @if($replacementDocument)
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">
-                                        <strong>Replacement</strong>
-                                    </label>
-                                    <div class="input-group">
-                                        @if(!empty($replacementDocument->document))
-                                            <!-- Display a clickable button for the replacement document -->
-                                            <a href="{{ asset($replacementDocument->document) }}" target="_blank" class="btn btn-outline-success">
-                                                <i class="tf-icons ti ti-file-check"></i> View 
-                                            </a>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mt-5">
-                                  
-                                        <strong>Expiry Date</strong>
-                                   
-                                    <p>
-                                        {{ $replacementDocument->date_expiry ? \Carbon\Carbon::parse($replacementDocument->date_expiry)->format('Y-m-d') : 'N/A' }}
-                                    </p>
-                                </div>
-                            </div>
                             @endif
 
                         @endforeach

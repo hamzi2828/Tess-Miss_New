@@ -195,8 +195,8 @@
                         <label for="shareholderFirstName" class="form-label">First Name <span class="required-asterisk">*</span></label>
                         <input type="text" class="form-control" name="shareholderFirstName[]" required>
                     </div>
-                    <div class="col-md-2" style="max-width: 150px">
-                        <label for="shareholderMiddleName" class="form-label">Middle Name</label>
+                    <div class="col-md-1" style="max-width: 150px">
+                        <label for="shareholderMiddleName" class="form-label">Middle </label>
                         <input type="text" class="form-control" name="shareholderMiddleName[]">
                     </div>
                     <div class="col-md-2">
@@ -236,7 +236,7 @@
 
 
         <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">Save & Proceed</button>
+            <button type="submit" class="btn btn-primary">Screen</button>
         </div>
     </form>
 </div>
@@ -269,8 +269,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <label for="shareholderFirstName" class="form-label">First Name *</label>
                     <input type="text" class="form-control" name="shareholderFirstName[]" required>
                 </div>
-                <div class="col-md-2" style="max-width: 150px">
-                    <label for="shareholderMiddleName" class="form-label">Middle Name</label>
+                <div class="col-md-1" style="max-width: 150px">
+                    <label for="shareholderMiddleName" class="form-label">Middle</label>
                     <input type="text" class="form-control" name="shareholderMiddleName[]">
                 </div>
                 <div class="col-md-2">

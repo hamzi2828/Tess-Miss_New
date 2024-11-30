@@ -78,6 +78,7 @@ class MerchantsServiceService
             $merchant->website_month_transaction = $data['monthly_avg_transactions'];
             $merchant->merchant_date_incorp = $data['date_of_incorporation'];
             $merchant->added_by = Auth::user()->id;
+            $merchant->status = 'screening';
             $merchant->save();
         
             // Save operational countries

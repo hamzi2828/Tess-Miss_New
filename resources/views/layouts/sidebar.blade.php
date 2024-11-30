@@ -53,8 +53,8 @@
       </a>
       <ul class="menu-sub">
         @can('viewCountries', App\Models\User::class)
-        <li class="menu-item {{ request()->routeIs('countries.index') ? 'active' : '' }}">
-          <a href="{{ route('countries.index') }}" class="menu-link">
+        <li class="menu-item {{ request()->routeIs('get.fatf.countries') ? 'active' : '' }}">
+          <a href="{{ route('get.fatf.countries') }}" class="menu-link">
             <div data-i18n="All-Countries">All Countries</div>
           </a>
         </li>

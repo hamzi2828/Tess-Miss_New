@@ -107,37 +107,49 @@
     </div>
 
 
-  <div class="row mb-3">
-    <div class="col-md-6">
-        <p>
-            <strong>Key Point Mobile:</strong> 
-            {{ $merchant_details['contact_person_mobile'] ?? 'N/A' }}
-        </p>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <p>
+                <strong>Key Point Mobile:</strong> 
+                {{ $merchant_details['contact_person_mobile'] ?? 'N/A' }}
+            </p>
+        </div>
+
+        <div class="col-md-6">
+            <p>
+                <strong>Monthly Average Volume (QAR):</strong> 
+                {{ number_format($merchant_details['website_month_volume'] ?? 0, 2) }}
+            </p>
+        </div>
     </div>
 
-    <div class="col-md-6">
-        <p>
-            <strong>Monthly Average Volume (QAR):</strong> 
-            {{ number_format($merchant_details['website_month_volume'] ?? 0, 2) }}
-        </p>
-    </div>
-</div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <p>
+                <strong>Existing Banking Partner:</strong> 
+                {{ $merchant_details['merchant_previous_bank'] ?? 'N/A' }}
+            </p>
+        </div>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <p>
-            <strong>Existing Banking Partner:</strong> 
-            {{ $merchant_details['merchant_previous_bank'] ?? 'N/A' }}
-        </p>
+        <div class="col-md-6">
+            <p>
+                <strong>Monthly Average No. Of Transactions:</strong> 
+                {{ $merchant_details['website_month_transaction'] ?? 'N/A' }}
+            </p>
+        </div>
     </div>
 
-    <div class="col-md-6">
-        <p>
-            <strong>Monthly Average No. Of Transactions:</strong> 
-            {{ $merchant_details['website_month_transaction'] ?? 'N/A' }}
-        </p>
+    <div class="row mb-3">
+       
+        <div class="col-md-12">
+            <p><strong>Countries of Operation:</strong> 
+                @foreach($merchant_details['operating_countries'] as $country)
+                    <span>{{ $country->country_name }}</span>@if(!$loop->last), @endif
+                @endforeach
+            </p>
+        </div>
     </div>
-</div>
+
 </div>
 </div>
 
