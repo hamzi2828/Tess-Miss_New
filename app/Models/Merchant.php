@@ -109,5 +109,22 @@ class Merchant extends Model
     }
     
 
+    public static function getMatchingFatfCountries(int $merchantId)
+    {
+        // Get the merchant's operating country IDs
+        $merchant = self::with('operating_countries')->find($merchantId);
 
+        if (!$merchant) {
+            return collect(); // Return an empty collection if the merchant doesn't exist
+        }
+
+        $operatingCountryIds = $merchant->operating_countries->pluck('id');
+
+        // Query the FATF countries table to find matches
+        return FatfCountry::whereIn('id', $operatingCountryIds)->get();
+    }
+
+
+
+    
 }

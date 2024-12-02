@@ -19,6 +19,8 @@
     <form class="kyc-form" action="{{ route('update.merchants.kyc',['merchant_id' => request()->merchant_id]) }}" method="POST">
         @csrf
 
+
+        
         <!-- Basic Details Section -->
         <div class="form-section box-container">
 
@@ -197,7 +199,21 @@
             </div>
         </div>
 
+          
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="fatf_list" class="form-label">Record present in FATF List</label>
+                <input type="text" class="form-control" id="fatf_list" value="{{ $matchingCountries ? 'Yes' : 'No' }}" readonly>
+            </div>
+            <div class="col-md-6">
+                <label for="fatf_list" class="form-label">Record present in FATF List</label>
+                <input type="text" class="form-control" id="fatf_list" value="{{ $matchingCountries ? 'Yes' : 'No' }}" readonly>
+            </div>
+        </div>
+        
         <div class="d-flex justify-content-end">
+            
             <button type="submit" class="btn btn-primary">Save & Proceed</button>
         </div>
     </form>

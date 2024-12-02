@@ -73,6 +73,7 @@ class MerchantsController extends Controller
         $title = 'Create Merchants KYC';
         $MerchantCategory = MerchantCategory::all();
         $Country = Country::all();
+        
 
         if ($request->has('merchant_id')) {
             $merchant_id = $request->input('merchant_id');
@@ -390,10 +391,11 @@ class MerchantsController extends Controller
     
         // Convert operating_countries to an array of IDs
         $merchant_details->operating_countries = $merchant_details->operating_countries->pluck('id')->toArray();
-        
+        $matchingCountries = Merchant::getMatchingFatfCountries($merchant_details->id);
     
         if (auth()->user()->can('changeKYC', auth()->user())) {
-            return view('pages.merchants.edit.edit-merchants', compact('merchant_details', 'title', 'MerchantCategory', 'Country'));
+            return view('pages.merchants.edit.edit-merchants', compact('merchant_details', 
+                'title', 'MerchantCategory', 'Country','matchingCountries'));
         } else {
             return redirect()->back()->with('error', 'You are not authorized.');
         }
@@ -523,6 +525,7 @@ class MerchantsController extends Controller
         // Use the service to update merchant
         $this->merchantsService->updateMerchants($validatedData, $merchant_id);
         $this->notificationService->storeMerchantsKYC($merchant);
+        
     
         // Reset approvals for the merchant
         $merchant->update(['approved_by' => null]);
