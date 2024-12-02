@@ -53,13 +53,15 @@ class MerchantsController extends Controller
         $merchantId = $request->input('merchant_id');
         $merchant_details = Merchant::with(['sales', 'services', 'shareholders', 'documents', 'operating_countries'])->where('id', $merchantId)->first();
         $merchant = $this->merchantsService->getAllMerchants($merchantId);
+        $matchingCountries = Merchant::getMatchingFatfCountries($merchant_details->id);
+
         
         $MerchantCategory = MerchantCategory::all();
         $Country = Country::all();
         $all_documents  = Document::all();
         $services = Service::all();
 
-        return view('pages.merchants.merchants-preview', compact('merchant_details','title','MerchantCategory','Country','all_documents','services','merchant'));
+        return view('pages.merchants.merchants-preview', compact('merchant_details','title','MerchantCategory','Country','all_documents','services','merchant','matchingCountries'));
     }
 
 

@@ -246,7 +246,20 @@
 
                     <textarea id="additionalNotes" class="form-control" rows="4" placeholder="Enter any additional notes here..."></textarea>
                 </div> --}}
+
+               
+                
             </div>
-        
+
+            
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="fatf_list" class="form-label">Record present in FATF List</label>
+                        <input type="text" class="form-control" id="fatf_list" value="{{ $matchingCountries ? 'Yes' : 'No' }}" readonly>
+                    </div>
+                    
+                </div>
+            </div>
 
     </div>

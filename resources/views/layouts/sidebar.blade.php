@@ -43,7 +43,7 @@
     @canany(['toggleCountriesSection', 'toggleDepartmentsSection', 'toggleDocumentsSection', 'toggleMerchantCategoriesSection', 'toggleActivityLogsSection'], App\Models\User::class)
     <li class="menu-header small text-uppercase text-muted fw-bold">Settings</li>
     @endcanany
-    
+{{--     
     @can('toggleCountriesSection', App\Models\User::class)
  
     <li class="menu-item {{ request()->routeIs('countries.*') ? 'open' : '' }}">
@@ -62,7 +62,27 @@
       </ul>
     </li>
     @endcan
+     --}}
+     @can('toggleCountriesSection', App\Models\User::class)
+ 
+     <li class="menu-item {{ request()->routeIs('countries.*') ? 'open' : '' }}">
+       <a href="javascript:void(0);" class="menu-link menu-toggle">
+         <i class="menu-icon tf-icons ti ti-world"></i>
+         <div data-i18n="Country">Countries</div>
+       </a>
+       <ul class="menu-sub">
+         @can('viewCountries', App\Models\User::class)
+         <li class="menu-item {{ request()->routeIs('countries.index') ? 'active' : '' }}">
+           <a href="{{ route('countries.index') }}" class="menu-link">
+             <div data-i18n="All-Countries">All Countries</div>
+           </a>
+         </li>
+         @endcan
+       </ul>
+     </li>
+     @endcan
     
+     
 
     
 
