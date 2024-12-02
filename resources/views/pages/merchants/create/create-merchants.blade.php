@@ -217,7 +217,7 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label for="shareholderID" class="form-label">Shareholder QID</label>
+                        <label for="shareholderID" class="form-label">Shareholder QID / National ID / Passport</label>
                         <input type="text" class="form-control" name="shareholderID[]">
                     </div>
                     <div class="col-md-1">
@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="shareholderID" class="form-label">Shareholder QID</label>
+                    <label for="shareholderID" class="form-label">Shareholder QID / National ID / Passport</label>
                     <input type="text" class="form-control" name="shareholderID[]">
                 </div>
                 <div class="col-md-1">
