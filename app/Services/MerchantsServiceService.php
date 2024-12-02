@@ -10,6 +10,7 @@ use App\Models\MerchantShareholder;
 use App\Models\MerchantService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use App\Notifications\MerchantActivityNotification;
 
 
@@ -284,6 +285,90 @@ class MerchantsServiceService
     public function deleteMerchants(int $merchant_id): void
     {
         Merchant::destroy($merchant_id);
+    }
+
+
+
+    public function checkMerchantShareholdersSanctionDetails(int $merchantId): array
+    {
+        // Fetch the merchant with its shareholders
+        $merchant = Merchant::with('shareholders.country')->find($merchantId);
+
+        if (!$merchant) {
+            return [
+                'success' => false,
+                'message' => 'Merchant not found',
+            ];
+        }
+
+        // Prepare API URL base
+        $apiBaseUrl = 'https://portal.moi.gov.qa/wps/portal/NCTC/sanctionlist/unifiedsanctionlist/!ut/p/a1/hc29DsIgAATgZ_EJOIG2dqSkASKINSRWlobJkGh1MD6_-LOqt13yXY5EMpI4p3s-plu-zOn07LGeTEs51ZxaL7nAwDoTHHNQqirgUEClba_4GhvVhA6DpzrUO02B5b_9nsQ3Ec6Acljfy0JaHbRkwGrbfMCvixfAlwiQ63lENmLxAKkSZVg!/dl5/d5/L2dBISEvZ0FBIS9nQSEh/pw/Z7_I9242H42LOC4A0Q3BITM3M0G85/res/id=getSanctionList/c=cacheLevelPage/=/?lang=en';
+
+        $matchedResults = [];
+
+       
+        foreach ($merchant->shareholders as $shareholder) {
+            // Extract shareholder details
+            $firstName = $shareholder->first_name;
+            $middleName = $shareholder->middle_name ?? '';
+            $lastName = $shareholder->last_name;
+            $qid = $shareholder->qid;
+            $nationality = $shareholder->country->country_name ?? 'Unknown';
+
+            try {
+                // Fetch data from the API
+                $response = Http::timeout(10)->get($apiBaseUrl);
+                if ($response->successful()) {
+                    $data = $response->json()['content'] ?? [];
+            
+                    // Normalize shareholder names into arrays for comparison
+                    $inputFirstNames = array_map('strtolower', array_map('trim', explode(' ', $firstName)));
+                    $inputMiddleNames = array_map('strtolower', array_map('trim', explode(' ', $middleName)));
+                    $inputLastNames = array_map('strtolower', array_map('trim', explode(' ', $lastName)));
+            
+                    // Check for matching records
+                    foreach ($data as $record) {
+                        // Normalize API names into arrays
+                        $apiFirstNames = array_map('strtolower', array_map('trim', explode(' ', $record['firstNameEN'] ?? '')));
+                        $apiMiddleNames = array_map('strtolower', array_map('trim', explode(' ', $record['secondNameEN'] ?? '')));
+                        $apiLastNames = array_map('strtolower', array_map('trim', explode(' ', $record['thirdNameEN'] ?? '')));
+                        $apiNationality = $record['nationality'] ?? 'Unknown';
+            
+                      
+                        // Match if any part of the shareholder name exists in the API response
+                        $firstNameMatch = !empty(array_intersect($inputFirstNames, $apiFirstNames));
+                        $middleNameMatch = empty($inputMiddleNames) || !empty(array_intersect($inputMiddleNames, $apiMiddleNames));
+                        $lastNameMatch = !empty(array_intersect($inputLastNames, $apiLastNames));
+                        $nationalityMatch = $nationality === $apiNationality;
+                        
+                        // Check if all conditions are met
+                        if ($firstNameMatch && $lastNameMatch && $middleNameMatch && $nationalityMatch) {
+                            $matchedResults[] = [
+                                'shareholder' => [
+                                    'first_name' => $firstName,
+                                    'middle_name' => $middleName,
+                                    'last_name' => $lastName,
+                                    'qid' => $qid,
+                                    'country_name' => $nationality,
+                             
+                                ],
+                                'matched_record' => $record,
+                            ];
+                            $shareholder->moi = 1;
+                            $shareholder->save();
+                        }
+                    }
+                } else {
+                    \Log::error('Failed to fetch sanction list data. Status: ' . $response->status());
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error fetching sanction details for shareholder: ' . $firstName . ', Error: ' . $e->getMessage());
+            }
+            
+            
+        }
+
+        return $matchedResults;
     }
 
 

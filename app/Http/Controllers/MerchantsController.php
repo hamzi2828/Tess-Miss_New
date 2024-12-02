@@ -396,8 +396,11 @@ class MerchantsController extends Controller
         $matchingCountries = Merchant::getMatchingFatfCountries($merchant_details->id);
     
         if (auth()->user()->can('changeKYC', auth()->user())) {
+          
+                $result = $this->merchantsService->checkMerchantShareholdersSanctionDetails($merchant_id);
+            
             return view('pages.merchants.edit.edit-merchants', compact('merchant_details', 
-                'title', 'MerchantCategory', 'Country','matchingCountries'));
+                'title', 'MerchantCategory', 'Country','matchingCountries', 'result'));
         } else {
             return redirect()->back()->with('error', 'You are not authorized.');
         }

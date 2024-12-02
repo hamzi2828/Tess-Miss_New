@@ -45,8 +45,10 @@ class MerchantShareholder extends Model
      * Define the relationship with the Country model.
      * Each shareholder belongs to one country.
      */
+    // In MerchantShareholder.php
     public function country()
     {
-        return $this->belongsTo(Country::class, 'country');
+        return $this->belongsTo(Country::class, 'country_id');
     }
+
 }
