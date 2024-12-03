@@ -10,7 +10,7 @@ use App\Models\MerchantShareholder;
 use App\Models\MerchantService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Http; // Make sure this line is here
 use App\Notifications\MerchantActivityNotification;
 
 
@@ -370,6 +370,216 @@ class MerchantsServiceService
 
         return $matchedResults;
     }
+
+
+
+    public function checkAndUpdateSanctionList(int $merchantId): array
+    {
+        $merchant = Merchant::with('shareholders')->find($merchantId);
+    
+        if (!$merchant) {
+            return [
+                'success' => false,
+                'message' => 'Merchant not found',
+            ];
+        }
+    
+        $results = [];
+    
+        foreach ($merchant->shareholders as $shareholder) {
+            $firstName = $shareholder->first_name;
+            $middleName = $shareholder->middle_name;
+            $lastName = $shareholder->last_name;
+            $dob = $shareholder->dob;
+    
+            $fullName = "{$firstName} {$middleName} {$lastName}";
+
+            $sanctionedShareholders = \DB::table('data_table')
+            ->where(function($query) use ($firstName, $middleName, $lastName, $fullName) {
+                // First condition: Match Name 6 and check against full name
+                $query->where('key_name', 'like', '%Name 6%')
+                      ->where('key_value', 'like', "%{$fullName}%")
+                
+                // Second condition: Match '1:' and check against first name
+                      ->orWhere(function($query) use ($firstName) {
+                          $query->where('key_name', 'like', '%1:%')
+                                ->where('key_value', 'like', "%{$firstName}%");
+                      })
+                      ->orWhere(function($query) use ($middleName) {
+                        $query->where('key_name', 'like', '%2:%')
+                              ->where('key_value', 'like', "%{$middleName}%");
+                    })
+                    ->orWhere(function($query) use ($lastName) {
+                        $query->where('key_name', 'like', '%3:%')
+                              ->where('key_value', 'like', "%{$lastName}%");
+                    });
+
+            })
+            ->get();
+        
+        
+            dd( $sanctionedShareholders);
+    
+            if ($sanctionedShareholders->isNotEmpty()) {
+                $shareholder->sanctionlist = 1;
+                $shareholder->save();
+    
+                $results[] = [
+                    'shareholder' => [
+                        'first_name' => $firstName,
+                        'middle_name' => $middleName,
+                        'last_name' => $lastName,
+                        'dob' => $dob,
+                    ],
+                    'status' => 'Updated to Sanction List',
+                ];
+            } else {
+                $results[] = [
+                    'shareholder' => [
+                        'first_name' => $firstName,
+                        'middle_name' => $middleName,
+                        'last_name' => $lastName,
+                        'dob' => $dob,
+                    ],
+                    'status' => 'No Match Found',
+                ];
+            }
+        }
+    
+        return [
+            'success' => true,
+            'message' => 'Sanction list check completed.',
+            'results' => $results,
+        ];
+    }
+    
+
+
+   
+
+// public function checkAndUpdateSanctionList(int $merchantId): array
+// {
+//     $merchant = Merchant::with('shareholders')->find($merchantId);
+
+//     if (!$merchant) {
+//         return [
+//             'success' => false,
+//             'message' => 'Merchant not found',
+//         ];
+//     }
+
+//     $results = [];
+
+//     // Fetch the HTML content from the URL
+//     $url = 'https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.html';
+//     $response = Http::get($url);
+
+//     if (!$response->successful()) {
+//         return [
+//             'success' => false,
+//             'message' => 'Failed to fetch sanction list.',
+//         ];
+//     }
+
+//     $htmlContent = $response->body();
+
+//     // Use DOMDocument to parse the HTML content
+//     $dom = new \DOMDocument;
+//     @$dom->loadHTML($htmlContent);  // suppress warnings for invalid HTML structure
+
+//     // Find all 'td' or any other element containing the DOB in the sanction list
+//     $nodes = $dom->getElementsByTagName('td'); // Assuming the names are in <td> tags
+
+//     $sanctionList = [];
+
+//     // Loop through all nodes and extract DOB and Name
+//     foreach ($nodes as $node) {
+//         $keyValue = trim($node->nodeValue);
+
+//         // Look for DOB in the content
+//         if (strpos($keyValue, 'DOB:') !== false) {
+//             // Extract DOB from the record (Assuming DOB is always after 'DOB:')
+//             preg_match('/DOB:\s*([0-9]{2}\/[0-9]{2}\/[0-9]{4})/', $keyValue, $matches);
+//             if (isset($matches[1])) {
+//                 $sanctionList[] = [
+//                     'dob' => $matches[1], // Store DOB from the sanction list
+//                     'record' => $keyValue, // Store the entire record for matching
+//                 ];
+//             }
+//         }
+//         if (strpos($keyValue, 'Name 6:') !== false || strpos($keyValue, '1:') !== false) {
+//             $sanctionList[] = [
+//                 'name' => $keyValue, // Store the full Name 6 or 1: field for matching
+//                 'record' => $keyValue, // Store the entire record for matching
+//             ];
+//         }
+//     }
+
+//     // Now match the shareholder's DOB with the records in the sanction list
+//     foreach ($merchant->shareholders as $shareholder) {
+//         $dob = $shareholder->dob; // Get DOB from the shareholder
+
+//         // Look for matching DOB in the sanction list
+//         $matchedRecord = null;
+//         foreach ($sanctionList as $sanctionRecord) {
+//             if ($dob === $sanctionRecord['dob']) {
+//                 $matchedRecord = $sanctionRecord['record'];
+//                 break;
+//             }
+//         }
+
+//         if ($matchedRecord) {
+//             // If a match is found, return the record and update shareholder
+//             $results[] = [
+//                 'shareholder' => [
+//                     'first_name' => $shareholder->first_name,
+//                     'middle_name' => $shareholder->middle_name,
+//                     'last_name' => $shareholder->last_name,
+//                     'dob' => $dob,
+//                 ],
+//                 'status' => 'Match Found',
+//                 'sanction_record' => $matchedRecord,
+//             ];
+//         } else {
+//             $results[] = [
+//                 'shareholder' => [
+//                     'first_name' => $shareholder->first_name,
+//                     'middle_name' => $shareholder->middle_name,
+//                     'last_name' => $shareholder->last_name,
+//                     'dob' => $dob,
+//                 ],
+//                 'status' => 'No Match Found',
+//             ];
+//         }
+//     }
+
+//     dd($results);
+//     return [
+//         'success' => true,
+//         'message' => 'Sanction list check completed.',
+//         'results' => $results,
+//     ];
+// }
+
+
+public function hasMoiFlag(int $merchantId): bool
+{
+
+    $merchant = Merchant::with('shareholders')->find($merchantId);
+    
+    if (!$merchant) {
+        return false; // Merchant not found, return false
+    }
+
+    // Check if any shareholder has moi = 1
+    foreach ($merchant->shareholders as $shareholder) {
+        if ($shareholder->moi == 1) {
+            return true;
+        }
+    }
+
+    return false; 
+}
 
 
 }

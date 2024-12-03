@@ -54,6 +54,7 @@ class MerchantsController extends Controller
         $merchant_details = Merchant::with(['sales', 'services', 'shareholders', 'documents', 'operating_countries'])->where('id', $merchantId)->first();
         $merchant = $this->merchantsService->getAllMerchants($merchantId);
         $matchingCountries = Merchant::getMatchingFatfCountries($merchant_details->id);
+        $hasMoiFlag = $this->merchantsService->hasMoiFlag($merchantId);
 
         
         $MerchantCategory = MerchantCategory::all();
@@ -61,7 +62,7 @@ class MerchantsController extends Controller
         $all_documents  = Document::all();
         $services = Service::all();
 
-        return view('pages.merchants.merchants-preview', compact('merchant_details','title','MerchantCategory','Country','all_documents','services','merchant','matchingCountries'));
+        return view('pages.merchants.merchants-preview', compact('merchant_details','title','MerchantCategory','Country','all_documents','services','merchant','matchingCountries','hasMoiFlag'));
     }
 
 
@@ -398,6 +399,7 @@ class MerchantsController extends Controller
         if (auth()->user()->can('changeKYC', auth()->user())) {
           
                 $result = $this->merchantsService->checkMerchantShareholdersSanctionDetails($merchant_id);
+                // $this->merchantsService->checkAndUpdateSanctionList($merchant_id);
             
             return view('pages.merchants.edit.edit-merchants', compact('merchant_details', 
                 'title', 'MerchantCategory', 'Country','matchingCountries', 'result'));

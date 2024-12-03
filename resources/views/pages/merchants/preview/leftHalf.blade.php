@@ -260,6 +260,18 @@
                     </div>
                     
                 </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="fatf_list" class="form-label">Record present in  MOI List</label>
+                        <input type="text" class="form-control" id="fatf_list" value="{{ $hasMoiFlag ? 'Yes' : 'No' }}" readonly>
+                      </div>
+                    
+                </div>
+
+           
+
+                
             </div>
 
     </div>

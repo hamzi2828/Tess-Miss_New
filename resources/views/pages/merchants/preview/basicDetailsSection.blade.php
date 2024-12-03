@@ -163,41 +163,48 @@
         @if(!empty($merchant_details['shareholders']) && count($merchant_details['shareholders']) > 0)
             @foreach($merchant_details['shareholders'] as $shareholder)
             <div class="shareholder-entry row mb-3">
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <p>
                         <strong>First Name:</strong>
                         {{ $shareholder['first_name'] ?? 'N/A' }}
                     </p>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <p>
                         <strong>Middle Name:</strong>
                         {{ $shareholder['middle_name'] ?? 'N/A' }}
                     </p>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <p>
                         <strong>Last Name:</strong>
                         {{ $shareholder['last_name'] ?? 'N/A' }}
                     </p>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <p>
                         <strong>Date of Birth:</strong>
                         {{ $shareholder['dob'] ?? 'N/A' }}
                     </p>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <p>
                         <strong>Nationality:</strong>
                         {{ $Country->firstWhere('id', $shareholder['country_id'])?->country_name ?? 'N/A' }}
                     </p>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <p>
                         <strong>Shareholder QID:</strong>
                         {{ $shareholder['qid'] ?? 'N/A' }}
                     </p>
+                </div>
+                <div class="col-md-1">
+                    @if($shareholder['moi'] == 1)
+                        <div class="col-md-12 mt-2">
+                            <span class="badge bg-danger">Record in MOI</span>
+                        </div>
+                    @endif
                 </div>
             </div>
             @endforeach

@@ -153,6 +153,7 @@
             <!-- Container for all shareholders -->
             <div id="shareholders-container">
                 @foreach($merchant_details['shareholders'] as $shareholder)
+       
                 <div class="shareholder-entry row mb-3">
                     <div class="col-md-3">
                         <label for="shareholderFirstName" class="form-label">First Name <span class="required-asterisk">*</span></label>
@@ -188,6 +189,15 @@
                             <i class="ti ti-trash" style="margin-top: 30px"></i>
                         </a>
                     </div>
+
+                    <div class="col-md-1">
+                        @if($shareholder['moi'] == 1)
+                            <div class="col-md-12 mt-7">
+                                <span class="badge bg-danger">Record in MOI</span>
+                            </div>
+                        @endif
+                    </div>
+            
                 </div>
                 @endforeach
             </div>
