@@ -395,7 +395,7 @@ class MerchantsController extends Controller
         // Convert operating_countries to an array of IDs
         $merchant_details->operating_countries = $merchant_details->operating_countries->pluck('id')->toArray();
         $matchingCountries = Merchant::getMatchingFatfCountries($merchant_details->id);
-        $hasMoiFlag = $this->merchantsService->hasMoiFlag($merchantId);
+        $hasMoiFlag = $this->merchantsService->hasMoiFlag($merchant_details->id);
     
         if (auth()->user()->can('changeKYC', auth()->user())) {
           
@@ -403,7 +403,7 @@ class MerchantsController extends Controller
                 // $this->merchantsService->checkAndUpdateSanctionList($merchant_id);
             
             return view('pages.merchants.edit.edit-merchants', compact('merchant_details', 
-                'title', 'MerchantCategory', 'Country','matchingCountries', 'result'));
+                'title', 'MerchantCategory', 'Country','matchingCountries', 'result', 'hasMoiFlag'));
         } else {
             return redirect()->back()->with('error', 'You are not authorized.');
         }
