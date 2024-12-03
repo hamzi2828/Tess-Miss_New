@@ -395,6 +395,7 @@ class MerchantsController extends Controller
         // Convert operating_countries to an array of IDs
         $merchant_details->operating_countries = $merchant_details->operating_countries->pluck('id')->toArray();
         $matchingCountries = Merchant::getMatchingFatfCountries($merchant_details->id);
+        $hasMoiFlag = $this->merchantsService->hasMoiFlag($merchantId);
     
         if (auth()->user()->can('changeKYC', auth()->user())) {
           
