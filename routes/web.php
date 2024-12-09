@@ -11,6 +11,7 @@ use App\Http\Controllers\MerchantCategoriesController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\MerchantsController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PageController;
 use App\Http\Middleware\CheckUserStage;
 
 /*
@@ -68,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('merchant-categories', MerchantCategoriesController::class);
     Route::resource('countries', CountryController::class);
     Route::get('/getFatfCountries', [CountryController::class, 'get_fatf_countries'])->name('get.fatf.countries');
-    
+
     Route::resource('merchants', MerchantsController::class);
     // Add a new route for preview functionality for merchants
     Route::get('/merchantsPreview}', [MerchantsController::class, 'preview'])->name('merchants.preview');
@@ -76,6 +77,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/merchants/{id}/decline', [MerchantsController::class, 'decline_merchants'])->name('merchants.decline');
 
 
+    Route::resource('pages', PageController::class);
+    Route::get('/pagesCreate', [PageController::class, 'create'])->name('pages.create');
+    Route::post('/pagesStore', [PageController::class, 'store'])->name('pages.store');
+    Route::get('/pagesEdit', [PageController::class, 'edit'])->name('pages.edit');
+    Route::put('/pages/{page}', [PageController::class, 'update'])->name('pages.update');
+    Route::get('/pagesDelete/{id}', [PageController::class, 'destroy'])->name('pages.delete');
 });
 
 

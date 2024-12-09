@@ -164,14 +164,14 @@ class UserController extends Controller
 
         public function markAsRead($id, Request $request)
         {
-         
+
             $notification = Auth::user()->notifications->where('id', $id)->first();
 
             if ($notification) {
                 $notification->markAsRead();
                 $activityType = $notification->data['activity_type'] ?? null;
                 $merchant_id =  $request->get('merchant_id');
-                
+
 
                 if (\App\Models\Merchant::where('id', $merchant_id)->exists() && $activityType == 'store') {
 
@@ -183,16 +183,16 @@ class UserController extends Controller
                 // }
                 if (\App\Models\Merchant::where('id', $merchant_id)->exists() && $activityType == 'approve' || $activityType == 'decline') {
                     $userStage = auth()->user()->getDepartmentStage(auth()->user()->department);
-                    
+
                     // Determine the route name dynamically based on stage
-                    $routeName = $userStage == 1 
-                        ? 'edit.merchants.kyc' 
-                        : ($userStage == 2 
-                            ? 'edit.merchants.documents' 
-                            : ($userStage == 3 
-                                ? 'edit.merchants.sales' 
+                    $routeName = $userStage == 1
+                        ? 'edit.merchants.kyc'
+                        : ($userStage == 2
+                            ? 'edit.merchants.documents'
+                            : ($userStage == 3
+                                ? 'edit.merchants.sales'
                                 : 'edit.merchants.services'));
-        
+
                     // Redirect to the appropriate route
                     return redirect()->route($routeName, ['merchant_id' => $merchant_id]);
                 }
