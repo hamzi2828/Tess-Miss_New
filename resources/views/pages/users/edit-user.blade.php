@@ -56,6 +56,7 @@
      
           
                 {{-- <!-- Department --> --}}
+                @if($user->role != 'frontendUser')
                 <div class="mb-4">
                     <label for="selectDepartment" class="form-label fw-medium text-secondary">Department</label>
                     <select class="form-select select2" id="selectDepartment" name="department_id" required>
@@ -67,8 +68,9 @@
                         @endforeach
                     </select>
                 </div>
+                @endif
 
-                        
+                @if($user->role != 'frontendUser') 
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userRole">Select User Role</label>
                     <select id="userRole" class="form-select select2" name="user_role" required>
@@ -78,6 +80,12 @@
 
                     </select>
                 </div>
+                @else
+                <div class="mb-4">
+                    <label class="form-label fw-medium text-secondary" for="userRole">Select User Roddle</label>
+                    <input type="text" id="userRole" class="form-control" name="user_role" value="{{ $user->role }}" readonly>
+                </div>
+                @endif
                 
                 <!-- New Password -->
                 <div class="mb-4">
@@ -136,7 +144,11 @@
                 <!-- Submit & Cancel Buttons -->
                 <div class="d-flex justify-content-end">
                     <button type="submit" class="btn btn-primary px-4 me-3">Update</button>
+                    @if (request()->url() === url('merchant-usersEdit'))
+                    <a href="{{ route('merchant-users.index') }}" class="btn btn-danger px-4">Cancel.</a>
+                    @else
                     <a href="{{ route('users.index') }}" class="btn btn-danger px-4">Cancel</a>
+                    @endif
                 </div>
             </div>
         </div>

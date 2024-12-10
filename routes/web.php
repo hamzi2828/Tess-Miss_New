@@ -49,6 +49,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/activity-logs', [UserController::class, 'activityLogs'])->name('activity.logs');
     Route::get('/activity-my_logs', [UserController::class, 'activityMyLogs'])->name('activity.my_logs');
     Route::get('/merchant-users', [UserController::class, 'frontendUsers'])->name('merchant-users.index');
+    Route::get('/merchant-usersEdit', [UserController::class, 'edit'])->name('merchant-users.edit');
+
 
 
     Route::get('/notifications/read/{id}', [UserController::class, 'markAsRead'])->name('notifications.read');

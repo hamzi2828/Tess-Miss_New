@@ -33,8 +33,7 @@ class UserController extends Controller
     public function frontendUsers()
     {
         $users = User::with('department')->where('role', 'frontendUser')->get();
-
-        return view('pages.users.users-list', compact('users'));
+        return view('pages.users.frontend_users-list', compact('users'));
     }
 
     public function profile()

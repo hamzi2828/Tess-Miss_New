@@ -6,7 +6,7 @@
     <div class="app-ecommerce-user">
     
         <div class="d-flex mb-6 align-items-center">
-            <h4 class="fw-bold">All Users</h4>
+            <h4 class="fw-bold">Merchant Users</h4>
         
             <div class="d-flex col-lg-3 col-md-3 ms-auto" style="justify-content: end">
                 @can('addUser', App\Models\User::class)
@@ -118,7 +118,7 @@
 </div>
 
 <!-- Hidden Form for Edit User -->
-<form id="editUserForm" action="{{ route('users.edit') }}" method="GET" style="display:none;">
+<form id="editUserForm" action="{{ route('merchant-users.edit') }}" method="GET" style="display:none;">
     @csrf
     <input type="hidden" id="userId" name="user_id">
 </form>

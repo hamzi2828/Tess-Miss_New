@@ -6,7 +6,7 @@
     <div class="app-ecommerce-user">
 
         <div class="d-flex mb-6 align-items-center">
-            <h4 class="fw-bold">Merchant Pages</h4>
+            <h4 class="fw-bold">Frontend Pages</h4>
 
             <div class="d-flex col-lg-3 col-md-3 ms-auto" style="justify-content: end">
 
@@ -26,7 +26,7 @@
                         <tr>
                             <th></th>
                             <th>ID</th>
-                            <th class="text-lg-center">Page Title</th>
+                            <th>Page Title</th>
                             <th>Page URL</th>
                             <th>Created At</th>
                             <th>Status</th>
@@ -35,16 +35,17 @@
                     </thead>
                     <tbody>
 
-                        @php $i = 1; @endphp
+                        @php $i = 0; @endphp
                         @foreach($pages as $page)
                         <tr>
+                            @php $i++; @endphp
                             <td></td>
-                            <td>{{ $page->id }}</td>
+                            <td>{{ $i }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div>
-                                        <span class="text-heading text-wrap fw-medium">{{ $page->title }}</span><br>
-                                        <small>{{ $page->url }}</small>
+                                        <span class="text-heading text-wrap fw-medium">{{ $page->name }}</span><br>
+                                        {{-- <small>{{ $page->url }}</small> --}}
                                     </div>
                                 </div>
                             </td>
