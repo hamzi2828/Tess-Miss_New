@@ -80,11 +80,7 @@
 
                     </select>
                 </div>
-                @else
-                <div class="mb-4">
-                    <label class="form-label fw-medium text-secondary" for="userRole">Select User Roddle</label>
-                    <input type="text" id="userRole" class="form-control" name="user_role" value="{{ $user->role }}" readonly>
-                </div>
+
                 @endif
                 
                 <!-- New Password -->
