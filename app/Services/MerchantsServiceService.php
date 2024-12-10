@@ -194,7 +194,7 @@ class MerchantsServiceService
             'merchant_previous_bank' => $data['existing_banking_partner'],
             'website_month_transaction' => $data['monthly_avg_transactions'],
             'merchant_date_incorp' => $data['date_of_incorporation'],
-            'added_by' => Auth::user()->id ?? 1,
+            // 'added_by' => Auth::user()->id ?? 1,
             'declined_by' => null,
         ]);
     
