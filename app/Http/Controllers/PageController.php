@@ -30,32 +30,31 @@ class PageController extends Controller
      */
     public function store(Request $request)
     {
-
         // Validate the incoming request
         $validated = $request->validate([
             'pageName' => 'required|string|max:255|unique:pages,name',
             'pageSlug' => 'nullable|string|max:255|unique:pages,slug',
             'pageDescription' => 'required|string',
             'pageStatus' => 'required|in:active,inactive',
+            'display' => 'required|in:approved,unapproved',
         ]);
-
-
-
+    
         // Generate slug if not provided
         $slug = $validated['pageSlug'] ?? \Str::slug($validated['pageName'], '-');
-
+    
         // Create the page
         $page = Page::create([
             'name' => $validated['pageName'],
             'slug' => $slug,
             'description' => $validated['pageDescription'],
             'status' => $validated['pageStatus'],
+            'display' => $validated['display'],
         ]);
-
+    
         // Redirect to the index page with a success message
         return redirect()->route('pages.index')->with('success', 'Page created successfully!');
     }
-
+    
 
     /**
      * Display the specified resource.
@@ -86,7 +85,9 @@ class PageController extends Controller
             'pageSlug' => 'required|string|max:255|unique:pages,slug,' . $page->id,
             'pageDescription' => 'required|string',
             'pageStatus' => 'required|in:active,inactive',
+            'display' => 'required|in:approved,unapproved',
         ]);
+       
 
         // Update the page with validated data
         $page->update([
@@ -94,6 +95,7 @@ class PageController extends Controller
             'slug' => $validated['pageSlug'],
             'description' => $validated['pageDescription'],
             'status' => $validated['pageStatus'],
+            'display' => $validated['display'],
         ]);
 
         // Redirect with success message

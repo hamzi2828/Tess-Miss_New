@@ -83,6 +83,18 @@
                         @endif
                     </div>
 
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium text-secondary" for="display">Display</label>
+                        <select id="display" class="form-select select2" name="display" required>
+                            <option value="approved" {{ old('display', $page->display) == 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="unapproved" {{ old('display', $page->display) == 'unapproved' ? 'selected' : '' }}>Unapproved</option>
+                        </select>
+                        @if($errors->has('display'))
+                            <div class="text-danger">{{ $errors->first('display') }}</div>
+                        @endif
+                    </div>
+
                     <!-- Submit & Cancel Buttons -->
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary px-4 me-3">Update</button>

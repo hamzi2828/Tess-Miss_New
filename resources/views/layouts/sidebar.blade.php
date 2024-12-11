@@ -248,7 +248,7 @@
 
 
 
-      <li class="menu-header small text-uppercase text-muted fw-bold">Pages</li>
+      <li class="menu-header small text-uppercase text-muted fw-bold">Frontend Pages</li>
       <li class="menu-item {{ request()->routeIs('pages.*') ? 'open' : '' }}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon tf-icons ti ti-file"></i>

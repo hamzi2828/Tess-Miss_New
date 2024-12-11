@@ -14,7 +14,7 @@ class Page extends Model
     protected $table = 'pages';
 
     // Allow mass assignment for the specified fields
-    protected $fillable = ['name', 'slug', 'description', 'status'];
+    protected $fillable = ['name', 'slug', 'description', 'status', 'display'];
 
     /**
      * Boot method for the model.

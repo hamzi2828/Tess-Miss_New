@@ -71,9 +71,10 @@
                     </div>
 
                     <!-- Page Status -->
+                    
                     <div class="mb-4">
                         <label class="form-label fw-medium text-secondary" for="pageStatus">Status</label>
-                        <select id="pageStatus" class="form-select" name="pageStatus" required>
+                        <select id="pageStatus" class="form-select select2" name="pageStatus" required>
                             <option value="active" {{ old('pageStatus') == 'active' ? 'selected' : '' }}>Active</option>
                             <option value="inactive" {{ old('pageStatus') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                         </select>
@@ -81,6 +82,24 @@
                             <div class="text-danger">{{ $errors->first('pageStatus') }}</div>
                         @endif
                     </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-medium text-secondary" for="display">Display</label>
+                        <select id="display" class="form-select select2" name="display" required>
+                            <option value="approved" {{ old('display') == 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="unapproved" {{ old('display') == 'unapproved' ? 'selected' : '' }}>Unapproved</option>
+                        </select>   
+                        @if($errors->has('display'))
+                            <div class="text-danger">{{ $errors->first('display') }}</div>
+                        @endif
+                    </div>
+
+                    @push('scripts')
+                        <script>
+                            $(document).ready(function() {
+                                $('.select2').select2();
+                            });
+                        </script>
+                    @endpush
 
                     <!-- Submit & Cancel Buttons -->
                     <div class="d-flex justify-content-end">
