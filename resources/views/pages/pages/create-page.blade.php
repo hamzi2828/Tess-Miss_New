@@ -64,28 +64,29 @@
                     <!-- Page Description -->
                     <div class="mb-4">
                         <label class="form-label fw-medium text-secondary" for="pageDescription">Description <span class="required-asterisk text-danger">*</span></label>
-                        <textarea id="pageDescription" class="form-control" name="pageDescription" rows="5" required>{{ old('pageDescription') }}</textarea>
+                        <div id="editor" style="height: 300px;"></div>
+                        <textarea id="pageDescription" name="pageDescription" class="form-control d-none" required>{{ old('pageDescription') }}</textarea>
                         @if($errors->has('pageDescription'))
                             <div class="text-danger">{{ $errors->first('pageDescription') }}</div>
                         @endif
                     </div>
                     
-                    <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
+                    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+                    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
-                            ClassicEditor
-                                .create(document.querySelector('#pageDescription'))
-                                .then(editor => {
-                                    // Ensure the editor is synced with the form field value
-                                    editor.model.document.on('change:data', () => {
-                                        document.querySelector('textarea[name="pageDescription"]').value = editor.getData();
-                                    });
-                                })
-                                .catch(error => {
-                                    console.error(error);
-                                });
+                            const quill = new Quill('#editor', {
+                                theme: 'snow',
+                                placeholder: 'Write something...',
+                            });
+                    
+                            // Sync the content to the textarea
+                            quill.on('text-change', function () {
+                                document.querySelector('#pageDescription').value = quill.root.innerHTML;
+                            });
                         });
                     </script>
+                    
                     
                     <!-- Page Status -->
                     

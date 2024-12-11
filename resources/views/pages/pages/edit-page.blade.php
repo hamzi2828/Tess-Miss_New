@@ -63,7 +63,7 @@
                     </div>
 
                     <!-- Page Description -->
-                    <div class="mb-4">
+                    {{-- <div class="mb-4">
                         <label class="form-label fw-medium text-secondary" for="pageDescription">Description <span class="required-asterisk text-danger">*</span></label>
                         <textarea id="pageDescription" class="form-control" name="pageDescription" rows="5" required>{{ old('pageDescription', $page->description) }}</textarea>
                         @if($errors->has('pageDescription'))
@@ -88,6 +88,31 @@
                                 .catch(error => {
                                     console.error(error);
                                 });
+                        });
+                    </script> --}}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-medium text-secondary" for="pageDescription">Description <span class="required-asterisk text-danger">*</span></label>
+                        <div id="editor" style="height: 300px;">{!! $page->description !!}</div>
+                        <textarea id="pageDescription" name="pageDescription" class="form-control d-none" required>{{ old('pageDescription', $page->description) }}</textarea>
+                        @if($errors->has('pageDescription'))
+                            <div class="text-danger">{{ $errors->first('pageDescription') }}</div>
+                        @endif
+                    </div>
+                    
+                    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+                    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const quill = new Quill('#editor', {
+                                theme: 'snow',
+                                placeholder: 'Write something...',
+                            });
+                    
+                            // Sync the content to the textarea
+                            quill.on('text-change', function () {
+                                document.querySelector('#pageDescription').value = quill.root.innerHTML;
+                            });
                         });
                     </script>
                     
