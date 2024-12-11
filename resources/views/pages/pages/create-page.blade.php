@@ -69,7 +69,24 @@
                             <div class="text-danger">{{ $errors->first('pageDescription') }}</div>
                         @endif
                     </div>
-
+                    
+                    <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            ClassicEditor
+                                .create(document.querySelector('#pageDescription'))
+                                .then(editor => {
+                                    // Ensure the editor is synced with the form field value
+                                    editor.model.document.on('change:data', () => {
+                                        document.querySelector('textarea[name="pageDescription"]').value = editor.getData();
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error(error);
+                                });
+                        });
+                    </script>
+                    
                     <!-- Page Status -->
                     
                     <div class="mb-4">

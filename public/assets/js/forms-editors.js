@@ -81,13 +81,13 @@
     ['link', 'image', 'video', 'formula'],
     ['clean']
   ];
-  const fullEditor = new Quill('#full-editor', {
-    bounds: '#full-editor',
-    placeholder: 'Type Something...',
-    modules: {
-      formula: true,
-      toolbar: fullToolbar
-    },
-    theme: 'snow'
-  });
+  const fullEditorElement = document.querySelector('#full-editor');
+  if (fullEditorElement) {
+    new Quill('#full-editor', {
+      bounds: '#full-editor',
+      modules: { toolbar: fullToolbar },
+      theme: 'snow'
+    });
+  }
+  
 })();

@@ -30,6 +30,7 @@
                             <th>Page URL</th>
                             <th>Created At</th>
                             <th>Status</th>
+                            <th>Display User</th>
                             <th class="text-lg-center">Actions</th>
                         </tr>
                     </thead>
@@ -58,6 +59,14 @@
                                     <span class="badge bg-success">Active</span>
                                 @else
                                     <span class="badge bg-danger">Inactive</span>
+                                @endif
+                            </td>
+
+                            <td>
+                                @if($page->display == 'approved')
+                                    <span class="badge bg-success">Approved</span>
+                                @else
+                                    <span class="badge bg-danger">Unapproved</span>
                                 @endif
                             </td>
 

@@ -70,7 +70,29 @@
                             <div class="text-danger">{{ $errors->first('pageDescription') }}</div>
                         @endif
                     </div>
-
+                    
+                    <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            ClassicEditor
+                                .create(document.querySelector('#pageDescription'))
+                                .then(editor => {
+                                    // Set initial content without additional quotes
+                                    editor.setData(`{!! addslashes($page->description) !!}`);
+                    
+                                    // Sync editor content with textarea for form submission
+                                    editor.model.document.on('change:data', () => {
+                                        document.querySelector('textarea[name="pageDescription"]').value = editor.getData();
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error(error);
+                                });
+                        });
+                    </script>
+                    
+                    
+                 
                     <!-- Page Status -->
                     <div class="mb-4">
                         <label class="form-label fw-medium text-secondary" for="pageStatus">Status</label>

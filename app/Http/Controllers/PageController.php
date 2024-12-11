@@ -30,6 +30,7 @@ class PageController extends Controller
      */
     public function store(Request $request)
     {
+      
         // Validate the incoming request
         $validated = $request->validate([
             'pageName' => 'required|string|max:255|unique:pages,name',
@@ -79,6 +80,7 @@ class PageController extends Controller
      */
     public function update(Request $request, Page $page)
     {
+      
         // Validate the input
         $validated = $request->validate([
             'pageName' => 'required|string|max:255|unique:pages,name,' . $page->id,
