@@ -9,7 +9,9 @@
                     @foreach($merchant_details['documents'] as $document)
                         @php
                             $documentExpired = false;
-        
+                            $addedByRole = \App\Models\User::getUserRoleById($document->added_by);
+                          
+                            $frontend = config('app.frontend_url');
                             // Check if the document is expired
                             if (!empty($document['date_expiry'])) {
                                 $expiryDate = \Carbon\Carbon::parse($document['date_expiry']);
@@ -33,12 +35,20 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     @if(!empty($document['document']))
-                                        <!-- Display the document as an image -->
+                                        @if($addedByRole == 'frontendUser')
+
+                                        <img 
+                                            src="{{ $frontend . '/' . $document['document'] }}" 
+                                            alt="Logo Document" 
+                                            class="img-fluid rounded"
+                                        />
+                                        @else
                                         <img 
                                             src="{{ asset($document['document']) }}" 
                                             alt="Logo Document" 
                                             class="img-fluid rounded"
                                         />
+                                        @endif
                                     @else
                                         <p class="text-muted">No file available</p>
                                     @endif
@@ -84,6 +94,9 @@
                                     $documentExpired = $expiryDate->isPast();
                                 }
                         
+                                $addedByRole = \App\Models\User::getUserRoleById($document->added_by);
+                                $frontend = config('app.frontend_url');
+                          
                                 // Check if this document has a previous document ID (i.e., it's a replacement)
                                 $originalDocument = false;
                                 if (isset($document['previous_doc_id'])) {
@@ -100,6 +113,8 @@
                                     <div class="col-md-6">
                                         <label class="form-label">
                                             @php
+
+                                            
                                                 // Break the title into parts and get the first part as the document ID
                                                 $titleParts = explode('_', $document['title']);
                                                 $documentId = $titleParts[0]; 
@@ -119,9 +134,20 @@
                                         <div class="input-group">
                                             @if(!empty($document['document']))
                                                 <!-- Display a clickable button with an icon -->
-                                                <a href="{{ asset($document['document']) }}" target="_blank" class="btn btn-outline-secondary">
-                                                    <i class="tf-icons ti ti-file"></i> View 
+                                                
+
+                                                @if($addedByRole == 'frontendUser')
+
+                                                <a href="{{ $frontend . '/' . $document['document'] }}" target="_blank" class="btn btn-outline-secondary">
+                                                    <i class="tf-icons ti ti-file"></i> View
                                                 </a>
+                                                @else
+                                                <a href="{{ asset($document['document']) }}" target="_blank" class="btn btn-outline-secondary">
+                                                    <i class="tf-icons ti ti-file"></i> View
+                                                </a>
+                                                @endif
+
+
                                             @else
                                                 <p class="text-muted">No file available</p>
                                             @endif
@@ -170,8 +196,8 @@
                                                 {{-- <a href="{{ asset($replacementDocument->document) }}" target="_blank" class="btn btn-outline-success">
                                                     <i class="tf-icons ti ti-file-check"></i> View 
                                                 </a> --}}
-                                                <a href="{{ config('app.frontend_url') . '/' . $replacementDocument->document }}" target="_blank" class="btn btn-outline-success merchant-font">
-                                                    <i class="tf-icons ti ti-file-check"></i> View 
+                                                <a href="{{ asset($document['document']) }}" target="_blank" class="btn btn-outline-secondary">
+                                                    <i class="tf-icons ti ti-file"></i> View 
                                                 </a>
                                                 
                                                 
