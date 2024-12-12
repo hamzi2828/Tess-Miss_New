@@ -389,7 +389,7 @@ class MerchantsController extends Controller
         $Country = Country::all();
     
         if (!$merchant_details) {
-            return redirect()->route('create.merchants.kyc', ['merchant_id' => $merchant_id]);
+            return redirect()->route('create.merchants.kfc', ['merchant_id' => $merchant_id]);
         }
     
         // Convert operating_countries to an array of IDs
