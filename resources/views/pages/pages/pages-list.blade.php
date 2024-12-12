@@ -27,7 +27,7 @@
                             <th></th>
                             <th>ID</th>
                             <th>Page Title</th>
-                            <th>Page URL</th>
+                            {{-- <th>Page URL</th> --}}
                             <th>Created At</th>
                             <th>Status</th>
                             <th>Display User</th>
@@ -50,7 +50,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>{{ config('app.frontend_url') .$page->slug }}</td>
+                            {{-- <td>{{ config('app.frontend_url') .$page->slug }}</td> --}}
 
 
                             <td>{{ $page->created_at }}</td>
