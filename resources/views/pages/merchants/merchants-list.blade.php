@@ -204,7 +204,7 @@
             "ordering": true,
             "info": true,
             "searching": true,
-            "order": [[ 1, 'asc' ]], // Default sorting by Merchant Details
+            "order": [[ 0, 'desc' ]],
             // dom: '<"d-flex justify-content-between"<"search-box"f><"export-btn"B>>t<"d-flex justify-content-between"ip>',
             buttons: [
                 {
