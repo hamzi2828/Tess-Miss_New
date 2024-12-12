@@ -134,8 +134,8 @@
                     <div class="mb-4">
                         <label class="form-label fw-medium text-secondary" for="display">Display</label>
                         <select id="display" class="form-select select2" name="display" required>
-                            <option value="approved" {{ old('display', $page->display) == 'approved' ? 'selected' : '' }}>Approved</option>
-                            <option value="unapproved" {{ old('display', $page->display) == 'unapproved' ? 'selected' : '' }}>Unapproved</option>
+                            <option value="approved" {{ old('display', $page->display) == 'approved' ? 'selected' : '' }}>Approved Users</option>
+                            <option value="unapproved" {{ old('display', $page->display) == 'unapproved' ? 'selected' : '' }}>All Users</option>
                         </select>
                         @if($errors->has('display'))
                             <div class="text-danger">{{ $errors->first('display') }}</div>

@@ -50,7 +50,8 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>{{ $page->url }}</td>
+                            <td>{{ config('app.frontend_url') .$page->slug }}</td>
+
 
                             <td>{{ $page->created_at }}</td>
 
@@ -64,9 +65,9 @@
 
                             <td>
                                 @if($page->display == 'approved')
-                                    <span class="badge bg-success">Approved</span>
+                                    <span class="badge bg-success">Approved Users</span>
                                 @else
-                                    <span class="badge bg-danger">Unapproved</span>
+                                    <span class="badge bg-danger">All Users</span>
                                 @endif
                             </td>
 
