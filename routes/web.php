@@ -26,10 +26,9 @@ use App\Http\Middleware\CheckUserStage;
 */
 
 
-Route::get('/', function () {
-
-    return view('pages.dashboard.index');
-})->middleware('auth');
+// Route::get('/', function () {
+//     return view('pages.dashboard.index');
+// })->middleware('auth');
 
 
 // Login and Logout routes (these should be outside the auth middleware)
@@ -43,6 +42,8 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::resource('users', UserController::class);
+    Route::get('/', [UserController::class, 'dashboard'])->name('dashboard');
+    
     Route::get('/usersEdit', [UserController::class, 'edit'])->name('users.edit');
     Route::get('/usersCreate', [UserController::class, 'create'])->name('users.create');
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
