@@ -40,7 +40,7 @@ class UserController extends Controller
         $user = auth()->user();
         $department = Department::find($user->department);
         $departmentStage = $department ? $department->stage : 0;
-    
+
         $data = [];
         if ($user->role === 'supervisor' && $departmentStage == 1) {
             $data['totalMerchants'] = Merchant::count();
@@ -49,85 +49,91 @@ class UserController extends Controller
             $data['totalDeclinedMerchants'] = Merchant::whereNotNull('declined_by')->count();
             $data['pendingMerchants'] = Merchant::whereNull('approved_by')->whereNull('declined_by')->count();
         }
-        if ($user->role === 'supervisor' && $departmentStage == 2) {
+        if ( $departmentStage == 2) {
             // Count unique merchants based on merchant_id in MerchantDocument
             $data['totalMerchants'] = MerchantDocument::distinct('merchant_id')->count('merchant_id');
-        
+
             // Count merchants added in the last 24 hours
             $data['newMerchantsLast24Hours'] = MerchantDocument::distinct('merchant_id')
                 ->whereBetween('created_at', [now()->subDay(), now()])
                 ->count('merchant_id');
-        
+
             // Count merchants with approved_by not null
             $data['totalApprovedMerchants'] = MerchantDocument::distinct('merchant_id')
                 ->whereNotNull('approved_by')
                 ->count('merchant_id');
-        
+
             // Count merchants with declined_by not null
             $data['totalDeclinedMerchants'] = MerchantDocument::distinct('merchant_id')
                 ->whereNotNull('declined_by')
                 ->count('merchant_id');
-        
+
             // Count merchants with pending approval (approved_by and declined_by are null)
             $data['pendingMerchants'] = MerchantDocument::distinct('merchant_id')
                 ->whereNull('approved_by')
                 ->whereNull('declined_by')
                 ->count('merchant_id');
         }
-        if ($user->role === 'supervisor' && $departmentStage == 3) {
+        if ( $departmentStage == 3) {
             // Count unique merchants based on merchant_id in MerchantDocument
             $data['totalMerchants'] = MerchantSale::distinct('merchant_id')->count('merchant_id');
-        
+
             // Count merchants added in the last 24 hours
             $data['newMerchantsLast24Hours'] = MerchantSale::distinct('merchant_id')
                 ->whereBetween('created_at', [now()->subDay(), now()])
                 ->count('merchant_id');
-        
+
             // Count merchants with approved_by not null
             $data['totalApprovedMerchants'] = MerchantSale::distinct('merchant_id')
                 ->whereNotNull('approved_by')
                 ->count('merchant_id');
-        
+
             // Count merchants with declined_by not null
             $data['totalDeclinedMerchants'] = MerchantSale::distinct('merchant_id')
                 ->whereNotNull('declined_by')
                 ->count('merchant_id');
-        
+
             // Count merchants with pending approval (approved_by and declined_by are null)
             $data['pendingMerchants'] = MerchantSale::distinct('merchant_id')
                 ->whereNull('approved_by')
                 ->whereNull('declined_by')
                 ->count('merchant_id');
         }
-        if ($user->role === 'supervisor' && $departmentStage == 4) {
+        if ($departmentStage == 4) {
             // Count unique merchants based on merchant_id in Merchantservice
             $data['totalMerchants'] = Merchantservice::distinct('merchant_id')->count('merchant_id');
-        
+
             // Count merchants added in the last 24 hours
             $data['newMerchantsLast24Hours'] = Merchantservice::distinct('merchant_id')
                 ->whereBetween('created_at', [now()->subDay(), now()])
                 ->count('merchant_id');
-        
+
             // Count merchants with approved_by not null
             $data['totalApprovedMerchants'] = Merchantservice::distinct('merchant_id')
                 ->whereNotNull('approved_by')
                 ->count('merchant_id');
-        
+
             // Count merchants with declined_by not null
             $data['totalDeclinedMerchants'] = Merchantservice::distinct('merchant_id')
                 ->whereNotNull('declined_by')
                 ->count('merchant_id');
-        
+
             // Count merchants with pending approval (approved_by and declined_by are null)
             $data['pendingMerchants'] = Merchantservice::distinct('merchant_id')
                 ->whereNull('approved_by')
                 ->whereNull('declined_by')
                 ->count('merchant_id');
         }
-    
+        $latestFiveMerchants = Merchant::latest()->take(5)->get();
+        $data['latestFiveMerchants'] = $latestFiveMerchants;
+
+        $activityLogs = ActivityLog::where('user_id', auth()->user()->id)->latest()->take(5)->get();
+        $data['activityLogs'] = $activityLogs;
+
+
         return view('pages.dashboard.index', compact('data'));
     }
-    
+
 
     public function frontendUsers()
     {

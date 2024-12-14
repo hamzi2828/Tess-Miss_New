@@ -12,14 +12,14 @@
                 {{ session('error') }}
             </div>
             @endif
-         
+
             @if(session('success'))
             <br>
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
             @endif
-         
+
             @if(session('info'))
             <br>
             <div class="alert alert-info">
@@ -42,14 +42,14 @@
                     </ul>
 
                     @can('addKYC', App\Models\User::class)
-             
+
                     <a href="{{ route('create.merchants.kfc') }}" class="btn btn-primary btn-md">
-                        <i class="ti ti-plus me-1"></i>Add Merchant 
+                        <i class="ti ti-plus me-1"></i>Add Merchant
                     </a>
                     @endcan
 
                 </div>
-               
+
             </div>
 
 
@@ -83,10 +83,11 @@
 
                                 <!-- KYC Details -->
                                 <td>
-                                    @if (!empty($merchant['added_by']) || !empty($merchant['approved_by']))
+                                    @if (!empty($merchant['added_by']) || !empty($merchant['approved_by'] || !empty($merchant['declined_by'])))
                                         <strong>Added:</strong> {{ $merchant['added_by']['name'] ?? 'Pending' }}<br>
-                                        <strong>Approved:</strong> {{ $merchant['approved_by']['name'] ?? 'Pending' }}
-                                        
+                                        <strong>Approved:</strong> {{ $merchant['approved_by']['name'] ?? 'Pending' }}<br>
+                                        <strong>Declined:</strong> {{ $merchant['declined_by']['name'] ?? 'N/A' }}
+
                                     @else
                                         <span class="text-danger">Pending</span>
                                     @endif
@@ -95,7 +96,9 @@
                                 <td>
                                     @if (!empty($merchant['documents']))
                                         <strong>Added:</strong> {{ $merchant['documents'][0]['added_by']['name'] ?? 'Pending' }}<br>
-                                        <strong>Approved:</strong> {{ $merchant['documents'][0]['approved_by']['name'] ?? 'Pending' }}
+                                        <strong>Approved:</strong> {{ $merchant['documents'][0]['approved_by']['name'] ?? 'Pending' }}<br>
+                                        <strong>Declined:</strong> {{ $merchant['documents'][0]['declined_by']['name'] ?? 'N/A' }}
+
                                     @else
                                         <span class="text-danger">Pending</span>
                                     @endif
@@ -104,19 +107,24 @@
                                 <td>
                                     @if (!empty($merchant['sales']))
                                         <strong>Added:</strong> {{ $merchant['sales'][0]['added_by']['name'] ?? 'Pending' }}<br>
-                                        <strong>Approved:</strong> {{ $merchant['sales'][0]['approved_by']['name'] ?? 'Pending' }}
+                                        <strong>Approved:</strong> {{ $merchant['sales'][0]['approved_by']['name'] ?? 'Pending' }}<br>
+                                        <strong>Declined:</strong> {{ $merchant['sales'][0]['declined_by']['name'] ?? 'N/A' }}
+
                                     @else
                                         <span class="text-danger">Pending</span>
                                     @endif
                                 </td>
 
-                            
+
 
                                 <!-- Services Details -->
                                 <td>
                                     @if (!empty($merchant['services']))
                                         <strong>Added:</strong> {{ $merchant['services'][0]['added_by']['name'] ?? 'Pending' }}<br>
-                                        <strong>Approved:</strong> {{ $merchant['services'][0]['approved_by']['name'] ?? 'Pending' }}
+                                        <strong>Approved:</strong> {{ $merchant['services'][0]['approved_by']['name'] ?? 'Pending' }}<br>
+                                        <strong>Declined:</strong> {{ $merchant['services'][0]['declined_by']['name'] ?? 'N/A' }}
+
+
                                     @else
                                         <span class="text-danger">Pending</span>
                                     @endif
@@ -126,7 +134,7 @@
                                 <td>
                                     <div class="d-flex justify-content-center align-items-center">
 
-                                   
+
                                      @canany(['viewKYC', 'viewDocuments','viewSales','viewServices'], App\Models\User::class)
                                         <!-- Preview Button -->
                                     <form action="{{ route('merchants.preview') }}" method="GET" style="display: inline-block;">
@@ -144,25 +152,25 @@
                                         <!-- Edit Button -->
                                         @php
                                         $userStage = auth()->user()->getDepartmentStage(auth()->user()->department);
-                                        $routeName = $userStage == 1 
-                                            ? 'edit.merchants.kyc' 
-                                            : ($userStage == 2 
-                                                ? 'edit.merchants.documents' 
-                                                : ($userStage == 3 
-                                                    ? 'edit.merchants.sales' 
+                                        $routeName = $userStage == 1
+                                            ? 'edit.merchants.kyc'
+                                            : ($userStage == 2
+                                                ? 'edit.merchants.documents'
+                                                : ($userStage == 3
+                                                    ? 'edit.merchants.sales'
                                                     : 'edit.merchants.services'));
                                     @endphp
-                                    
+
                                     <form action="{{ route($routeName) }}" method="GET">
                                         <input type="hidden" name="merchant_id" value="{{ $merchant['id'] }}">
                                         <button type="submit" class="btn btn-icon btn-text-secondary rounded-pill waves-effect waves-light mx-1">
                                             <i class="ti ti-edit"></i>
                                         </button>
                                     </form>
-                                    
-                                    
-                                    
-                                     
+
+
+
+
                                         <!-- Delete Button -->
                                         {{-- <form action="{{ route('merchants.destroy', $merchant['id']) }}" method="POST" style="display: inline-block;" onsubmit="return confirmDelete()">
                                             @csrf

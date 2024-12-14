@@ -20,29 +20,29 @@ class MerchantsServiceService
     // public function getAllMerchants(): array
     // {
     //     $merchants = Merchant::with([
-    //         'sales.addedBy', 'sales.approvedBy', 
-    //         'services.addedBy', 'services.approvedBy', 
-    //         'shareholders', 
+    //         'sales.addedBy', 'sales.approvedBy',
+    //         'services.addedBy', 'services.approvedBy',
+    //         'shareholders',
     //         'documents.addedBy', 'documents.approvedBy',
     //         'addedBy', 'approvedBy'])->get()->toArray();
     //     return $merchants;
     // }
-    
-    public function getAllMerchants($merchantId = null): array 
+
+    public function getAllMerchants($merchantId = null): array
         {
             // Build the query with eager loading for related data
             $query = Merchant::with([
-                'sales.addedBy', 
-                'sales.approvedBy', 
+                'sales.addedBy',
+                'sales.approvedBy',
                 'sales.declinedBy',
-                'services.addedBy', 
-                'services.approvedBy', 
+                'services.addedBy',
+                'services.approvedBy',
                 'services.declinedBy',
-                'shareholders', 
-                'documents.addedBy', 
+                'shareholders',
+                'documents.addedBy',
                 'documents.approvedBy',
                 'documents.declinedBy',
-                'addedBy', 
+                'addedBy',
                 'approvedBy',
                 'declinedBy'
             ]);
@@ -57,7 +57,7 @@ class MerchantsServiceService
             return $query->get()->toArray();
         }
 
- 
+
         public function createMerchants(array $data): Merchant
         {
             $merchant = new Merchant();
@@ -81,21 +81,21 @@ class MerchantsServiceService
             $merchant->added_by = Auth::user()->id;
             $merchant->status = 'screening';
             $merchant->save();
-        
+
             // Save operational countries
             if (isset($data['operating_countries'])) {
                 $merchant->operating_countries()->sync($data['operating_countries']);
             }
-        
+
             // Handle Shareholders
             $this->createShareholders($merchant, $data);
-        
+
             return $merchant;
         }
-        
-        
 
-  
+
+
+
         protected function createShareholders(Merchant $merchant, array $data): void
         {
             $firstNames = $data['shareholderFirstName'];
@@ -129,7 +129,7 @@ class MerchantsServiceService
     public function storeMerchantsSales(array $data, int $merchant_id): MerchantSale
     {
         $merchant_id = $merchant_id;  // Example merchant ID, replace with dynamic value if needed
-     
+
          // Step 2: Create a new MerchantSale record using validated data
          $merchantSale = new MerchantSale();
          $merchantSale->merchant_id = $merchant_id;
@@ -139,7 +139,7 @@ class MerchantsServiceService
          $merchantSale->monthly_limit_amount = $data['monthlyLimitAmount'];
          $merchantSale->max_transaction_count = $data['maxTransactionCount'];
          $merchantSale->added_by = auth()->user()->id ?? 1;  // Use the authenticated user, default to 1 if not available
-     
+
          // Save the merchant sale record
          $merchantSale->save();
          return $merchantSale;
@@ -149,21 +149,21 @@ class MerchantsServiceService
 
     public function storeMerchantsServices(array $data, int $merchant_id)
     {
-        
+
         // Step 1: Iterate over the services and save each field in the merchant_services table
         foreach ($data['services'] as $service_id => $serviceData) {
             // Get the fields for this service
             $fields = $serviceData['fields'];
-            
+
             // Save each field
             foreach ($fields as $index => $fieldValue) {
                 MerchantService::create([
                     'merchant_id' => $merchant_id,
                     'service_id' => $service_id,
-                    'field_name' => 'Field ' . $index, 
+                    'field_name' => 'Field ' . $index,
                     'field_value' => $fieldValue ?? '',
-                    'added_by' => Auth::user()->id ?? 1, 
-                    'status' => true, 
+                    'added_by' => Auth::user()->id ?? 1,
+                    'status' => true,
                 ]);
             }
         }
@@ -174,7 +174,7 @@ class MerchantsServiceService
     {
         // Find the existing merchant
         $merchant = Merchant::findOrFail($merchant_id);
-    
+
         // Update merchant fields
         $merchant->update([
             'merchant_name' => $data['merchant_name'],
@@ -197,36 +197,36 @@ class MerchantsServiceService
             // 'added_by' => Auth::user()->id ?? 1,
             'declined_by' => null,
         ]);
-    
+
         // Update the associated shareholders
         $this->updateShareholders($merchant, $data);
-    
+
         // Update operating countries
         if (isset($data['operating_countries']) && is_array($data['operating_countries'])) {
             $merchant->operating_countries()->sync($data['operating_countries']);
         }
-    
+
         return $merchant;
     }
-    
+
     protected function updateShareholders(Merchant $merchant, array $data): void
     {
         // Use transaction to ensure data consistency
         DB::transaction(function () use ($merchant, $data) {
             // Delete existing shareholders
             $merchant->shareholders()->delete();
-    
+
             // Re-create the shareholders with the updated data
             $this->createShareholders($merchant, $data);
         });
     }
-    
+
 
     public function updateMerchantsSales(array $salesData, int $merchant_id)
     {
         // Delete all existing sales data for the merchant
         MerchantSale::where('merchant_id', $merchant_id)->delete();
-    
+
         // Insert new sales data
         foreach ($salesData as $sale) {
             MerchantSale::create([
@@ -243,7 +243,7 @@ class MerchantsServiceService
         MerchantService::where('merchant_id', $merchant_id)
         ->update(['approved_by' => null]);
     }
-    
+
 
 
     public function updateMerchantsServices(array $servicesData, int $merchant_id)
@@ -253,22 +253,22 @@ class MerchantsServiceService
             if (!isset($serviceData['fields']) || !is_array($serviceData['fields'])) {
                 continue; // Skip invalid service data
             }
-    
+
             // Delete existing data for the merchant_id and service_id
             MerchantService::where('merchant_id', $merchant_id)
                 ->where('service_id', $service_id)
                 ->delete();
-    
+
             // Get the fields for the service
             $fields = $serviceData['fields'];
-    
+
             // Iterate over each field and create new records
             foreach ($fields as $index => $fieldValue) {
                 // Skip null or empty field values
                 if (is_null($fieldValue) || $fieldValue === '') {
                     continue;
                 }
-    
+
                 MerchantService::create([
                     'merchant_id' => $merchant_id,
                     'service_id' => $service_id,
@@ -280,7 +280,7 @@ class MerchantsServiceService
             }
         }
     }
-    
+
 
     public function deleteMerchants(int $merchant_id): void
     {
@@ -306,7 +306,7 @@ class MerchantsServiceService
 
         $matchedResults = [];
 
-       
+
         foreach ($merchant->shareholders as $shareholder) {
             // Extract shareholder details
             $firstName = $shareholder->first_name;
@@ -320,12 +320,12 @@ class MerchantsServiceService
                 $response = Http::timeout(10)->get($apiBaseUrl);
                 if ($response->successful()) {
                     $data = $response->json()['content'] ?? [];
-            
+
                     // Normalize shareholder names into arrays for comparison
                     $inputFirstNames = array_map('strtolower', array_map('trim', explode(' ', $firstName)));
                     $inputMiddleNames = array_map('strtolower', array_map('trim', explode(' ', $middleName)));
                     $inputLastNames = array_map('strtolower', array_map('trim', explode(' ', $lastName)));
-            
+
                     // Check for matching records
                     foreach ($data as $record) {
                         // Normalize API names into arrays
@@ -333,14 +333,14 @@ class MerchantsServiceService
                         $apiMiddleNames = array_map('strtolower', array_map('trim', explode(' ', $record['secondNameEN'] ?? '')));
                         $apiLastNames = array_map('strtolower', array_map('trim', explode(' ', $record['thirdNameEN'] ?? '')));
                         $apiNationality = $record['nationality'] ?? 'Unknown';
-            
-                      
+
+
                         // Match if any part of the shareholder name exists in the API response
                         $firstNameMatch = !empty(array_intersect($inputFirstNames, $apiFirstNames));
                         $middleNameMatch = empty($inputMiddleNames) || !empty(array_intersect($inputMiddleNames, $apiMiddleNames));
                         $lastNameMatch = !empty(array_intersect($inputLastNames, $apiLastNames));
                         $nationalityMatch = $nationality === $apiNationality;
-                        
+
                         // Check if all conditions are met
                         if ($firstNameMatch && $lastNameMatch && $middleNameMatch && $nationalityMatch) {
                             $matchedResults[] = [
@@ -350,7 +350,7 @@ class MerchantsServiceService
                                     'last_name' => $lastName,
                                     'qid' => $qid,
                                     'country_name' => $nationality,
-                             
+
                                 ],
                                 'matched_record' => $record,
                             ];
@@ -364,8 +364,8 @@ class MerchantsServiceService
             } catch (\Exception $e) {
                 \Log::error('Error fetching sanction details for shareholder: ' . $firstName . ', Error: ' . $e->getMessage());
             }
-            
-            
+
+
         }
 
         return $matchedResults;
@@ -376,22 +376,22 @@ class MerchantsServiceService
     public function checkAndUpdateSanctionList(int $merchantId): array
     {
         $merchant = Merchant::with('shareholders')->find($merchantId);
-    
+
         if (!$merchant) {
             return [
                 'success' => false,
                 'message' => 'Merchant not found',
             ];
         }
-    
+
         $results = [];
-    
+
         foreach ($merchant->shareholders as $shareholder) {
             $firstName = $shareholder->first_name;
             $middleName = $shareholder->middle_name;
             $lastName = $shareholder->last_name;
             $dob = $shareholder->dob;
-    
+
             $fullName = "{$firstName} {$middleName} {$lastName}";
 
             $sanctionedShareholders = \DB::table('data_table')
@@ -399,7 +399,7 @@ class MerchantsServiceService
                 // First condition: Match Name 6 and check against full name
                 $query->where('key_name', 'like', '%Name 6%')
                       ->where('key_value', 'like', "%{$fullName}%")
-                
+
                 // Second condition: Match '1:' and check against first name
                       ->orWhere(function($query) use ($firstName) {
                           $query->where('key_name', 'like', '%1:%')
@@ -416,14 +416,14 @@ class MerchantsServiceService
 
             })
             ->get();
-        
-        
+
+
             dd( $sanctionedShareholders);
-    
+
             if ($sanctionedShareholders->isNotEmpty()) {
                 $shareholder->sanctionlist = 1;
                 $shareholder->save();
-    
+
                 $results[] = [
                     'shareholder' => [
                         'first_name' => $firstName,
@@ -445,17 +445,17 @@ class MerchantsServiceService
                 ];
             }
         }
-    
+
         return [
             'success' => true,
             'message' => 'Sanction list check completed.',
             'results' => $results,
         ];
     }
-    
 
 
-   
+
+
 
 // public function checkAndUpdateSanctionList(int $merchantId): array
 // {
@@ -566,7 +566,7 @@ public function hasMoiFlag(int $merchantId): bool
 {
 
     $merchant = Merchant::with('shareholders')->find($merchantId);
-    
+
     if (!$merchant) {
         return false; // Merchant not found, return false
     }
@@ -578,7 +578,7 @@ public function hasMoiFlag(int $merchantId): bool
         }
     }
 
-    return false; 
+    return false;
 }
 
 
