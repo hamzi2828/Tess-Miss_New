@@ -118,7 +118,7 @@
               <div class="card-header d-flex justify-content-between">
                 <div class="card-title m-0 me-2">
                   <h5 class="mb-1">Latest Merchants</h5>
-                  <p class="card-subtitle">Latest 5 Merchants</p>
+                  <p class="card-subtitle">Latest  {{ $data['latestFiveMerchants']->count() }}</p>
                 </div>
               </div>
               <div class="card-body">
@@ -155,7 +155,7 @@
               <div class="card-header d-flex justify-content-between">
                 <div class="card-title m-0 me-2">
                   <h5 class="mb-1">Activity Logs</h5>
-                  <p class="card-subtitle">Total {{ $data['activityLogs']->count() }} Activities Logged</p>
+                  <p class="card-subtitle">Total {{ $data['activityLogs']->count() }} </p>
                 </div>
               </div>
               <div class="card-body">

@@ -16,6 +16,12 @@
 
     <ul class="menu-inner py-1">
       <!-- e-commerce-app menu end -->
+      <li class="menu-item {{ request()->is('/') ? 'active' : '' }}">
+        <a href="/" class="menu-link">
+          <i class="menu-icon tf-icons ti ti-home"></i>
+          <div data-i18n="Dashboard">Dashboard</div>
+        </a>
+      </li>
 
       @canany(['addKYC', 'addDocuments','addSales','addServices'], App\Models\User::class)
       <li class="menu-item {{ Request::is('merchants') || Request::is('merchantskyc') || Request::is('merchantsdocuments') || Request::is('merchantsSales') ||  Request::is('merchantService') ? 'open' : '' }}">
