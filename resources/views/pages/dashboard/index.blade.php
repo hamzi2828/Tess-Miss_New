@@ -49,8 +49,9 @@
                   <div class="col-md-4 col-6">
                     <div class="d-flex align-items-center">
                       <div class="badge rounded bg-label-primary me-4 p-2">
-                        <i class="ti ti-chart-pie-2 ti-lg"></i>
+                        <i class="ti ti-users ti-md"></i>
                       </div>
+
                       <div class="card-info">
                         <h5 class="mb-0">{{ $data['totalMerchants'] ?? 0 }}</h5>
                         <small>Total Merchants</small>
@@ -59,8 +60,8 @@
                   </div>
                   <div class="col-md-4 col-6">
                     <div class="d-flex align-items-center">
-                      <div class="badge rounded bg-label-success me-4 p-2">
-                        <i class="ti ti-currency-dollar ti-lg"></i>
+                      <div class="badge rounded bg-label-danger me-4 p-2">
+                        <i class="ti ti-users ti-26px"></i></i>
                       </div>
                       <div class="card-info">
                         <h5 class="mb-0">{{ $data['newMerchantsLast24Hours'] ?? 0 }}</h5>
@@ -71,7 +72,7 @@
 
                   <div class="col-md-4 col-6">
                     <div class="d-flex align-items-center">
-                      <div class="badge rounded bg-label-info me-4 p-2"><i class="ti ti-users ti-lg"></i></div>
+                      <div class="badge rounded bg-label-info me-4 p-2"><i class="ti ti-link ti-md"></i></div>
                       <div class="card-info">
                         <h5 class="mb-0">{{ $data['pendingMerchants'] ?? 0 }}</h5>
                         <small>Pending Merchants</small>
@@ -81,7 +82,7 @@
 
                   <div class="col-md-4 col-6">
                     <div class="d-flex align-items-center">
-                      <div class="badge rounded bg-label-success me-4 p-2">
+                      <div class=" badge rounded bg-label-danger me-4 p-2">
                         <i class="ti ti-currency-dollar ti-lg"></i>
                       </div>
                       <div class="card-info">
@@ -94,9 +95,10 @@
 
                   <div class="col-md-4 col-6">
                     <div class="d-flex align-items-center">
-                      <div class="badge rounded bg-label-danger me-4 p-2">
+                      {{-- <div class="badge rounded bg-label-danger me-4 p-2">
                         <i class="ti ti-shopping-cart ti-lg"></i>
-                      </div>
+                      </div> --}}
+                      <div class="badge rounded bg-label-info me-4 p-2"><i class="ti ti-users ti-lg"></i></div>
                       <div class="card-info">
                         <h5 class="mb-0">{{ $data['totalApprovedMerchants'] ?? 0 }}</h5>
                         <small>Approved Merchants</small>
