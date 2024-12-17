@@ -150,7 +150,7 @@
           <!-- Lates Merchants -->
 
           {{-- Activity Logs --}}
-          <div class="col-xxl-4 col-md-6">
+          <div class="col-xxl-8 col-md-8">
             <div class="card h-100">
               <div class="card-header d-flex justify-content-between">
                 <div class="card-title m-0 me-2">
