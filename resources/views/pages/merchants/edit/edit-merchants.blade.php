@@ -20,7 +20,7 @@
         @csrf
 
 
-        
+
         <!-- Basic Details Section -->
         <div class="form-section box-container">
 
@@ -61,7 +61,7 @@
                 <label for="operatingCountries" class="form-label">Operating Countries <span class="required-asterisk">*</span></label>
                 <select class="form-select select2" id="operatingCountries" name="operating_countries[]" multiple required>
                     @foreach($Country as $country)
-                        <option value="{{ $country->id }}" 
+                        <option value="{{ $country->id }}"
                             {{ in_array($country->id, $merchant_details['operating_countries'] ?? []) ? 'selected' : '' }}>
                             {{ $country->country_name }}
                         </option>
@@ -153,7 +153,7 @@
             <!-- Container for all shareholders -->
             <div id="shareholders-container">
                 @foreach($merchant_details['shareholders'] as $shareholder)
-       
+
                 <div class="shareholder-entry row mb-3">
                     <div class="col-md-3">
                         <label for="shareholderFirstName" class="form-label">First Name <span class="required-asterisk">*</span></label>
@@ -184,24 +184,25 @@
                         <label for="shareholderID" class="form-label"> QID / National ID / Passport</label>
                         <input type="text" class="form-control" name="shareholderID[]" value="{{ $shareholder['qid'] }}">
                     </div>
+
+
+                    <div class="col-md-1">
+
+                        @if($shareholder['sanctions_check_status'] === 'success' )
+                            <div class="col-md-12 mt-7">
+                                <span class="badge bg-danger">Score : {{ $shareholder['sanctions_score'] }}</span>
+                            </div>
+                        @endif
+                    </div>
                     <div class="col-md-1">
                         <a class="remove-btn">
                             <i class="ti ti-trash" style="margin-top: 30px"></i>
                         </a>
                     </div>
-
-                    <div class="col-md-1">
-                        @if($shareholder['moi'] == 1)
-                            <div class="col-md-12 mt-7">
-                                <span class="badge bg-danger">Record in MOI</span>
-                            </div>
-                        @endif
-                    </div>
-            
                 </div>
                 @endforeach
             </div>
-            
+
 
             <!-- Add Shareholder Button -->
             <div class="text-end">
@@ -209,21 +210,9 @@
             </div>
         </div>
 
-          
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="fatf_list" class="form-label">Record present in FATF List</label>
-                <input type="text" class="form-control" id="fatf_list" value="{{ $matchingCountries ? 'Yes' : 'No' }}" readonly>
-            </div>
-            <div class="col-md-6">
-                <label for="fatf_list" class="form-label">Record present in  MOI List</label>
-                <input type="text" class="form-control" id="fatf_list" value="{{ $hasMoiFlag ? 'Yes' : 'No' }}" readonly>
-            </div>
-        </div>
-        
         <div class="d-flex justify-content-end">
-            
+
             <button type="submit" class="btn btn-primary">Save & Proceed</button>
         </div>
     </form>
@@ -237,13 +226,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Get today's date in 'YYYY-MM-DD' format
     let today = new Date().toISOString().split('T')[0];
-    
+
     document.querySelectorAll('input[type="date"]').forEach(function(dateInput) {
         dateInput.setAttribute('max', today); // Set the max attribute to today's date
     });
 });
 
-    
+
 document.addEventListener('DOMContentLoaded', function () {
     function removeShareholder() {
         document.querySelectorAll('.remove-btn').forEach(function (button) {

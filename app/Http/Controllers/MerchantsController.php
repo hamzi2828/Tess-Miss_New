@@ -16,6 +16,9 @@ use App\Services\MerchantsServiceService;
 use App\Notifications\MerchantActivityNotification;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 
 
@@ -53,16 +56,12 @@ class MerchantsController extends Controller
         $merchantId = $request->input('merchant_id');
         $merchant_details = Merchant::with(['sales', 'services', 'shareholders', 'documents', 'operating_countries'])->where('id', $merchantId)->first();
         $merchant = $this->merchantsService->getAllMerchants($merchantId);
-        $matchingCountries = Merchant::getMatchingFatfCountries($merchant_details->id);
-        $hasMoiFlag = $this->merchantsService->hasMoiFlag($merchantId);
-
-
         $MerchantCategory = MerchantCategory::all();
         $Country = Country::all();
         $all_documents  = Document::all();
         $services = Service::all();
 
-        return view('pages.merchants.merchants-preview', compact('merchant_details','title','MerchantCategory','Country','all_documents','services','merchant','matchingCountries','hasMoiFlag'));
+        return view('pages.merchants.merchants-preview', compact('merchant_details','title','MerchantCategory','Country','all_documents','services','merchant'));
     }
 
 
@@ -394,8 +393,6 @@ class MerchantsController extends Controller
 
         // Convert operating_countries to an array of IDs
         $merchant_details->operating_countries = $merchant_details->operating_countries->pluck('id')->toArray();
-        $matchingCountries = Merchant::getMatchingFatfCountries($merchant_details->id);
-        $hasMoiFlag = $this->merchantsService->hasMoiFlag($merchant_details->id);
 
         if (auth()->user()->can('changeKYC', auth()->user())) {
 
@@ -403,7 +400,7 @@ class MerchantsController extends Controller
                 // $this->merchantsService->checkAndUpdateSanctionList($merchant_id);
 
             return view('pages.merchants.edit.edit-merchants', compact('merchant_details',
-                'title', 'MerchantCategory', 'Country','matchingCountries', 'result', 'hasMoiFlag'));
+                'title', 'MerchantCategory', 'Country', 'result'));
         } else {
             return redirect()->back()->with('error', 'You are not authorized.');
         }

@@ -60,7 +60,7 @@
                 @include('pages.merchants.preview.servicesDeatilsSection')
             @endif
 
-            
+
             {{-- Approval Section --}}
             <div class="form-section box-container">
                 <h5 class="basic-details-header">Approval</h5>
@@ -117,7 +117,7 @@
             </div>
         </div>
     </div>
- 
+
   @include('pages.merchants.components.approveOrDecline')
 </div>
 @endsection

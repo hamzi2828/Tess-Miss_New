@@ -17,14 +17,25 @@ class MerchantShareholder extends Model
         'last_name',
         'dob',
         'title',
-        'country', 
+        'country',
         'qid',
         'merchant_id',
         'added_by',
         'time_created',
         'status',
-    ];
+        'sanctions_check_status',
+        'sanctions_check_date',
+        'sanctions_check_result',
+        'has_sanctions_match',
+        'sanctions_score'
+        ];
 
+        protected $casts = [
+            'sanctions_check_result' => 'array',
+            'sanctions_check_date' => 'datetime',
+            'has_sanctions_match' => 'boolean',
+            'dob' => 'date'
+        ];
     /**
      * Define the relationship with the Merchant model.
      */

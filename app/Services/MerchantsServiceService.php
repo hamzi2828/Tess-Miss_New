@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http; // Make sure this line is here
 use App\Notifications\MerchantActivityNotification;
+use Illuminate\Support\Facades\Log;
 
 
 class MerchantsServiceService
@@ -96,34 +97,172 @@ class MerchantsServiceService
 
 
 
-        protected function createShareholders(Merchant $merchant, array $data): void
-        {
-            $firstNames = $data['shareholderFirstName'];
-            $middleNames = $data['shareholderMiddleName'] ?? [];
-            $lastNames = $data['shareholderLastName'];
-            $dobs = $data['shareholderDOB'];
-            $nationalities = $data['shareholderNationality'];
-            $qids = $data['shareholderID'];
 
-            foreach ($firstNames as $index => $firstName) {
-                $shareholder = new MerchantShareholder();
-                $shareholder->merchant_id = $merchant->id;
-                $shareholder->first_name = $firstName;
-                $shareholder->middle_name = $middleNames[$index] ?? null;
-                $shareholder->last_name = $lastNames[$index];
-                $shareholder->dob = $dobs[$index];
-                $shareholder->country_id = $nationalities[$index];
-                $shareholder->qid = $qids[$index] ?? null;
-                $shareholder->added_by = Auth::user()->id ?? 1;
-                $shareholder->status = 'active';
+    protected function createShareholders(Merchant $merchant, array $data): void
+    {
+        $firstNames = $data['shareholderFirstName'];
+        $middleNames = $data['shareholderMiddleName'] ?? [];
+        $lastNames = $data['shareholderLastName'];
+        $dobs = $data['shareholderDOB'];
+        $nationalities = $data['shareholderNationality'];
+        $qids = $data['shareholderID'];
 
-                // Combine first_name and last_name for the title
-                $shareholder->title = $firstName . ' ' . $lastNames[$index];
+        foreach ($firstNames as $index => $firstName) {
+            $shareholder = new MerchantShareholder();
+            $shareholder->merchant_id = $merchant->id;
+            $shareholder->first_name = $firstName;
+            $shareholder->middle_name = $middleNames[$index] ?? null;
+            $shareholder->last_name = $lastNames[$index];
+            $shareholder->dob = $dobs[$index];
+            $shareholder->country_id = $nationalities[$index];
+            $shareholder->qid = $qids[$index] ?? null;
+            $shareholder->added_by = Auth::user()->id;
+            $shareholder->status = 'active';
+            $shareholder->title = $firstName . ' ' . $lastNames[$index];
 
-                $shareholder->save();
+            // Perform sanctions check
+            $sanctionsResult = $this->checkSanctions(
+                $firstName,
+                $middleNames[$index] ?? null,
+                $lastNames[$index],
+                $dobs[$index],
+                $nationalities[$index]
+            );
+        // Process the sanctions result
+            $processedResult = $this->processSanctionsResult($sanctionsResult);
+            // Store sanctions check results
+            $shareholder->sanctions_check_status = $processedResult['status'];
+            $shareholder->sanctions_check_date = now();
+            $shareholder->sanctions_score = $processedResult['score'];
+            $shareholder->has_sanctions_match = $processedResult['hasMatch'];
+            $shareholder->sanctions_check_result = $processedResult['matchDetails'];
+
+            $shareholder->save();
+        }
+    }
+
+    protected function checkSanctions(string $firstName, ?string $middleName, string $lastName, string $dob, string $nationality): array
+    {
+        $fullName = trim($firstName . ' ' . ($middleName ?? '') . ' ' . $lastName);
+        $api_key = "ddb3cfd0f8f4541962ee37f046ec96cd";
+
+        try {
+            $query = [
+                "queries" => [
+                    "q1" => [
+                        "weights" => [
+                            "name_literal_match" => [0.0],
+                            "name_soundex_match" => [1.0]
+                        ],
+                        "schema" => "Person",
+                        "properties" => [
+                            "name" => [$fullName],
+                            "birthDate" => [date('Y', strtotime($dob))],
+                            "nationality" => [$nationality]
+                        ]
+                    ]
+                ]
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => 'ApiKey ' . $api_key,
+                'Content-Type' => 'application/json'
+            ])->post(
+                'https://api.opensanctions.org/match/default?algorithm=best&fuzzy=false',
+                $query
+            );
+
+            // Log the request for debugging
+            Log::info('Sanctions API request made', [
+                'name' => $fullName,
+                'status_code' => $response->status(),
+                'response_length' => strlen($response->body())
+            ]);
+
+            if (!$response->successful()) {
+                return [
+                    'status' => 'error',
+                    'message' => 'API request failed: ' . $response->body(),
+                    'data' => null
+                ];
+            }
+
+            $result = $response->json();
+
+            return [
+                'status' => 'success',
+                'message' => 'Sanctions check completed',
+                'data' => $result['responses']['q1'] ?? null,
+                'has_matches' => !empty($result['responses']['q1']['matches'])
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Exception during sanctions check', [
+                'error' => $e->getMessage(),
+                'name' => $fullName,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return [
+                'status' => 'error',
+                'message' => 'Sanctions check failed: ' . $e->getMessage(),
+                'data' => null
+            ];
+        }
+    }
+    protected function processSanctionsResult(array $sanctionsResult): array
+    {
+        // Initialize default response
+        $processedResult = [
+            'status' => 'error',
+            'score' => 0,
+            'hasMatch' => false,
+            'matchDetails' => null
+        ];
+
+        // Check if we have a successful response
+        if ($sanctionsResult['status'] === 'success' &&
+            isset($sanctionsResult['data']['results']) &&
+            is_array($sanctionsResult['data']['results'])) {
+
+            // Find the result with maximum score
+            $maxScore = 0;
+            $bestMatch = null;
+
+            foreach ($sanctionsResult['data']['results'] as $result) {
+                $currentScore = $result['score'] ?? 0;
+                if ($currentScore > $maxScore) {
+                    $maxScore = $currentScore;
+                    $bestMatch = $result;
+                }
+            }
+
+            // If we found a match, prepare the processed result
+            if ($bestMatch) {
+                $hasMatch = $maxScore >= 0.9; // You can adjust this threshold
+
+                $processedResult = [
+                    'status' => 'success',
+                    'score' => $maxScore,
+                    'hasMatch' => $hasMatch,
+                    'matchDetails' => [
+                        'id' => $bestMatch['id'] ?? null,
+                        'caption' => $bestMatch['caption'] ?? null,
+                        'schema' => $bestMatch['schema'] ?? null,
+                        'first_seen' => $bestMatch['first_seen'] ?? null,
+                        'last_seen' => $bestMatch['last_seen'] ?? null,
+                        'last_change' => $bestMatch['last_change'] ?? null,
+                        'score' => $maxScore,
+                        'match' => $hasMatch,
+                        'properties' => $bestMatch['properties'] ?? null,
+                        'datasets' => $bestMatch['datasets'] ?? null
+                    ]
+                ];
             }
         }
 
+        return $processedResult;
+    }
 
 
     public function storeMerchantsSales(array $data, int $merchant_id): MerchantSale
