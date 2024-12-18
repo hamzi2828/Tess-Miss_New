@@ -164,40 +164,28 @@
             @foreach($merchant_details['shareholders'] as $shareholder)
             <div class="shareholder-entry row mb-3">
                 <div class="col-md-3">
-                    <p>
-                        <strong>First Name:</strong>
-                        {{ $shareholder['first_name'] ?? 'N/A' }}
-                    </p>
+                    <strong>First Name:</strong>
+                    <p>{{ $shareholder['first_name'] ?? 'N/A' }}</p>
                 </div>
                 <div class="col-md-3">
-                    <p>
-                        <strong>Middle Name:</strong>
-                        {{ $shareholder['middle_name'] ?? 'N/A' }}
-                    </p>
+                    <strong>Middle Name:</strong>
+                    <p>{{ $shareholder['middle_name'] ?? 'N/A' }}</p>
                 </div>
                 <div class="col-md-3">
-                    <p>
-                        <strong>Last Name:</strong>
-                        {{ $shareholder['last_name'] ?? 'N/A' }}
-                    </p>
+                    <strong>Last Name:</strong>
+                    <p>{{ $shareholder['last_name'] ?? 'N/A' }}</p>
                 </div>
                 <div class="col-md-3">
-                    <p>
-                        <strong>Date of Birth:</strong>
-                        {{ $shareholder['dob'] ? \Carbon\Carbon::parse($shareholder['dob'])->format('Y-m-d') : 'N/A' }}
-                    </p>
+                    <strong>Date of Birth:</strong>
+                    <p> {{ $shareholder['dob'] ? \Carbon\Carbon::parse($shareholder['dob'])->format('Y-m-d') : 'N/A' }}</p>
                 </div>
                 <div class="col-md-3">
-                    <p>
-                        <strong>Nationality:</strong>
-                        {{ $Country->firstWhere('id', $shareholder['country_id'])?->country_name ?? 'N/A' }}
-                    </p>
+                    <strong>Nationality:</strong>
+                    <p>{{ $Country->firstWhere('id', $shareholder['country_id'])?->country_name ?? 'N/A' }}</p>
                 </div>
                 <div class="col-md-6">
-                    <p>
-                        <strong>QID / National ID / Passport Name:</strong>
-                        {{ $shareholder['qid'] ?? 'N/A' }}
-                    </p>
+                    <strong>QID / National ID / Passport Name:</strong>
+                    <p>{{ $shareholder['qid'] ?? 'N/A' }}</p>
                 </div>
 
 
