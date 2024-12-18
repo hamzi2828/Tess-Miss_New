@@ -12,7 +12,7 @@
 
 @if(session('success'))
 <br>
-    <div class="alert alert-success"> 
+    <div class="alert alert-success">
         {{ session('success') }}
     </div>
 @endif
@@ -20,7 +20,7 @@
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="app-ecommerce-merchant-category">
-      
+
 
 
             <div class="d-flex justify-content-between mb-3">
@@ -44,7 +44,7 @@
                     </button>
                     @endcan
                 </div>
-               
+
             </div>
 
 
@@ -57,7 +57,7 @@
                                 <th></th>
                                 <th>ID</th>
                                 <th>Parent Category</th>
-                        
+
                                 <th>Added By</th>
                                 <th>Date Added</th>
                                 <th class="text-lg-center">Actions</th>
@@ -78,8 +78,8 @@
                                             <div class="d-flex justify-content-center align-items-center">
                                                 @can('changeMerchantCategories', App\Models\User::class)
                                                 <button class="btn btn-icon btn-text-secondary rounded-pill waves-effect waves-light mx-1 edit-category-btn"
-                                                    data-bs-toggle="offcanvas" 
-                                                    data-bs-target="#offcanvasEditCategory" 
+                                                    data-bs-toggle="offcanvas"
+                                                    data-bs-target="#offcanvasEditCategory"
                                                     data-id="{{ $parentCategory->id }}"
                                                     data-title="{{ $parentCategory->title }}"
                                                     data-parent="{{ $parentCategory->parent_id }}"
@@ -87,7 +87,7 @@
                                                     <i class="ti ti-edit"></i>
                                                 </button>
                                                 @endcan
-                                                
+
                                                 @can('deleteMerchantCategories', App\Models\User::class)
                                                 <form action="{{ route('merchant-categories.destroy', $parentCategory->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirmDelete()">
                                                     @csrf
@@ -100,14 +100,14 @@
                                             </div>
                                         </td>
                                     </tr>
-            
+
                                     <!-- Display child categories under the parent category -->
                                     @foreach($categories as $childCategory)
                                         @if($childCategory->parent_id == $parentCategory->id)
                                             <tr>
                                                 <td></td>
                                                 <td>{{ $i++ }}</td>
-                                              
+
                                                 <td>-- {{ $childCategory->title }}</td>
                                                 <td>{{ $childCategory->addedBy->name ?? 'N/A' }}</td>
                                                 <td>{{ $childCategory->created_at->format('Y-m-d') }}</td>
@@ -115,8 +115,8 @@
                                                     <div class="d-flex justify-content-center align-items-center">
                                                         @can('changeMerchantCategories', App\Models\User::class)
                                                         <button class="btn btn-icon btn-text-secondary rounded-pill waves-effect waves-light mx-1 edit-category-btn"
-                                                            data-bs-toggle="offcanvas" 
-                                                            data-bs-target="#offcanvasEditCategory" 
+                                                            data-bs-toggle="offcanvas"
+                                                            data-bs-target="#offcanvasEditCategory"
                                                             data-id="{{ $childCategory->id }}"
                                                             data-title="{{ $childCategory->title }}"
                                                             data-parent="{{ $childCategory->parent_id }}"
@@ -124,7 +124,7 @@
                                                             <i class="ti ti-edit"></i>
                                                         </button>
                                                         @endcan
-                                                        
+
                                                         @can('deleteMerchantCategories', App\Models\User::class)
                                                         <form action="{{ route('merchant-categories.destroy', $childCategory->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirmDelete()">
                                                             @csrf
@@ -145,13 +145,13 @@
                     </table>
                 </div>
             </div>
-            
+
             <script>
                 function confirmDelete() {
                     return confirm('Are you sure you want to delete this category?');
                 }
             </script>
-            
+
 
             {{-- Create Category Modal --}}
             @include('pages.merchantCategories.merchantCategory-create-modal')
@@ -170,6 +170,12 @@
 <!-- Initialize DataTables with export options -->
 <script>
     $(document).ready(function() {
+
+        $('#offcanvasEditCategory').on('hidden.bs.offcanvas', function () {
+            $('body').removeClass('offcanvas-backdrop'); // Remove any lingering backdrop classes
+            $('.offcanvas-backdrop').remove(); // Remove the backdrop element
+        });
+
         var table = $('#customCategoryTable').DataTable({
             "paging": true,      // Enable pagination
             "ordering": true,    // Enable sorting

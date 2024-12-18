@@ -191,9 +191,10 @@
 
                 <div class="col-md-3">
                     @if($shareholder['sanctions_check_status'] === 'success' )
+                    <strong>Score in Sanction List: </strong>
                     <p>
-                        <strong> Score in Sanction list :</strong>
-                        <span class="badge bg-danger">{{ $shareholder['sanctions_score'] * 100}}</span>
+
+                        <span class="badge bg-danger">{{ $shareholder['sanctions_score'] * 100}} %</span>
                     </p>
                     @endif
                 </div>
