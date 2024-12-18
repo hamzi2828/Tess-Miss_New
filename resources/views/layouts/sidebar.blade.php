@@ -90,7 +90,7 @@
 
 
 
-    {{-- @can('toggleDepartmentsSection', App\Models\User::class)
+    @can('toggleDepartmentsSection', App\Models\User::class)
     <li class="menu-item {{ request()->routeIs('departments.*') ? 'open' : '' }}">
 
       <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -108,7 +108,7 @@
         @endcan
       </ul>
     </li>
-    @endcan --}}
+    @endcan
 
 
     @can('toggleDocumentsSection', App\Models\User::class)
