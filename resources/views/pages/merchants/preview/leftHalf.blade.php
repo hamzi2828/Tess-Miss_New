@@ -155,11 +155,12 @@
                                     </div>
 
                                     @if($matchingDocument && $matchingDocument->require_expiry)
-                                        <div class="col-md-6 mt-5">
-                                            <p><strong>Expiry Date:</strong>
-                                                {{ $document['date_expiry'] ? \Carbon\Carbon::parse($document['date_expiry'])->format('Y-m-d') : 'N/A' }}
-                                            </p>
+                                    <div class="col-md-6">
+                                        <div class="d-flex flex-wrap align-items-center">
+                                            <strong class="me-2">Expiry Date:</strong>
+                                            <span>{{ $document['date_expiry'] ? \Carbon\Carbon::parse($document['date_expiry'])->format('Y-m-d') : 'N/A' }}</span>
                                         </div>
+                                    </div>
                                     @endif
                                 </div>
                             @endif

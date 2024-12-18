@@ -7,6 +7,7 @@ use App\Models\MerchantDocument;
 use App\Models\MerchantSale;
 use App\Models\MerchantService;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use App\Notifications\MerchantActivityNotification;
 
 class NotificationService
@@ -177,7 +178,7 @@ class NotificationService
     }
 
 
-    
+
     public function declineKYC($merchantId, $declineNotes )
     {
         $merchant = Merchant::findOrFail($merchantId);
@@ -189,7 +190,7 @@ class NotificationService
         $role = 'user';
         $stage = 1;
         $declinedByUserName = auth()->user()->name;
-    
+
 
         $this->declineEntity($merchant, $activityType, $stage, $notificationMessage, $role, $declinedByUserName);
     }
@@ -276,7 +277,7 @@ class NotificationService
         }
     }
 
-    
+
     public function declineKYCFrontendUser($merchantId, $declineNotes )
     {
         $merchant = Merchant::findOrFail($merchantId);
@@ -316,12 +317,12 @@ class NotificationService
         $merchant->approved_by = auth()->user()->id;
         $merchant->declined_by = null;
         $merchant->save();
-    
+
         $addedByUserId = $merchant->added_by;
         $activityType = 'approve';
         $notificationMessage = "A new KYC has been approved. Please proceed with submitting the documents.";
         $approvedByUserName = auth()->user()->name;
-    
+
         // Call the entity approval function
         $this->approveFrontendUserEntity($merchant, $activityType, $notificationMessage, $approvedByUserName, $addedByUserId);
     }
@@ -345,13 +346,13 @@ class NotificationService
         $this->approveFrontendUserEntity($merchant, $activityType, $notificationMessage, $approvedByUserName, $addedByUserId);
 
     }
-    
+
     private function approveFrontendUserEntity($entity, $type, $notificationMessage, $approvedByUserName, $addedByUserId)
     {
         $user = User::findOrFail($addedByUserId);
         $user->notify(new MerchantActivityNotification($type, $entity, $approvedByUserName, $notificationMessage));
     }
-    
+
 }
 
 

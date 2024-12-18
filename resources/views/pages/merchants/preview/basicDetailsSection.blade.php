@@ -193,19 +193,19 @@
                         {{ $Country->firstWhere('id', $shareholder['country_id'])?->country_name ?? 'N/A' }}
                     </p>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <p>
-                        <strong>Shareholder QID:</strong>
+                        <strong>QID / National ID / Passport Name:</strong>
                         {{ $shareholder['qid'] ?? 'N/A' }}
                     </p>
                 </div>
 
 
-                <div class="col-md-2">
+                <div class="col-md-3">
                     @if($shareholder['sanctions_check_status'] === 'success' )
                     <p>
-                        <strong> Score:</strong>
-                        <span class="badge bg-danger">{{ $shareholder['sanctions_score'] }}</span>
+                        <strong> Score in Sanction list :</strong>
+                        <span class="badge bg-danger">{{ $shareholder['sanctions_score'] * 100}}</span>
                     </p>
                     @endif
                 </div>

@@ -557,6 +557,7 @@ class MerchantsController extends Controller
 
     public function update_merchants_documents(Request $request)
     {
+
         try {
             $validatedData = $request->validate([
                 'document_*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx|max:2048',

@@ -30,7 +30,7 @@ class DocumentsService
             'is_required' => $data['is_required'],
             'require_expiry' => $data['require_expiry'],
             'allowed_types' => $allowedTypesString,
-            'added_by' => auth()->user()->id, 
+            'added_by' => auth()->user()->id,
             'status' => 'active',
         ]);
     }
@@ -44,6 +44,7 @@ class DocumentsService
      */
     public function updateDocuments($validatedData, $request)
     {
+
         $merchant_id = $request->input('merchant_id');
         $merchant = Merchant::with(['documents', 'sales', 'services', 'shareholders'])->find($merchant_id);
 
@@ -58,7 +59,7 @@ class DocumentsService
 
         // Process each document
         foreach ($request->all() as $key => $value) {
-            
+
             if (strpos($key, 'document_') === 0 && $request->hasFile($key)) {
                 $this->handleNewDocument($key, $request, $merchant_id);
             }
@@ -85,49 +86,91 @@ class DocumentsService
 
     private function handleNewDocument($key, $request, $merchant_id)
     {
-        $keyParts = explode('_', $key);
-    
-        if (count($keyParts) === 3) {
-            // Format: document_{document_id}_{previous_document_id}
-            $document_id = $keyParts[1];
-            $previous_document_id = $keyParts[2];
-            $expiryDateKey = 'expiry_' . $previous_document_id; // Use previous_document_id
-            $expiryDate = $request->input($expiryDateKey, null); // Fetch expiry date
-        } elseif (count($keyParts) >= 4) {
-            // Format: document_{document_id}_{shareholder_name}_{previous_document_id}
-            $document_id = $keyParts[1];
-            $shareholder_name = $keyParts[2];
-            $previous_document_id = $keyParts[3];
-            $expiryDateKey = 'expiry_' . $previous_document_id; // Use previous_document_id
-            $expiryDate = $request->input($expiryDateKey, null); // Fetch expiry date
-        } else {
-            return;
-        }
-    
-        // Retrieve the file
-        $file = $request->file($key);
-        $fileName = $document_id . '_' . ($shareholder_name ? $shareholder_name . '_' : '') . $file->getClientOriginalName();
-        $filePath = $file->storeAs('documents', $fileName, 'public');
-        File::copy(storage_path('app/public/' . $filePath), public_path('storage/' . $filePath));
-    
-        // Check if the document exists
-        $existingDocument = MerchantDocument::where('id', $previous_document_id)
-                                            ->where('merchant_id', $merchant_id)
-                                            ->first();
-    
-        if ($existingDocument) {
-            // Update the existing document
-            $existingDocument->update([
-                'title' => $fileName,
-                'document' => 'storage/' . $filePath,
-                'date_expiry' => $expiryDate,
-                'added_by' => auth()->user()->id,
-                'document_type' => $file->getClientMimeType(),
-                'status' => 1, // Active status
+        try {
+            $keyParts = explode('_', $key);
+            $shareholder_name = null;
+
+            if (count($keyParts) === 3) {
+                // Format: document_{document_id}_{previous_document_id}
+                $document_id = $keyParts[1];
+                $previous_document_id = $keyParts[2];
+                $expiryDateKey = 'expiry_' . $previous_document_id;
+                $expiryDate = $request->input($expiryDateKey, null);
+            } elseif (count($keyParts) >= 4) {
+                // Format: document_{document_id}_{shareholder_name}_{previous_document_id}
+                $document_id = $keyParts[1];
+                $shareholder_name = $keyParts[2];
+                $previous_document_id = $keyParts[3];
+                $expiryDateKey = 'expiry_' . $previous_document_id;
+                $expiryDate = $request->input($expiryDateKey, null);
+            } else {
+                \Log::warning('Invalid document key format', ['key' => $key]);
+                return;
+            }
+
+            // Retrieve the file
+            $file = $request->file($key);
+            if (!$file) {
+                \Log::error('No file uploaded', ['key' => $key]);
+                return;
+            }
+
+            // Create the directory if it doesn't exist
+            $documentsPath = public_path('storage/documents');
+            if (!File::exists($documentsPath)) {
+                File::makeDirectory($documentsPath, 0755, true);
+            }
+
+            // Generate file name and store the file
+            $fileName = $document_id . '_' . ($shareholder_name ? $shareholder_name . '_' : '') . $file->getClientOriginalName();
+
+            // Store file directly in public directory
+            $file->move($documentsPath, $fileName);
+            $filePath = 'documents/' . $fileName;
+
+            // Check if the document exists
+            $existingDocument = MerchantDocument::where('id', $previous_document_id)
+                                              ->where('merchant_id', $merchant_id)
+                                              ->first();
+
+            if ($existingDocument) {
+                // Delete old file if it exists
+                $oldFilePath = public_path(str_replace('storage/', 'storage/documents/', $existingDocument->document));
+                if (File::exists($oldFilePath)) {
+                    File::delete($oldFilePath);
+                }
+
+                // Update the existing document
+                $existingDocument->update([
+                    'title' => $fileName,
+                    'document' => 'storage/' . $filePath,
+                    'date_expiry' => $expiryDate,
+                    'added_by' => auth()->user()->id,
+                    'document_type' => $file->getClientMimeType(),
+                    'status' => 1
+                ]);
+
+                \Log::info('Document updated successfully', [
+                    'document_id' => $existingDocument->id,
+                    'file_path' => $filePath
+                ]);
+            } else {
+                \Log::warning('Document not found', [
+                    'previous_document_id' => $previous_document_id,
+                    'merchant_id' => $merchant_id
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Error handling new document: ' . $e->getMessage(), [
+                'exception' => $e,
+                'key' => $key,
+                'merchant_id' => $merchant_id
             ]);
+            throw $e;
         }
     }
-    
+
 
     private function handleReplaceDocument($key, $request, $merchant_id)
     {

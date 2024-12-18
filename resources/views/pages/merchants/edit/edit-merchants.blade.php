@@ -169,7 +169,7 @@
                     </div>
                     <div class="col-md-3">
                         <label for="shareholderDOB" class="form-label">(DOB) <span class="required-asterisk">*</span></label>
-                        <input type="date" class="form-control" name="shareholderDOB[]" value="{{ $shareholder['dob'] ?? '' }}" required>
+                        <input type="date" class="form-control" name="shareholderDOB[]" value="{{ $shareholder['dob'] ? \Carbon\Carbon::parse($shareholder['dob'])->format('Y-m-d') : '' }}" required>
                     </div>
                     <div class="col-md-3" >
                         <label for="shareholderNationality" class="form-label"> Nationality <span class="required-asterisk">*</span></label>
@@ -185,15 +185,13 @@
                         <input type="text" class="form-control" name="shareholderID[]" value="{{ $shareholder['qid'] }}">
                     </div>
 
-
-                    <div class="col-md-1">
-
-                        @if($shareholder['sanctions_check_status'] === 'success' )
-                            <div class="col-md-12 mt-7">
-                                <span class="badge bg-danger">Score : {{ $shareholder['sanctions_score'] }}</span>
-                            </div>
-                        @endif
-                    </div>
+                    @if($shareholder['sanctions_check_status'] === 'success' )
+                        <div class="col-md-3">
+                                <div class="col-md-12 mt-7">
+                                    <span class="badge bg-danger">Score in Sanctions List : {{ $shareholder['sanctions_score'] }}</span>
+                                </div>
+                        </div>
+                    @endif
                     <div class="col-md-1">
                         <a class="remove-btn">
                             <i class="ti ti-trash" style="margin-top: 30px"></i>
