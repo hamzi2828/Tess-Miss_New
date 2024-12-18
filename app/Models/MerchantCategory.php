@@ -43,4 +43,19 @@ class MerchantCategory extends Model
     {
         return $this->hasMany(Merchant::class, 'merchant_category');
     }
+
+
+    public static function getParentCategoryTitleById($id)
+    {
+
+        // Find the category by its ID
+        $category = self::find($id);
+        if ($category && $category->parent_id) {
+            // Find the parent category using parent_id
+            $parentCategory = self::find($category->parent_id);
+            return $parentCategory; // Return parent category details
+        }
+
+        return null;
+    }
 }

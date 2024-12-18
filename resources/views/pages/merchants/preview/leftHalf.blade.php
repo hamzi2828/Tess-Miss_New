@@ -69,7 +69,13 @@
                 <p><strong>Merchant ID:</strong> {{ $merchant_details->merchant_id ?? 'N/A' }}</p>
                 <p><strong>Terminal ID:</strong> {{ $merchant_details->terminal_id ?? 'N/A' }}</p>
                 <p><strong>Commercial Registration #:</strong> {{ $merchant_details->comm_reg_no ?? 'N/A' }}</p>
-                <p><strong>Parent Category:</strong> {{ $merchant_details->parent_category ?? 'No Category Found' }}</p>
+                @php
+                    use App\Models\MerchantCategory;
+                 // Replace with the category ID you want to check
+                $parentTitle = MerchantCategory::getParentCategoryTitleById($merchant_details['merchant_category']);
+
+                @endphp
+                <p><strong>Parent Category:</strong> {{ $parentTitle->title ?? 'No Category Found' }}</p>
                 <p>
                     <strong>Service Category:</strong>
                     @php
