@@ -4,10 +4,10 @@
 
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="app-ecommerce-user">
-    
+
         <div class="d-flex mb-6 align-items-center">
             <h4 class="fw-bold">Merchant Users</h4>
-        
+
             <div class="d-flex col-lg-3 col-md-3 ms-auto" style="justify-content: end">
                 @can('addUser', App\Models\User::class)
                 <a href="{{ route('users.create') }}" class="btn btn-primary btn-md">
@@ -15,9 +15,9 @@
                 </a>
                 @endcan
             </div>
-            
+
         </div>
-        
+
 
         <div class="card">
             <div class="card-datatable table-responsive">
@@ -35,7 +35,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        
+
                         @php $i = 1; @endphp
                         @foreach($users as $user)
                         <tr>
@@ -45,7 +45,11 @@
                                 <div class="d-flex align-items-center">
                                     @if($user->picture)
                                         {{-- <img src="{{ asset('storage/' . $user->picture) }}" alt="Avatar" class="rounded-circle me-2" style="width: 50px; height: 50px;"> --}}
-                                        <img src="{{ asset($user->picture) }}" alt="Profile Picture"  class="rounded-circle me-2" style="width: 50px; height: 50px;">
+                                       @php
+                                            $frontend = config('app.frontend_url');
+                                       @endphp
+                                        <img src="{{ $frontend . '/' . $user->picture }}"
+                                        alt="Profile Picture"  class="rounded-circle me-2" style="width: 50px; height: 50px;">
                                     @else
                                         @php
                                             $initials = strtoupper(substr($user->name, 0, 2));
@@ -65,11 +69,11 @@
                                 </div>
                             </td>
                             <td>{{ $user->address }}</td>
-                          
 
-                            
+
+
                             <td>{{ $user->created_at }}</td>
-                          
+
                             <td>
                                 @if($user->status == 'active')
                                     <span class="badge bg-success">Active</span>
@@ -77,8 +81,8 @@
                                     <span class="badge bg-danger">Inactive</span>
                                 @endif
                             </td>
-                            
-                    
+
+
                             <td class="text-lg-center">
                                 <div class="d-flex justify-content-center align-items-center">
                                     <!-- Edit Button -->
@@ -107,7 +111,7 @@
                             @endcan
                                 </div>
                             </td>
-                        
+
                         </tr>
                         @endforeach
                     </tbody>
