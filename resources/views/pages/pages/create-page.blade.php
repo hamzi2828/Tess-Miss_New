@@ -70,7 +70,7 @@
                             <div class="text-danger">{{ $errors->first('pageDescription') }}</div>
                         @endif
                     </div>
-                    
+
                     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
                     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
                     <script>
@@ -79,17 +79,17 @@
                                 theme: 'snow',
                                 placeholder: 'Write something...',
                             });
-                    
+
                             // Sync the content to the textarea
                             quill.on('text-change', function () {
                                 document.querySelector('#pageDescription').value = quill.root.innerHTML;
                             });
                         });
                     </script>
-                    
-                    
+
+
                     <!-- Page Status -->
-                    
+
                     <div class="mb-4">
                         <label class="form-label fw-medium text-secondary" for="pageStatus">Status</label>
                         <select id="pageStatus" class="form-select select2" name="pageStatus" required>
@@ -104,8 +104,8 @@
                         <label class="form-label fw-medium text-secondary" for="display">Display</label>
                         <select id="display" class="form-select select2" name="display" required>
                             <option value="approved" {{ old('display') == 'approved' ? 'selected' : '' }}>Approved</option>
-                            <option value="unapproved" {{ old('display') == 'unapproved' ? 'selected' : '' }}>Unapproved</option>
-                        </select>   
+                            <option value="unapproved" {{ old('display') == 'unapproved' ? 'selected' : '' }}>All Users</option>
+                        </select>
                         @if($errors->has('display'))
                             <div class="text-danger">{{ $errors->first('display') }}</div>
                         @endif

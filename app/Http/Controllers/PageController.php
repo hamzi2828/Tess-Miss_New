@@ -30,7 +30,7 @@ class PageController extends Controller
      */
     public function store(Request $request)
     {
-      
+
         // Validate the incoming request
         $validated = $request->validate([
             'pageName' => 'required|string|max:255|unique:pages,name',
@@ -39,10 +39,10 @@ class PageController extends Controller
             'pageStatus' => 'required|in:active,inactive',
             'display' => 'required|in:approved,unapproved',
         ]);
-    
+
         // Generate slug if not provided
         $slug = $validated['pageSlug'] ?? \Str::slug($validated['pageName'], '-');
-    
+
         // Create the page
         $page = Page::create([
             'name' => $validated['pageName'],
@@ -51,11 +51,11 @@ class PageController extends Controller
             'status' => $validated['pageStatus'],
             'display' => $validated['display'],
         ]);
-    
+
         // Redirect to the index page with a success message
         return redirect()->route('pages.index')->with('success', 'Page created successfully!');
     }
-    
+
 
     /**
      * Display the specified resource.
@@ -80,7 +80,7 @@ class PageController extends Controller
      */
     public function update(Request $request, Page $page)
     {
-      
+
         // Validate the input
         $validated = $request->validate([
             'pageName' => 'required|string|max:255|unique:pages,name,' . $page->id,
@@ -89,7 +89,7 @@ class PageController extends Controller
             'pageStatus' => 'required|in:active,inactive',
             'display' => 'required|in:approved,unapproved',
         ]);
-       
+
 
         // Update the page with validated data
         $page->update([

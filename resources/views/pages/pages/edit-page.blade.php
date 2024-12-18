@@ -70,7 +70,7 @@
                             <div class="text-danger">{{ $errors->first('pageDescription') }}</div>
                         @endif
                     </div>
-                    
+
                     <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
@@ -79,7 +79,7 @@
                                 .then(editor => {
                                     // Set initial content without additional quotes
                                     editor.setData(`{!! addslashes($page->description) !!}`);
-                    
+
                                     // Sync editor content with textarea for form submission
                                     editor.model.document.on('change:data', () => {
                                         document.querySelector('textarea[name="pageDescription"]').value = editor.getData();
@@ -90,7 +90,7 @@
                                 });
                         });
                     </script> --}}
-                    
+
                     <div class="mb-4">
                         <label class="form-label fw-medium text-secondary" for="pageDescription">Description <span class="required-asterisk text-danger">*</span></label>
                         <div id="editor" style="height: 300px;">{!! $page->description !!}</div>
@@ -99,7 +99,7 @@
                             <div class="text-danger">{{ $errors->first('pageDescription') }}</div>
                         @endif
                     </div>
-                    
+
                     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
                     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
                     <script>
@@ -108,16 +108,16 @@
                                 theme: 'snow',
                                 placeholder: 'Write something...',
                             });
-                    
+
                             // Sync the content to the textarea
                             quill.on('text-change', function () {
                                 document.querySelector('#pageDescription').value = quill.root.innerHTML;
                             });
                         });
                     </script>
-                    
-                    
-                 
+
+
+
                     <!-- Page Status -->
                     <div class="mb-4">
                         <label class="form-label fw-medium text-secondary" for="pageStatus">Status</label>
