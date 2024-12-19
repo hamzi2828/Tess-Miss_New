@@ -8,6 +8,22 @@
             <div class="d-flex justify-content-between mb-3">
                 <h4 class="fw-bold">Countries</h4>
 
+                @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+                @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+                @endif
+
                   <div class="export-btn">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="ti ti-download"></i> Export
@@ -26,7 +42,7 @@
                     </button>
                     @endcan
                 </div>
-               
+
             </div>
 
             <div class="card">
@@ -34,9 +50,9 @@
                     <table id="customCountryTable" class="table border-top display">
                         <thead>
                             <tr>
-                               
+
                                 <th>ID</th>
-                                <th>Country Code</th> 
+                                <th>Country Code</th>
                                 <th>Country Name</th>
                                 <th>Country Status</th>
                                 <th class="text-lg-center">Actions</th>
@@ -48,7 +64,7 @@
                             @php
                                 // Define initials from the country name (e.g., 'AF' for Afghanistan)
                                 $initials = strtoupper(substr($country->country_name, 0, 2));
-                                
+
                                 // Define the background color class based on country status
                                 $state = '';
                                 if ($country->country_status == 'No Risk') {
@@ -62,7 +78,7 @@
                                 }
                             @endphp
                             <tr>
-                               
+
                                 <td>{{ $country->id }}</td>
                                 <td>{{ $country->country_code }}</td>
                                 <td>{{ $country->country_name }}</td>
@@ -71,11 +87,11 @@
                                 </td>
                                 <td class="text-lg-center">
                                     <div class="d-flex justify-content-center align-items-center">
-                                        
+
                                         @can('changeCountries', App\Models\User::class)
                                         <button class="btn btn-icon btn-text-secondary rounded-pill waves-effect waves-light mx-1 edit-country-btn"
-                                        data-bs-toggle="offcanvas" 
-                                        data-bs-target="#offcanvasEditCountry" 
+                                        data-bs-toggle="offcanvas"
+                                        data-bs-target="#offcanvasEditCountry"
                                         data-id="{{ $country->id }}"
                                         data-code="{{ $country->country_code }}"
                                         data-name="{{ $country->country_name }}"
@@ -93,13 +109,13 @@
                                           </button>
                                       </form>
                                   @endcan
-                                  
+
                                   <script>
                                       function confirmDelete() {
                                           return confirm('Are you sure you want to delete this country?');
                                       }
                                   </script>
-                                  
+
                                     </div>
                                 </td>
                             </tr>
@@ -108,7 +124,7 @@
                     </table>
                 </div>
             </div>
-            
+
             {{-- Create Country Modal --}}
             @include('pages.countries.countries-create-modal')
 
@@ -131,7 +147,7 @@
             "info": true,
             "searching": true,
             "order": [[ 3, 'asc' ]], // Default sorting by Country Name
-            
+
             buttons: [
                 {
                     extend: 'csvHtml5',
@@ -149,7 +165,7 @@
     });
 
 
-         
+
 
 </script>
 

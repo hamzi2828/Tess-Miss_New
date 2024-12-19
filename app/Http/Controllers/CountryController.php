@@ -46,22 +46,21 @@ class CountryController extends Controller
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
-            'countryCode' => 'required|string|max:5|unique:countries,country_code',
+            'countryCode' => 'required|string|max:3|unique:countries,country_code',
             'countryName' => 'required|string|max:255',
             'countryStatus' => 'required|string|max:255',
         ]);
-    
         // Create a new country record in the database
         $country = Country::create([
             'country_code' => $validatedData['countryCode'],
             'country_name' => $validatedData['countryName'],
             'country_status' => $validatedData['countryStatus'],
         ]);
-    
+
         // Redirect back to the countries list with a success message
         return redirect()->route('countries.index')->with('success', 'Country added successfully.');
     }
-    
+
 
     /**
      * Display the specified resource.
@@ -90,7 +89,7 @@ class CountryController extends Controller
             'countryName' => 'required|string|max:255', // Country Name is required and must be a string
             'countryStatus' => 'required|string|max:255', // Country Status is required and must be a string
         ]);
-    
+
         try {
             // Update the country record with the validated data
             $country->update([
@@ -98,16 +97,16 @@ class CountryController extends Controller
                 'country_name' => $validatedData['countryName'],
                 'country_status' => $validatedData['countryStatus'],
             ]);
-    
+
             // Redirect back to the country list with a success message
             return redirect()->route('countries.index')->with('success', 'Country updated successfully.');
-    
+
         } catch (\Exception $e) {
             // Handle any errors, such as database issues, and return an error message
             return redirect()->route('countries.index')->with('error', 'An error occurred while updating the country.');
         }
     }
-    
+
 
     /**
      * Remove the specified resource from storage.
