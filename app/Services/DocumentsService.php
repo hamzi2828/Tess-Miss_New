@@ -42,6 +42,24 @@ class DocumentsService
      * @param array $data
      * @return bool
      */
+
+public function updateDocument(Document $document, array $data)
+{
+    // Convert allowed_types array to a comma-separated string
+    $allowedTypesString = isset($data['allowed_types']) ? implode(',', $data['allowed_types']) : 'None';
+
+    // Update the document
+    $document->update([
+        'title' => $data['documentTitle'],
+        'is_required' => $data['is_required'],
+        'require_expiry' => $data['require_expiry'],
+        'allowed_types' => $allowedTypesString,
+        'updated_by' => auth()->user()->id, // Assuming you want to track who updated the document
+    ]);
+
+    return $document;
+}
+
     public function updateDocuments($validatedData, $request)
     {
 

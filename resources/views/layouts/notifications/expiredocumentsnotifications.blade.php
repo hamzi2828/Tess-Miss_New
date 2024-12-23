@@ -7,7 +7,7 @@
     data-bs-auto-close="outside"
     aria-expanded="false">
     <span class="position-relative">
-      <i class="ti ti-bell ti-md"></i>
+      <i class="ti ti-book ti-md"></i>
       @if(auth()->user()->unreadNotifications->where('type', 'App\Notifications\ExpiredDocumentNotification')->count() > 0)
         <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
       @endif
@@ -48,7 +48,7 @@
                 </a>
                 <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
               </div>
-              
+
               <div class="flex-shrink-0 dropdown-notifications-actions">
                 @if(is_null($notification->read_at))
                     <!-- Show dot for unread notifications -->
@@ -61,7 +61,7 @@
                     <span class="ti ti-x"></span>
                 </a>
             </div>
-            
+
             </li>
           @endforeach
       </ul>
