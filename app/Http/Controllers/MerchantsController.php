@@ -151,7 +151,7 @@ class MerchantsController extends Controller
                 return redirect()->back()->with('error', 'kyc not approved yet.');
             }
 
-            if ($merchant_details && $merchant_details->documents->every(fn($doc) => $doc->approved_by !== null)) {
+            if ($merchant_details && $merchant_details->documents->every(fn($doc) => $doc->approved_by === null)) {
                 return redirect()->back()->with('error', 'Documents not approved yet.');
             }
 
