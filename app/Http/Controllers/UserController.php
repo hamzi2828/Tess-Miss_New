@@ -214,7 +214,7 @@ class UserController extends Controller
             'userFullname' => 'required|string|max:255',
             'userEmail' => 'required|email|max:255',
             'userPhone' => 'nullable|string|max:20',
-            'department_id' => 'required|exists:departments,id',
+            'department_id' => 'nullable|exists:departments,id',
             'user_role' => 'nullable|string|max:50',
             'userStatus' => 'required|string|in:active,inactive',
             'userPicture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',

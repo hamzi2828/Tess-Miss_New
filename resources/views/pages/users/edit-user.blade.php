@@ -8,27 +8,37 @@
 
     <form method="POST" action="{{ route('users.update', $user->id) }}" enctype="multipart/form-data">
         @csrf
-        @method('PUT') 
+        @method('PUT')
     <div class="row">
 
-   
+
         <!-- Left Side: User Details -->
         <div class="col-md-6">
             <div class="card shadow-lg p-4 card-custom">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <h4 class="fw-bold text-primary mb-4">Edit User</h4>
-        
+
                 <!-- Full Name -->
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userFullname">Full Name</label>
                     <input type="text" class="form-control" id="userFullname" name="userFullname" value="{{ $user->name }}" required />
                 </div>
-        
+
                 <!-- Email -->
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userEmail">Email</label>
                     <input type="email" id="userEmail" class="form-control" name="userEmail" value="{{ $user->email }}" required />
                 </div>
-        
+
                 <!-- Phone -->
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userPhone">Phone</label>
@@ -41,10 +51,10 @@
                     <option value="" {{ is_null($user->userGender) ? 'selected' : '' }}>Select</option>
                     <option value="male" {{ $user->userGender == 'male' ? 'selected' : '' }}>Male</option>
                     <option value="female" {{ $user->userGender == 'female' ? 'selected' : '' }}>Female</option>
-                </select>   
+                </select>
             </div>
 
-        
+
                 <!-- Status -->
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userStatus">Status</label>
@@ -53,8 +63,8 @@
                         <option value="inactive" {{ $user->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
                     </select>
                 </div>
-     
-          
+
+
                 {{-- <!-- Department --> --}}
                 @if($user->role != 'frontendUser')
                 <div class="mb-4">
@@ -70,7 +80,7 @@
                 </div>
                 @endif
 
-                @if($user->role != 'frontendUser') 
+                @if($user->role != 'frontendUser')
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userRole">Select User Role</label>
                     <select id="userRole" class="form-select select2" name="user_role" required>
@@ -82,7 +92,18 @@
                 </div>
 
                 @endif
-                
+
+                @if($user->role == 'frontendUser')
+                <div class="mb-4">
+                    <label class="form-label fw-medium text-secondary" for="userRole">Select User Role</label>
+                    <select id="userRole" class="form-select select2" name="user_role" required>
+                        <option value="frontendUser" {{ $user->role == 'frontendUser' ? 'selected' : '' }}>Frontend User</option>
+
+                    </select>
+                </div>
+
+                @endif
+
                 <!-- New Password -->
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userNewPassword">New Password</label>
@@ -103,26 +124,26 @@
                         });
                     });
                 </script>
-        
-   
+
+
 
                        <!-- Current Profile Picture -->
                        @if($user->picture)
                        <div class="mb-4 text-center position-relative">
                            <label class="form-label fw-medium text-secondary" for="currentUserPicture">Current Profile Picture</label><br>
                            <img src="{{ asset($user->picture) }}" alt="Current Profile Picture" class="rounded-circle shadow-sm" style="max-width: 150px; height: auto;">
-                           
+
                            <!-- Add a delete image icon over the image -->
                            <a class="btn-sm position-absolute" id="deleteImageBtn" style="top: 10px; right: 10px;">
                                <i class=" ti ti-trash ti-sm mx-2 "></i>
-                              
+
                            </a>
-   
+
                            <!-- Hidden input to handle image deletion -->
                            <input type="hidden" name="deleteUserPicture" id="deleteUserPictureInput" value="0">
                        </div>
                        @endif
-        
+
                 <!-- File input -->
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="file-input">Edit Profile Picture</label>
@@ -130,13 +151,13 @@
                         <input type="file" class="form-control" id="file-input" name="userPicture" accept="image/*">
                     </div>
                 </div>
-        
+
                 <!-- Address -->
                 <div class="mb-4">
                     <label class="form-label fw-medium text-secondary" for="userAddress">Address</label>
-                    <textarea id="userAddress" class="form-control" name="userAddress" rows="3">{{ $user->address }}</textarea>
+                    <textarea id="userAddress" class="form-control" name="userAddress" rows="3">{{ $user->address == "null" ? "" : $user->address }}</textarea>
                 </div>
-        
+
                 <!-- Submit & Cancel Buttons -->
                 <div class="d-flex justify-content-end">
                     <button type="submit" class="btn btn-primary px-4 me-3">Update</button>
@@ -148,16 +169,16 @@
                 </div>
             </div>
         </div>
-        
 
-  
+
+
         <!-- Right Side: Permissions Section -->
         @if ($user->role !== 'frontendUser')
         @include('pages.users.permissons.premissions')
         @endif
-     
 
-   
+
+
     </div>
 
 </form>
