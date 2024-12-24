@@ -211,7 +211,7 @@ class UserController extends Controller
 
         // Validate the request data
         $validatedData = $request->validate([
-            'userFullname' => 'required|string|max:255',
+            'userFullname' => 'required|string|max:64',
             'userEmail' => 'required|email|max:255',
             'userPhone' => 'nullable|string|max:20',
             'department_id' => 'nullable|exists:departments,id',
