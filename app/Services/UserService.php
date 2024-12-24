@@ -24,7 +24,7 @@ class UserService
         } else {
             $filePath = null; // Set null if no image is uploaded
         }
-     
+
         // Create the user
         return User::create([
             'name' => $data['userFullname'],
@@ -34,7 +34,7 @@ class UserService
             'department' => $data['department_id'] ?? 'null',
             'role' => $data['user_role'] ?? 'user',
             'status' => $data['userStatus'],
-            'address' => $data['userAddress'] ?? 'null',
+            'address' => $data['userAddress'] ?? ' ',
             'picture' => $filePath, // Store image path
             'userGender' => $data['userGender'] ?? 'null',
         ]);
@@ -50,8 +50,8 @@ class UserService
     public function updateUser(User $user, array $data): User
     {
 
-      
-     
+
+
         // Update user information
         $user->name = $data['userFullname'];
         $user->email = $data['userEmail'];
@@ -61,12 +61,12 @@ class UserService
         $user->status = $data['userStatus'];
         $user->address = $data['userAddress'] ?? null;
         $user->userGender = $data['userGender'] ?? null;
-           
+
             // Update the password if provided
             if (!empty($data['new_password'])) {
                 $user->password = Hash::make($data['new_password']);
             }
-   
+
 
         // Handle profile picture deletion if requested
         if (isset($data['deleteUserPicture']) && $data['deleteUserPicture'] == 1) {
@@ -107,20 +107,20 @@ class UserService
     {
         // Delete previous permissions if any
         UserPermission::where('user_id', $user->id)->delete();
-    
+
         // Create or update new permissions record
         $userPermission = new UserPermission();
         $userPermission->user_id = $user->id;
         $userPermission->permissions = json_encode($permissions);
-    
+
         // Save the new permissions record
         $userPermission->save();
     }
-    
-    
-    
-    
-    
+
+
+
+
+
 
     /**
      * Delete a user.
