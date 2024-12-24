@@ -147,10 +147,14 @@ class MerchantsController extends Controller
                 ->where('id', $merchant_id)
                 ->first();
 
+            if ($merchant_details && $merchant_details->approved_by === null) {
+                return redirect()->back()->with('error', 'kyc not approved yet.');
+            }
 
-            if ($merchant_details && !$merchant_details->documents->every(fn($doc) => $doc->approved_by !== null)) {
+            if ($merchant_details && $merchant_details->documents->every(fn($doc) => $doc->approved_by !== null)) {
                 return redirect()->back()->with('error', 'Documents not approved yet.');
             }
+
             if ($merchant_details && $merchant_details->sales->isNotEmpty()) {
                 return redirect()->route('edit.merchants.sales', ['merchant_id' => $merchant_id])
                     ->with('info', 'Sales data already exists. Redirecting to edit page.');
