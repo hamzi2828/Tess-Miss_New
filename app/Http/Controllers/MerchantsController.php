@@ -189,8 +189,8 @@ class MerchantsController extends Controller
                     return redirect()->back()->with('error', 'Documents not approved yet.');
                 }
 
-                if ($merchant_details && $merchant_details->services->every(fn($doc) => $doc->approved_by === null)) {
-                    return redirect()->back()->with('error', 'Services not approved yet.');
+                if ($merchant_details && $merchant_details->sales->every(fn($sale) => $sale->approved_by === null) ) {
+                    return redirect()->back()->with('error', 'Sales not approved yet.');
                 }
             if ( $merchant_details->services->isNotEmpty()) {
                 return redirect()->route('edit.merchants.services', ['merchant_id' => $merchant_id])
