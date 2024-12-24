@@ -24,6 +24,12 @@
                         </ul>
                     </div>
                 @endif
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
 
                 <h4 class="fw-bold text-primary mb-4">Edit User</h4>
 
