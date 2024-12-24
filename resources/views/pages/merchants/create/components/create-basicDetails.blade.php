@@ -117,7 +117,7 @@
 <div class="row mb-3">
     <div class="col-md-6">
         <label for="keyPointMobile" class="form-label">Key Point Mobile <span class="required-asterisk">*</span></label>
-        <input type="tel" class="form-control" id="keyPointMobile" name="key_point_mobile" value="{{ old('key_point_mobile') }}" requiredtabindex="5">
+        <input type="tel" class="form-control" id="keyPointMobile" name="key_point_mobile" value="{{ old('key_point_mobile') }}" required tabindex="5">
     </div>
 
     <div class="col-md-6">
