@@ -68,7 +68,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>{{ $user->address }}</td>
+                            <td>{{ $user->address == "null" ? "" : $user->address }}</td>
 
 
 
