@@ -45,7 +45,7 @@
 
         </div>
 
-
+ 
         @php
             $oldShareholderFirstNames = old('shareholderFirstName', []);
             $oldShareholderMiddleNames = old('shareholderMiddleName', []);

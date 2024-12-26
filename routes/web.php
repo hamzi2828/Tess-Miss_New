@@ -14,6 +14,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Middleware\CheckUserStage;
 
+
+/*rehan code start*/
+use App\Http\Controllers\OpenSanctionsController;
+/*rehan code end*/
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,6 +41,15 @@ use App\Http\Middleware\CheckUserStage;
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+
+
+/*rehan code start*/
+Route::get('/fetch-data', [OpenSanctionsController::class, 'fetchData'])->name('fetchData');
+/*rehan code end*/
+
+
+
 
 // Authenticated routes
 Route::middleware(['auth'])->group(function () {
@@ -90,13 +105,19 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Merchant-specific KYC, Documents, Sales, Services
+    
+    Route::middleware(['auth', 'checkStage:1,2,3,4'])->group(function () {
+        route::get('/approveKyc',[ MerchantsController::class, 'approveKYC'])->name('approve.merchants.kyc');
+        Route::get('/approveMerchantsDocuments', [MerchantsController::class, 'approve_merchants_documents'])->name('approve.merchants.documents');
+        Route::get('/approveMerchantsSales', [MerchantsController::class, 'approve_merchants_sales'])->name('approve.merchants.sales');
+        Route::get('/approveMerchantService',[ MerchantsController::class, 'approve_merchants_services'])->name('approve.merchants.services');
+    });
 
     Route::middleware(['auth', 'checkStage:1'])->group(function () {
         Route::get('/merchantskyc', [MerchantsController::class, 'create_merchants_kfc'])->name('create.merchants.kfc');
         Route::post('/store/merchantskyc', [MerchantsController::class, 'store_merchants_kyc'])->name('store.merchants.kyc');
         Route::get('/editMechnatKyc', [MerchantsController::class, 'edit_merchants_kyc'])->name('edit.merchants.kyc');
         Route::post('/updateMerchantsKyc', [MerchantsController::class, 'update_merchants_kyc'])->name('update.merchants.kyc');
-        route::get('/approveKyc',[ MerchantsController::class, 'approveKYC'])->name('approve.merchants.kyc');
         Route::get('/merchants/decline/kyc', [MerchantsController::class, 'declineKYC'])->name('decline.merchants.kyc');
     });
 
@@ -105,7 +126,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/storeMerchantsDocuments', [MerchantsController::class, 'store_merchants_documents'])->name('store.merchants.documents');
         Route::get('/editMechnatDocuments', [MerchantsController::class, 'edit_merchants_documents'])->name('edit.merchants.documents');
         Route::post('/updateMerchantsDocuments', [MerchantsController::class, 'update_merchants_documents'])->name('update.merchants.documents');
-        Route::get('/approveMerchantsDocuments', [MerchantsController::class, 'approve_merchants_documents'])->name('approve.merchants.documents');
         Route::get('/merchants/decline/documents', [MerchantsController::class, 'decline_merchants_documents'])->name('decline.merchants.documents');
     });
 
@@ -114,7 +134,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/store/merchantsSales', [MerchantsController::class, 'store_merchants_sales'])->name('store.merchants.sales');
         Route::get('/editMechnatSales', [MerchantsController::class, 'edit_merchants_sales'])->name('edit.merchants.sales');
         Route::post('/updateMerchantsSales', [MerchantsController::class, 'update_merchants_sales'])->name('update.merchants.sales');
-        Route::get('/approveMerchantsSales', [MerchantsController::class, 'approve_merchants_sales'])->name('approve.merchants.sales');
         Route::get('/merchants/decline/sales', [MerchantsController::class, 'decline_merchants_sales'])->name('decline.merchants.sales');
     });
     Route::middleware(['auth', 'checkStage:4'])->group(function () {
@@ -122,7 +141,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/storeMerchantService', [MerchantsController::class, 'store_merchants_services'])->name('store.merchants.services');
         Route::get('/editMerchantService', [MerchantsController::class, 'edit_merchants_services'])->name('edit.merchants.services');
         Route::post('/updateMerchantService', [MerchantsController::class, 'update_merchants_services'])->name('update.merchants.services');
-        Route::get('/approveMerchantService',[ MerchantsController::class, 'approve_merchants_services'])->name('approve.merchants.services');
         Route::get('/merchants/decline/services', [MerchantsController::class, 'decline_merchants_services'])->name('decline.merchants.services');
 
     });

@@ -162,7 +162,7 @@
     <div id="shareholders-container" class="form-section box-container mb-4">
         @if(!empty($merchant_details['shareholders']) && count($merchant_details['shareholders']) > 0)
             @foreach($merchant_details['shareholders'] as $shareholder)
-            <div class="shareholder-entry row mb-3">
+            <div class="shareholder-entry row mb-3" style="border-bottom: 1px solid lightgray;">
                 <div class="col-md-3">
                     <strong>First Name:</strong>
                     <p>{{ $shareholder['first_name'] ?? 'N/A' }}</p>
@@ -194,7 +194,8 @@
                     <strong>Score in Sanction List: </strong>
                     <p>
 
-                        <span class="badge bg-danger">{{ $shareholder['sanctions_score'] * 100}} %</span>
+                        <span class="badge bg-danger" style="padding: 8px 8px 9px 8px; box-shadow: 0 0.125rem 0.375rem 0 rgba(209, 0, 0, 0.3);">{{ $shareholder['sanctions_score'] * 100}} %</span>
+                    <button class="btn btn-info btn-sm" onclick="openModal('{{ 'https://myprojects.multibizdev.com/fetch-data?shareholder_id=' . $shareholder['id'] }}')">View Details</button>
                     </p>
                     @endif
                 </div>
@@ -208,3 +209,39 @@
     </div>
 </div>
 
+
+
+
+
+<!-- Modal for displaying the HTML page -->
+<div class="modal fade  modal-lg" id="detailsModal" tabindex="-1"  aria-labelledby="detailsModalLabel" aria-hidden="true"><div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shareholderModalLabel">Shareholder Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Placeholder content to be updated by JavaScript -->
+        <iframe id="detailsIframe" src="" width="100%" height="600px" frameborder="0"></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+    // Function to open the modal and set the iframe source URL
+    function openModal(url) {
+        // Set the iframe src to the provided URL
+        document.getElementById('detailsIframe').src = url;
+
+        // Show the modal
+        $('#detailsModal').modal('show');
+    }
+        function closeModal() {
+        $('#detailsModal').modal('hide');
+    }
+</script>

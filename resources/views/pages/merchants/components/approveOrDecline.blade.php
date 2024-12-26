@@ -34,11 +34,11 @@
     @if(auth()->user()->role === 'supervisor' && !$allApproved)
     
         {{-- Approve Button --}}
-        @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 1 && !$merchant_details->approved_by)
+        @if(((auth()->user()->getDepartmentStage(auth()->user()->department) === 1)||(auth()->user()->can('approveKYC', auth()->user())))&& !$merchant_details->approved_by )
             <form action="{{ route('merchants.approve', $merchant_details->id) }}" method="POST" class="ms-2">
                 @csrf
                 <button type="submit" class="btn btn-success">
-                    <i class="fas fa-check me-1"></i> Approve
+                    <i class="fas fa-check me-1"></i> Approve KYC
                 </button>
             </form>
         @endif
@@ -58,45 +58,45 @@
             $servicesDeclined = $services->filter(fn($service) => $service->declined_by !== null);
         @endphp
     
-     @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 2 && 
+     @if(((auth()->user()->getDepartmentStage(auth()->user()->department) === 2)||(auth()->user()->can('approveDocuments', auth()->user()))) && 
         $documents->isNotEmpty() && 
         $documentsApproved->count() !== $documents->count()) 
         <form action="{{ route('merchants.approve', $merchant_details->id) }}" method="POST" class="ms-2">
             @csrf
             <button type="submit" class="btn btn-success">
-                <i class="fas fa-check me-1"></i> Approve
+                <i class="fas fa-check me-1"></i> Approve Documents
             </button>
         </form>
       @endif
 
       {{-- Approve Button for Sales --}}
-    @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 3 && 
+    @if(((auth()->user()->getDepartmentStage(auth()->user()->department) === 3)||(auth()->user()->can('approveSales', auth()->user()))) && 
     $sales->isNotEmpty() && 
     $salesApproved->count() !== $sales->count()) {{-- Check if NOT all sales are approved --}}
     <form action="{{ route('merchants.approve', $merchant_details->id) }}" method="POST" class="ms-2">
         @csrf
         <button type="submit" class="btn btn-success">
-            <i class="fas fa-check me-1"></i> Approve 
+            <i class="fas fa-check me-1"></i> Approve Sales
         </button>
     </form>
     @endif
 
     {{-- Approve Button for Services --}}
-    @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 4 && 
+    @if(((auth()->user()->getDepartmentStage(auth()->user()->department) === 4)||(auth()->user()->can('approveServices', auth()->user()))) && 
     $services->isNotEmpty() && 
     $servicesApproved->count() !== $services->count()) {{-- Check if NOT all services are approved --}}
     <form action="{{ route('merchants.approve', $merchant_details->id) }}" method="POST" class="ms-2">
         @csrf
         <button type="submit" class="btn btn-success">
-            <i class="fas fa-check me-1"></i> Approve 
+            <i class="fas fa-check me-1"></i> Approve Services
         </button>
     </form>
     @endif
  
-
+{{--$stage;--}}
 
     {{-- Decline Button --}}
-    @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 1 && !$merchant_details->declined_by)
+    @if((auth()->user()->getDepartmentStage(auth()->user()->department) === 1) && !$merchant_details->declined_by)
         <form class="ms-2">
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
                 <i class="fas fa-times me-1"></i> Decline
@@ -106,34 +106,34 @@
 
 
     {{-- Decline Button for Documents (Stage 2) --}}
-    @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 2 && 
+    @if((auth()->user()->getDepartmentStage(auth()->user()->department) === 2)&&
         $documents->isNotEmpty() && 
         $documents->contains(fn($document) => $document->declined_by === null))
         <form class="ms-2">
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                <i class="fas fa-times me-1"></i> Decline 
+                <i class="fas fa-times me-1"></i> Decline
             </button>
         </form>
     @endif
 
     {{-- decline button for sales (stage 3) --}}
-    @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 3 && 
+    @if((auth()->user()->getDepartmentStage(auth()->user()->department) === 3)&& 
         $sales->isNotEmpty() && 
         $sales->contains(fn($sale) => $sale->declined_by === null))
         <form class="ms-2">
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                <i class="fas fa-times me-1"></i> Decline 
+                <i class="fas fa-times me-1"></i> Decline
             </button>
         </form>
     @endif
 
     {{-- Decline Button for Services (Stage 4) --}}
-    @if(auth()->user()->getDepartmentStage(auth()->user()->department) === 4 && 
+    @if((auth()->user()->getDepartmentStage(auth()->user()->department) === 4)&& 
         $services->isNotEmpty() && 
         $services->contains(fn($service) => $service->declined_by === null))
         <form class="ms-2">
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#declineModal">
-                <i class="fas fa-times me-1"></i> Decline 
+                <i class="fas fa-times me-1"></i> Decline
             </button>
         </form>
     @endif

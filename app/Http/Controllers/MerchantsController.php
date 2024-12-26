@@ -19,8 +19,10 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use App\Services\GraphMailersSender;
+use Illuminate\Support\Facades\Mail;
 
-
+use Exception;
 
 use Illuminate\Http\Request;
 
@@ -30,12 +32,16 @@ class MerchantsController extends Controller
     protected $merchantsService;
     protected $notificationService;
     protected $documentsService;
+    protected $graphMailersSender;
 
-    public function __construct(MerchantsServiceService $merchantsService, NotificationService $notificationService, DocumentsService $documentsService)
+    public function __construct(MerchantsServiceService $merchantsService,
+     NotificationService $notificationService, DocumentsService $documentsService,
+     GraphMailersSender $graphMailersSender)
     {
         $this->merchantsService = $merchantsService;
         $this->notificationService = $notificationService;
         $this->documentsService = $documentsService;
+        $this->graphMailersSender = $graphMailersSender;
     }
     /**
      * Display a listing of the resource.
@@ -750,17 +756,51 @@ class MerchantsController extends Controller
     }
 
 
-    public function approveKYC(Request $request){
+    // public function approveKYC(Request $request){
+    //     $merchant_id = $request->input('merchant_id');
+    //     $merchant = Merchant::with('documents')->find($merchant_id);
+    //     $addedByUser = User::find($merchant->added_by);
+    //     if($addedByUser->role == 'frontendUser'){
+    //         $this->notificationService->approveKYCFrontendUser($merchant_id);
+    //         }else{
+    //          $this->notificationService->approveKYC($merchant_id);
+    //         }
+    //     return redirect()->back()->with('success', 'KYC approved successfully.');
+    // }
+
+
+    public function approveKYC(Request $request)
+    {
         $merchant_id = $request->input('merchant_id');
+
+        // Find the merchant along with its related documents
         $merchant = Merchant::with('documents')->find($merchant_id);
+
+        if (!$merchant) {
+            return redirect()->back()->with('error', 'Merchant not found.');
+        }
+
+        // Find the user who added the merchant
         $addedByUser = User::find($merchant->added_by);
-        if($addedByUser->role == 'frontendUser'){
+
+        if (!$addedByUser) {
+            return redirect()->back()->with('error', 'User who added the merchant not found.');
+        }
+
+        // Notify based on the user's role
+        if ($addedByUser->role === 'frontendUser') {
             $this->notificationService->approveKYCFrontendUser($merchant_id);
-            }else{
-             $this->notificationService->approveKYC($merchant_id);
-            }
-        return redirect()->back()->with('success', 'KYC approved successfully.');
+        } else {
+            $this->notificationService->approveKYC($merchant_id);
+        }
+
+    $this->graphMailersSender->sendapprovalMail($merchant_id, 'Your Merchant Have Been Approved', 2);
+
+     return redirect()->back()->with('success', 'KYC approved successfully and email sent.');
+
     }
+
+
 
     public  function approve_merchants_documents(Request $request){
         $merchant_id = $request->input('merchant_id');
@@ -773,6 +813,7 @@ class MerchantsController extends Controller
 
 
 
+        $this->graphMailersSender->sendapprovalMail($merchant_id, 'Your Merchant Documents Have Been Approved', 3);
 
         return redirect()->back()->with('success', 'Merchant documents approved successfully.');
     }
@@ -780,6 +821,9 @@ class MerchantsController extends Controller
     public  function approve_merchants_sales(Request $request){
         $merchant_id = $request->input('merchant_id');
         $this->notificationService->approveMerchantsSales($merchant_id);
+
+        $this->graphMailersSender->sendapprovalMail($merchant_id, 'Your Merchant Sales Have Been Approved', 4);
+
         return redirect()->back()->with('success', 'Merchant sales approved successfully.');
     }
 
@@ -897,6 +941,7 @@ class MerchantsController extends Controller
         }else{
         $this->notificationService->declineKYC($merchant_id, $declineNotes);
         }
+        $this->graphMailersSender->senddeclinedMail($merchant_id, 'Your Merchant kyc Have Been Declined', 1);
         return redirect()->back()->with('success', 'KYC declined successfully.');
     }
 
@@ -926,6 +971,7 @@ class MerchantsController extends Controller
         }else{
         $this->notificationService->declineMerchantsDocuments($merchant_id, $declineNotes);
         }
+        $this->graphMailersSender->senddeclinedMail($merchant_id, 'Your Merchant documents Have Been Declined', 2);
         return redirect()->back()->with('success', 'Merchant documents declined successfully.');
     }
 
@@ -943,6 +989,7 @@ class MerchantsController extends Controller
         MerchantService::where('merchant_id', $merchant_id)
         ->update(['approved_by' => null]);
         $this->notificationService->declineMerchantsSales($merchant_id, $declineNotes);
+        $this->graphMailersSender->senddeclinedMail($merchant_id, 'Your Merchant sales Have Been Declined', 3);
         return redirect()->back()->with('success', 'Merchant sales declined successfully.');
     }
 
@@ -958,6 +1005,7 @@ class MerchantsController extends Controller
             $service->save();
         }
         $this->notificationService->declineMerchantsServices($merchant_id, $declineNotes);
+        $this->graphMailersSender->senddeclinedMail($merchant_id, 'Your Merchant services Have Been Declined', 4);
         return redirect()->back()->with('success', 'Merchant services declined successfully.');
     }
 

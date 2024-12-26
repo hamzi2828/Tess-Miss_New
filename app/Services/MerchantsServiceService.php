@@ -57,7 +57,7 @@ class MerchantsServiceService
             // Fetch the data and convert to array
             return $query->get()->toArray();
         }
-
+ 
 
         public function createMerchants(array $data): Merchant
         {
