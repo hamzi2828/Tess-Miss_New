@@ -254,11 +254,10 @@ class MerchantsController extends Controller
              // Notify about KYC creation
                 //  $this->notificationService->storeMerchantsKYC($merchant);
 
-             // Redirect with a success message
+                $this->graphMailersSender->sendcreationMail($merchant->id,'Your Merchant Have Been Created', 1);
+
              return redirect() ->route('edit.merchants.kyc', ['merchant_id' => $merchant->id])->with('success', 'Merchant and Shareholders successfully added.');
          } catch (\Exception $e) {
-             // Log the error for debugging
-             \Log::error('Error storing merchant KYC: ' . $e->getMessage());
 
              // Redirect back with an error message
              return redirect()->back()->with('error', 'An error occurred while adding the merchant. Please try again.');
@@ -324,6 +323,7 @@ class MerchantsController extends Controller
 
 
          $this->notificationService->storeMerchantsDocuments($merchant_id);
+         $this->graphMailersSender->sendcreationMail($merchant_id,'Your Merchant Documents Have Been Created', 2);
 
          return redirect()->route('edit.merchants.documents', ['merchant_id' => $merchant_id])
              ->with('success', 'Documents uploaded and saved successfully.')
@@ -350,6 +350,7 @@ class MerchantsController extends Controller
          $this->merchantsService->storeMerchantsSales($validatedData, $merchant_id);
 
          $this->notificationService->storeMerchantsSales($merchant_id);
+         $this->graphMailersSender->sendcreationMail($merchant_id,'Your Merchant Sales Have Been Created', 3);
 
         return redirect()->route('edit.merchants.sales', ['merchant_id' => $merchant_id])
         ->with('success', 'Merchant sales data saved successfully.')->withInput($request->all());
@@ -373,7 +374,7 @@ class MerchantsController extends Controller
          // Step 2: Use the service to save the merchant services data
          $this->merchantsService->storeMerchantsServices($validatedData, $merchant_id);
          $this->notificationService->storeMerchantsServices($merchant_id);
-
+         $this->graphMailersSender->sendcreationMail($merchant_id,'Your Merchant Services Have Been Created', 4);
 
 
 
@@ -564,7 +565,7 @@ class MerchantsController extends Controller
 
         // Reset decline notes
         session()->forget('print_decline_notes');
-
+        $this->graphMailersSender->sendcreationMail($merchant_id,'Your Merchant Have Been updated', 1);
         // Redirect back with a success message
         return redirect()->back()->with('success', 'Merchant and Shareholders successfully updated.');
     }
@@ -587,7 +588,7 @@ class MerchantsController extends Controller
             // Use the correctly cased property
             $this->documentsService->updateDocuments($validatedData, $request);
             $this->notificationService->storeMerchantsDocuments($merchant_id);
-
+            $this->graphMailersSender->sendcreationMail($merchant_id,'Your Merchant Documents Have Been updated', 2);
             return redirect()->back()->with('success', 'Documents successfully updated.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -630,7 +631,7 @@ class MerchantsController extends Controller
         $this->merchantsService->updateMerchantsSales($validatedData['sales'], $merchant_id);
         $this->notificationService->storeMerchantsSales($merchant_id);
         session()->forget('print_decline_notes');
-        // Step 5: Return Success Response
+        $this->graphMailersSender->sendcreationMail($merchant_id,'Your Merchant Sales Have Been updated', 3);
         return redirect()->back()->with('success', 'Merchant sales data successfully updated.');
     }
 
@@ -660,7 +661,7 @@ class MerchantsController extends Controller
         $this->merchantsService->updateMerchantsServices($validatedData['services'], $merchant_id);
         $this->notificationService->storeMerchantsServices($merchant_id);
         session()->forget('print_decline_notes');
-        // Step 5: Return success response
+        $this->graphMailersSender->sendcreationMail($merchant_id,'Your Merchant Services Have Been updated', 4);
         return redirect()->back()->with('success', 'Merchant services data successfully updated.');
     }
 
