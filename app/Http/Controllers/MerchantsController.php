@@ -772,32 +772,32 @@ class MerchantsController extends Controller
 
     public function approveKYC(Request $request)
     {
-        $merchant_id = $request->input('merchant_id');
+            $merchant_id = $request->input('merchant_id');
 
-        // Find the merchant along with its related documents
-        $merchant = Merchant::with('documents')->find($merchant_id);
+            // Find the merchant along with its related documents
+            $merchant = Merchant::with('documents')->find($merchant_id);
 
-        if (!$merchant) {
-            return redirect()->back()->with('error', 'Merchant not found.');
-        }
+            if (!$merchant) {
+                return redirect()->back()->with('error', 'Merchant not found.');
+            }
 
-        // Find the user who added the merchant
-        $addedByUser = User::find($merchant->added_by);
+            // Find the user who added the merchant
+            $addedByUser = User::find($merchant->added_by);
 
-        if (!$addedByUser) {
-            return redirect()->back()->with('error', 'User who added the merchant not found.');
-        }
+            if (!$addedByUser) {
+                return redirect()->back()->with('error', 'User who added the merchant not found.');
+            }
 
-        // Notify based on the user's role
-        if ($addedByUser->role === 'frontendUser') {
-            $this->notificationService->approveKYCFrontendUser($merchant_id);
-        } else {
-            $this->notificationService->approveKYC($merchant_id);
-        }
+            // Notify based on the user's role
+            if ($addedByUser->role === 'frontendUser') {
+                $this->notificationService->approveKYCFrontendUser($merchant_id);
+            } else {
+                $this->notificationService->approveKYC($merchant_id);
+            }
 
-    $this->graphMailersSender->sendapprovalMail($merchant_id, 'Your Merchant Have Been Approved', 2);
+        $this->graphMailersSender->sendapprovalMail($merchant_id, 'Your Merchant Have Been Approved', 2);
 
-     return redirect()->back()->with('success', 'KYC approved successfully and email sent.');
+        return redirect()->back()->with('success', 'KYC approved successfully and email sent.');
 
     }
 
